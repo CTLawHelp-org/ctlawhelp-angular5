@@ -1,0 +1,128 @@
+<div fxLayout="column" class="self-help">
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+  <div *ngIf="!working" fxLayout="row wrap" fxLayoutAlign="space-between start">
+    <!-- Left -->
+    <div fxFlex="100" fxFlex.gt-sm="30" fxLayout="column">
+      <div class="content-pad-r">
+        <!--Crumb-->
+        <div fxLayout="row" fxLayoutAlign="start center" class="crumb pad border-bottom margin-bottom">
+          <a [routerLink]="[ '/' + variables.lang + '/home' ]">
+            <app-label src="home_label"></app-label>
+          </a>
+          <mat-icon class="backg2 icon">chevron_left</mat-icon>
+          <a [routerLink]="[ '/self-help' ]">
+            <app-label src="selfhelp_title"></app-label>
+          </a>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <app-icon *ngIf="term.term_export.field_public_term_file.length > 0"
+                    svgClass="svg lg" svgIcon="tid{{term.tid}}"></app-icon>
+          <h1 fxHide fxShow.gt-sm class="no-margin">
+            <div *ngIf="variables.lang === 'en'">
+              <span [innerHTML]="term.name"></span>
+            </div>
+            <div *ngIf="variables.lang === 'es'">
+              <span [innerHTML]="term.i18n['es'].name[0].value"></span>
+            </div>
+          </h1>
+          <h2 fxHide.gt-sm class="no-margin">
+            <div *ngIf="variables.lang === 'en'">
+              <span [innerHTML]="term.name"></span>
+            </div>
+            <div *ngIf="variables.lang === 'es'">
+              <span [innerHTML]="term.i18n['es'].name[0].value"></span>
+            </div>
+          </h2>
+        </div>
+      </div>
+      <div class="side-pad-r">
+        <div *ngIf="id !== '537'" class="pad-r">
+          <div class="pad backg1 bg border-radius">
+            <div *ngIf="variables.lang === 'en'">
+              <div [innerHTML]="term.term_export.description[0].value"></div>
+            </div>
+            <div *ngIf="variables.lang === 'es'">
+              <div [innerHTML]="term.i18n['es'].description[0].value"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Left Block System -->
+        <div *ngIf="hasBlocks && blocks['left'].length > 0" fxHide fxShow.gt-sm>
+          <div *ngFor="let item of blocks['left']">
+            <app-block [nid]="item"></app-block>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Right -->
+    <div fxFlex="100" fxFlex.gt-sm="70" fxLayout="column" class="side-pad-r">
+      <!--Content Top Block System-->
+      <div *ngIf="hasBlocks && blocks['content_top'].length > 0" class="pad">
+        <div *ngFor="let item of blocks['content_top']">
+          <app-block [nid]="item"></app-block>
+        </div>
+      </div>
+      <div class="pad-r">
+        <div class="pad-r mat-elevation-z1 border-radius margin-bottom-r">
+          <!-- Terms and Content -->
+          <div *ngIf="term.children.length > 0">
+            <div *ngFor="let item of term.children; let last = last;" fxLayout="column">
+              <div *ngIf="variables.lang === 'en' && item.content_en > 0" [ngClass]="{'margin-bottom-lg': !last}" fxLayout="column">
+                <!--Term Button-->
+                <button mat-button class="primary bg term-item" [ngClass]="{'active': item.show}"
+                        appHighlight (click)="showContent(item)">
+                  <div fxLayout="row" fxLayoutAlign="start center">
+                    <div fxFlex>
+                      <h3 class="no-margin" [innerHTML]="item.term_export.name[0].value"></h3>
+                    </div>
+                    <mat-icon class="expand svg sm icon">expand_more</mat-icon>
+                  </div>
+                </button>
+                <!-- Content -->
+                <div *ngIf="item.content?.length > 0 && isBrowser" [fxHide]="!item.show"
+                     class="content-wrapper pad-r-gt-xs">
+                  <app-self-help-content [src]="item.content" [term]="item"></app-self-help-content>
+                </div>
+                <div *ngIf="item.content?.length > 0 && !isBrowser" class="content-wrapper pad-r-gt-xs">
+                  <app-self-help-content [src]="item.content" [term]="item"></app-self-help-content>
+                </div>
+              </div>
+              <div *ngIf="variables.lang === 'es' && item.content_es > 0" [ngClass]="{'margin-bottom-lg': !last}" fxLayout="column">
+                <!--Term Button-->
+                <button mat-button class="primary bg term-item" [ngClass]="{'active': item.show}"
+                        appHighlight (click)="showContent(item)">
+                  <div fxLayout="row" fxLayoutAlign="start center">
+                    <div fxFlex>
+                      <h3 class="no-margin" [innerHTML]="item.i18n.es.name[0].value"></h3>
+                    </div>
+                    <mat-icon class="expand svg sm icon">expand_more</mat-icon>
+                  </div>
+                </button>
+                <!-- Content -->
+                <div *ngIf="item.content?.length > 0 && isBrowser" [fxHide]="!item.show"
+                     class="content-wrapper pad-r-gt-xs">
+                  <app-self-help-content [src]="item.content" [term]="item"></app-self-help-content>
+                </div>
+                <div *ngIf="item.content?.length > 0 && !isBrowser" class="content-wrapper pad-r-gt-xs">
+                  <app-self-help-content [src]="item.content" [term]="item"></app-self-help-content>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Content -->
+          <div *ngIf="term.content?.length > 0" class="content-wrapper margin-top pad-r-gt-xs">
+            <app-self-help-content [src]="term.content" [term]="term"></app-self-help-content>
+          </div>
+        </div>
+      </div>
+      <!-- Left Block System -->
+      <div *ngIf="hasBlocks && blocks['left'].length > 0" fxHide.gt-sm class="side-pad-r backg1 bg">
+        <div *ngFor="let item of blocks['left']">
+          <app-block [nid]="item"></app-block>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

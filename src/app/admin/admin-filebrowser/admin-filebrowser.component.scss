@@ -1,0 +1,25 @@
+@import '~@swimlane/ngx-datatable/release/index.css';
+@import '~@swimlane/ngx-datatable/release/themes/material.css';
+@import '~@swimlane/ngx-datatable/release/assets/icons.css';
+
+.admin-filebrowser-wrapper {
+  position:fixed;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  margin:auto;
+  z-index:1;
+  background:#fff;
+  overflow:scroll;
+  .ngx-datatable.material {
+    box-shadow: none;
+  }
+  .datatable-header-inner {
+    height:100%;
+  }
+  .filter {
+    position:absolute;
+    bottom:8px;
+  }
+}

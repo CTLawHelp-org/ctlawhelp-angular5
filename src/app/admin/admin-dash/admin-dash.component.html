@@ -1,0 +1,52 @@
+<div fxLayout="column" class="admin-wrapper">
+  <div *ngIf="working">
+    <app-admin-loader></app-admin-loader>
+  </div>
+  <div *ngIf="!working" class="aquabg bg">
+    <div class="admin-menu-bar pad" fxLayout="row" fxLayoutAlign="start center">
+      <div class="pad" fxLayout="column" fxLayoutAlign="center center">
+        <div><h4 class="no-margin">{{variables.adminTitle}}</h4></div>
+      </div>
+      <div fxFlex></div>
+      <div fxLayout="column" fxLayoutAlign="center center">
+        <mat-menu #addMenu="matMenu">
+          <button mat-menu-item [routerLink]="['content/new/page']" class="button">Page</button>
+          <button mat-menu-item [routerLink]="['content/new/block']" class="button">Block</button>
+          <button mat-menu-item [routerLink]="['content/new/triage_entry']" class="button">Triage Entry</button>
+        </mat-menu>
+        <button mat-button class="button" [matMenuTriggerFor]="addMenu">
+          Add Content
+        </button>
+      </div>
+      <div fxLayout="column" fxLayoutAlign="center center" class="margin-left">
+        <mat-menu #contentMenu="matMenu">
+          <button mat-menu-item [routerLink]="['content/pages']" class="button">Pages</button>
+          <button mat-menu-item [routerLink]="['content/blocks']" class="button">Blocks</button>
+          <button mat-menu-item [routerLink]="['content/triage-entries']" class="button">Triage Entries</button>
+          <button mat-menu-item [routerLink]="['content/segments']" class="button">Segments</button>
+        </mat-menu>
+        <button mat-button class="button" [ngClass]="{'active': viewContent}" [matMenuTriggerFor]="contentMenu">
+          Content
+        </button>
+      </div>
+      <div fxLayout="column" fxLayoutAlign="center center" class="margin-left">
+        <button mat-button [routerLink]="['menu']" routerLinkActive="active" class="button">Manage Menu</button>
+      </div>
+      <div fxLayout="column" fxLayoutAlign="center center" class="margin-left">
+        <button mat-button [routerLink]="['blocks']" routerLinkActive="active" class="button">Block Setups</button>
+      </div>
+      <div fxLayout="column" fxLayoutAlign="center center" class="margin-left">
+        <button mat-button [routerLink]="['nsmi']" routerLinkActive="active" class="button">Manage NSMI</button>
+      </div>
+      <div fxLayout="column" fxLayoutAlign="center center" class="margin-left">
+        <button mat-button [routerLink]="['triage']" routerLinkActive="active" class="button">Manage Triage</button>
+      </div>
+      <div fxLayout="column" fxLayoutAlign="center center" class="margin-left">
+        <button mat-button [routerLink]="['labels']" routerLinkActive="active" class="button">Manage Labels</button>
+      </div>
+    </div>
+    <div class="pad-r whitebg bg">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

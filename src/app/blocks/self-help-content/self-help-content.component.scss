@@ -1,0 +1,16 @@
+.self-help-content {
+  a {
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .btn {
+    cursor: pointer;
+  }
+  .item {
+    p {
+      margin-bottom:0;
+    }
+  }
+}

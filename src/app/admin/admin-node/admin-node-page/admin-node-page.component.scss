@@ -1,0 +1,28 @@
+@import "../../../../../node_modules/angular-tree-component/dist/angular-tree-component.css";
+
+.tree {
+  input[type="checkbox"] {
+    width:20px;
+    height:20px;
+  }
+  tree-node-checkbox {
+    width:26px;
+    height:26px;
+    padding:0;
+  }
+  .tree-children {
+    padding-left:26px;
+  }
+}
+
+.hide-en-sum {
+  .sum-en {
+    display:none;
+  }
+}
+
+.hide-es-sum {
+  .sum-es {
+    display:none;
+  }
+}

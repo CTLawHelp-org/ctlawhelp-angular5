@@ -1,0 +1,68 @@
+<div class="triage-location-wrapper" fxLayout="column">
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+  <div *ngIf="!working" class="triage-location">
+    <div *ngIf="!loc_set">
+      <form name="triage-loc" (ngSubmit)="setLoc()" #locForm="ngForm">
+        <div fxLayout="row wrap" fxLayoutAlign="start center">
+          <div fxFlex="100" fxLayout="row" fxLayoutAlign="start center" class="backg1 bg pad border-radius"
+               [ngClass]="{'na': !media.isMatched('(min-width: 960px)')}">
+            <div [ngClass]="{'pad': !media.isMatched('(min-width: 960px)')}" fxLayout="column" fxLayoutAlign="center start">
+              <app-icon svgClass="highlight icon svg sm" svgIcon="tid629"></app-icon>
+            </div>
+            <div class="margin-left site-label" fxLayout="column">
+              <h3 class="no-margin">
+                <app-label src="triage_location_intro"></app-label>
+              </h3>
+            </div>
+          </div>
+          <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutAlign.gt-sm="start center">
+            <div class="pad site-label" [ngClass]="{'margin-top': !media.isMatched('(min-width: 960px)')}">
+              <app-label src="triage_location_zip"></app-label>
+            </div>
+            <div>
+              <div class="error-wrapper">
+                <div class="input zip-wrapper">
+                  <input class="zip_i mat-input-element backg border" type="tel" maxlength="5" minlength="5" aria-label="Zipcode Input"
+                         [(ngModel)]="user_zip" name="user_zip" value="">
+                </div>
+                <div *ngIf="zip_error" class="zip-error alert bg"><span class="pad-sm">Invalid Zipcode</span></div>
+              </div>
+            </div>
+            <div fxFlex="100" fxFlex.gt-sm="none" class="pad margin-left text-center">
+              OR
+            </div>
+            <div class="margin-left" [ngClass]="{'pad': !media.isMatched('(min-width: 960px)')}">
+              <mat-form-field>
+                <mat-select placeholder="Select City" [(value)]="user_city">
+                  <mat-option *ngFor="let loc of locations" [value]="loc">
+                    {{ loc.city | titlecase }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="margin-left">
+              <button mat-raised-button mat-icon-button class="primary button min"
+                      appHighlight type="submit">
+                <span class="go-btn">GO</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div *ngIf="loc_set" fxLayout="column" [ngClass]="{'pad': !media.isMatched('(min-width: 960px)')}">
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <app-icon svgClass="primary icon svg sm" svgIcon="tid633"></app-icon>
+        <div class="margin-left">
+          <div *ngIf="user_zip !== ''">{{user_zip}}</div>
+          <div *ngIf="user_city !== ''">{{user_city | titlecase}}</div>
+        </div>
+        <div class="margin-left">
+          <button mat-raised-button class="primary button min" appHighlight (click)="resetLoc()" appHighlight><span class="go-btn">Change</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

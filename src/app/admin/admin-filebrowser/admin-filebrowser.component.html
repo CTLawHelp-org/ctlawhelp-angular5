@@ -1,0 +1,90 @@
+<div fxLayout="column" class="admin-filebrowser-wrapper">
+  <div *ngIf="working">
+    <app-admin-loader></app-admin-loader>
+  </div>
+  <div *ngIf="!working">
+    <div class="pad" fxLayout="row" fxLayoutAlign="space-between center">
+      <div class="pad-sm">
+        <div class="margin-left"><h3 class="no-margin">All Files</h3></div>
+      </div>
+    </div>
+    <div>
+      <ngx-datatable #table class="material" [columnMode]="'flex'" [scrollbarH]="true" [rows]="rows"
+                     [headerHeight]="65" [rowHeight]="'auto'">
+        <!--Selection-->
+        <ngx-datatable-column name="Selection"
+                              [width]="70"
+                              [sortable]="false"
+                              [canAutoResize]="false"
+                              [draggable]="false"
+                              [resizeable]="false"
+                              [headerCheckboxable]="false"
+                              [checkboxable]="false">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div>
+              <button mat-icon-button [matMenuTriggerFor]="adminMenu">
+                <mat-icon>check_circle_outline</mat-icon>
+              </button>
+              <mat-menu #adminMenu="matMenu">
+                <button *ngIf="!row.file_export.thumbnail" mat-menu-item
+                        (click)="chooseFile(row.file_export.url, row)">Use File</button>
+                <button *ngIf="row.file_export.thumbnail" mat-menu-item
+                        (click)="chooseFile(row.file_export.url, row)">Use Original Image</button>
+                <button *ngIf="row.file_export.desktop" mat-menu-item
+                        (click)="chooseFile(row.file_export.desktop, row)">Use Desktop Image</button>
+                <button *ngIf="row.file_export.mobile" mat-menu-item
+                        (click)="chooseFile(row.file_export.mobile, row)">Use Mobile Image</button>
+                <button *ngIf="row.file_export.thumbnail" mat-menu-item
+                        (click)="chooseFile(row.file_export.thumbnail, row)">Use Thumbnail Image</button>
+              </mat-menu>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+        <!--Thumbnail-->
+        <ngx-datatable-column name="Thumbnail"
+                              [width]="85"
+                              [sortable]="false"
+                              [canAutoResize]="false"
+                              [draggable]="false"
+                              [resizeable]="false"
+                              [headerCheckboxable]="false"
+                              [checkboxable]="false">
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div fxLayout="row" fxLayoutAlign="center center">
+              <img *ngIf="row.file_export.thumbnail" [src]="row.file_export.thumbnail"
+                   style="max-width:48px;max-height:48px;" />
+              <mat-icon *ngIf="!row.file_export.thumbnail" class="backg icon svg sm">insert_drive_file</mat-icon>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+        <!--Filename-->
+        <ngx-datatable-column name="Filename" [flexGrow]="2">
+          <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+            <span (click)="sort()" style="cursor: pointer">{{column.name}}</span>
+            <div class="filter" fxLayout="row">
+              <input #filenameFilter type="text" (keyup)="updateTextFilter($event, 'filename')">
+              <mat-icon (click)="clearFilter(filenameFilter)" style="cursor: pointer">close</mat-icon>
+            </div>
+          </ng-template>
+        </ngx-datatable-column>
+        <!--Type-->
+        <ngx-datatable-column name="Type" [flexGrow]="1">
+          <ng-template let-column="column" ngx-datatable-header-template>
+            <span>{{column.name}}</span>
+            <div class="filter" fxLayout="row">
+              <select #filemimeFilter (change)="updateTextFilter($event, 'filemime')">
+                <option value=""></option>
+                <option value="application">Document</option>
+                <option value="image">Image</option>
+              </select>
+              <mat-icon (click)="clearFilter(filemimeFilter)" style="cursor: pointer">close</mat-icon>
+            </div>
+          </ng-template>
+          <ng-template let-row="row" ngx-datatable-cell-template>
+            <div>{{row.file_export.filemime[0].value}}</div>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+</div>

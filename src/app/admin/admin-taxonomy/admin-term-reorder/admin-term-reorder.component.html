@@ -1,0 +1,26 @@
+<div>
+  <div class="pad backg bg white-text" fxLayout="row" fxLayoutAlign="start center">
+    <h4 class="no-margin">Reordering</h4>
+    <div fxFlex></div>
+  </div>
+  <div class="pad" fxLayout="column">
+    <div fxLayout="row" fxLayoutAlign="space-between center" class="margin-bottom">
+      <div fxFlex></div>
+      <div><button mat-raised-button color="primary" (click)="resetOrder()">Reset</button></div>
+      <div class="margin-left margin-right"><button mat-raised-button (click)="cancelOrder()">Cancel</button></div>
+      <div><button mat-raised-button color="primary" (click)="saveOrder()">Save</button></div>
+    </div>
+    <div class="backg1 bg pad">
+      <div class="whitebg bg pad">
+        <div dnd-sortable-container [sortableData]="terms">
+          <div *ngFor="let item of terms; let index = index" dnd-sortable [sortableIndex]="index" class="pad">
+            <div class="backg border pad" fxLayout="row" fxLayoutAlign="start center">
+              <div class="mat-caption">{{index + 1}}</div>
+              <div class="margin-left" [innerHTML]="item.name"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

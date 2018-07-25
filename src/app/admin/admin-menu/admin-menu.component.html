@@ -1,0 +1,44 @@
+<div class="admin-menu" fxLayout="column">
+  <div *ngIf="working">
+    <app-admin-loader></app-admin-loader>
+  </div>
+  <div *ngIf="!working" fxLayout="row wrap">
+    <div fxFlex="100" fxFlex.gt-sm="50" class="backg1 bg pad">
+      <div fxLayout="row" fxLayoutAlign="start center" class="margin-bottom-lg">
+        <div>
+          <button mat-raised-button (click)="addTerm()" class="primary button">Add</button>
+        </div>
+        <div class="margin-left">
+          <button mat-raised-button (click)="reorderTerms(menu)">Reorder</button>
+        </div>
+      </div>
+      <!--Menu List-->
+      <div>
+        <div *ngFor="let item of menu" fxLayout="row" fxLayoutAlign="start center" class="margin-bottom">
+          <div style="font-size:1.1em" [innerHTML]="item.name"></div>
+          <div class="margin-left" fxLayout="row" fxLayoutAlign="center center">
+            <mat-icon [ngClass]="{'enabled': isActive(item), 'alert': !isActive(item)}"
+                      class="svg xs icon">fiber_manual_record</mat-icon>
+          </div>
+          <div class="margin-left" fxLayout="row" fxLayoutAlign="center center">
+            <button mat-icon-button mat-raised-button (click)="editTerm(item)"><mat-icon>edit</mat-icon></button>
+          </div>
+          <div *ngIf="isManaged(item)" class="margin-left" fxLayout="row" fxLayoutAlign="center center">
+            <mat-icon class="svg xs icon">lock</mat-icon>
+          </div>
+          <div *ngIf="!isManaged(item)" class="margin-left" fxLayout="row" fxLayoutAlign="center center">
+            <button mat-icon-button mat-raised-button (click)="confirmDelete(item)"><mat-icon>delete</mat-icon></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div fxFlex="100" fxFlex.gt-sm="50">
+      <div *ngIf="reorder.active">
+        <app-admin-term-reorder [terms]="reorder.src" (output)="closePanel(reorder, $event)"></app-admin-term-reorder>
+      </div>
+      <div *ngIf="edit.active">
+        <app-admin-term-menu-edit [term]="edit.src" (output)="closePanel(edit, $event)"></app-admin-term-menu-edit>
+      </div>
+    </div>
+  </div>
+</div>

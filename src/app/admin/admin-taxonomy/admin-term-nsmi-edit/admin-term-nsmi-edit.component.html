@@ -1,0 +1,31 @@
+<div class="admin-term-nsmi-wrapper" fxLayout="column">
+  <div class="pad backg bg white-text" fxLayout="row" fxLayoutAlign="start center">
+    <h4 class="no-margin">
+      <span *ngIf="!term.new">Edit</span>
+      <span *ngIf="term.new">New</span>
+    </h4>
+    <div fxFlex></div>
+  </div>
+  <div *ngIf="!working">
+    <form [formGroup]="formGroup" class="ui-fluid">
+      <div class="ui-g-12" fxLayout="row" fxLayoutAlign="end center">
+        <div class="mat-caption" [innerHTML]="term.name"></div>
+        <div fxFlex></div>
+        <div class="margin-right" fxLayout="column" fxLayoutAlign="center center">
+          <button mat-raised-button (click)="cancelEdit()">Cancel</button>
+        </div>
+        <div>
+          <button mat-raised-button color="primary" type="submit" (click)="saveTerm()">Save</button>
+        </div>
+      </div>
+      <div class="pad">
+        <dynamic-primeng-form [group]="formGroup" [model]="formModel" [layout]="formLayout"
+                              hasErrorMessaging="true" (dfChange)="onChange($event)">
+          <ng-template modelId="file" let-value="value">
+            <app-file-upload [value]="value" type="file" [history]="changes"></app-file-upload>
+          </ng-template>
+        </dynamic-primeng-form>
+      </div>
+    </form>
+  </div>
+</div>

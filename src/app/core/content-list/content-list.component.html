@@ -1,0 +1,98 @@
+<div *ngIf="item" fxLayout="column">
+  <!--Default-->
+  <div *ngIf="!triage" fxLayout="row" fxLayoutAlign="start center" class="margin-bottom-sm">
+    <app-icon *ngIf="item.icon" svgClass="margin-right svg sm" svgIcon="tid{{item.icon}}"></app-icon>
+    <div fxFlex>
+      <a *ngIf="variables.lang === 'en'" [routerLink]="[item.link]">
+        <h3 class="no-margin">
+          <span [innerHTML]="item.item_title"></span>
+        </h3>
+      </a>
+      <a *ngIf="variables.lang === 'es'" [routerLink]="[item.link_es]">
+        <h3 class="no-margin">
+          <span [innerHTML]="item.item_title_es"></span>
+        </h3>
+      </a>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="end center" class="hide-print">
+      <!--Node Admin-->
+      <div *ngIf="variables.auth">
+        <button mat-button [matMenuTriggerFor]="menu" class="min" aria-label="Node Menu">
+          <mat-icon>more_horiz</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <a mat-menu-item [href]="adminUrl + item.id" target="_blank">Edit</a>
+        </mat-menu>
+      </div>
+      <div *ngIf="preview">
+        <button mat-icon-button mat-raised-button aria-label="Preview" (click)="viewArticle(item)">
+          <app-icon svgClass="svg xs" svgIcon="tid715"></app-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!--Triage-->
+  <div *ngIf="triage" fxLayout="row" fxLayoutAlign="start center" class="margin-bottom-sm triage-wrapper">
+    <app-icon *ngIf="item.icon" svgClass="margin-right svg md" svgIcon="tid{{item.icon}}"></app-icon>
+    <div *ngIf="item.link || item.link_es" fxFlex>
+      <a *ngIf="variables.lang === 'en'" [routerLink]="[item.link]">
+        <h3 fxHide.gt-sm class="no-margin">
+          <span [innerHTML]="item.item_title"></span>
+        </h3>
+        <h2 fxHide fxShow.gt-sm class="no-margin">
+          <span [innerHTML]="item.item_title"></span>
+        </h2>
+      </a>
+      <a *ngIf="variables.lang === 'es'" [routerLink]="[item.link_es]">
+        <h3 fxHide.gt-sm class="no-margin">
+          <span [innerHTML]="item.item_title_es"></span>
+        </h3>
+        <h2 fxHide fxShow.gt-sm class="no-margin">
+          <span [innerHTML]="item.item_title_es"></span>
+        </h2>
+      </a>
+    </div>
+    <div *ngIf="!item.link && !item.link_es" fxFlex>
+      <div *ngIf="variables.lang === 'en'">
+        <h3 fxHide.gt-sm class="no-margin">
+          <span [innerHTML]="item.item_title"></span>
+        </h3>
+        <h2 fxHide fxShow.gt-sm class="no-margin">
+          <span [innerHTML]="item.item_title"></span>
+        </h2>
+      </div>
+      <div *ngIf="variables.lang === 'es'">
+        <h3 fxHide.gt-sm class="no-margin">
+          <span [innerHTML]="item.item_title_es"></span>
+        </h3>
+        <h2 fxHide fxShow.gt-sm class="no-margin">
+          <span [innerHTML]="item.item_title_es"></span>
+        </h2>
+      </div>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="end center" class="hide-print">
+      <!--Node Admin-->
+      <div *ngIf="variables.auth">
+        <button mat-button [matMenuTriggerFor]="menu" class="min" aria-label="Node Menu">
+          <mat-icon>more_horiz</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <a mat-menu-item [href]="adminUrl + item.id" target="_blank">Edit</a>
+        </mat-menu>
+      </div>
+      <div *ngIf="preview && (item.link || item.link_es)">
+        <button mat-icon-button mat-raised-button aria-label="Preview" (click)="loadArticle(item)">
+          <app-icon svgClass="svg xs" svgIcon="tid715"></app-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div *ngIf="variables.lang === 'en'">
+      <span [innerHTML]="item.summary | safeHtml"></span>
+    </div>
+    <div *ngIf="variables.lang === 'es'">
+      <span [innerHTML]="item.summary_es | safeHtml"></span>
+    </div>
+  </div>
+</div>

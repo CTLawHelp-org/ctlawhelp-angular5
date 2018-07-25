@@ -1,0 +1,277 @@
+<div *ngIf="!working" class="blocks-config" fxLayout="column">
+  <div fxLayout="row" fxLayoutAlign="start center" class="pad">
+    <div>
+      <div><strong [innerHTML]="variables.currentBlocksSrc.term_export.name[0].value"></strong></div>
+      <div class="mat-caption desc">
+        <div [innerHTML]="variables.currentBlocksSrc.term_export.description[0].value"></div>
+      </div>
+    </div>
+    <div fxFlex></div>
+    <div *ngIf="!isManaged(variables.currentBlocksSrc)" class="pad margin-right-lg">
+      <mat-slide-toggle labelPosition="before" [checked]="isEnabled(variables.currentBlocksSrc)" (change)="setStatus($event)">
+        <div class="mat-caption">
+          <span *ngIf="variables.currentBlocksSrc.term_export.field_status[0].value === '1'">Enabled</span>
+          <span *ngIf="variables.currentBlocksSrc.term_export.field_status[0].value === '0'">Disabled</span>
+        </div>
+      </mat-slide-toggle>
+    </div>
+    <div class="margin-right"><button mat-raised-button class="primary button" (click)="saveBlocks()">Save</button></div>
+    <div><button mat-raised-button (click)="closeConfig()">Cancel</button></div>
+  </div>
+  <div>
+    <mat-tab-group [selectedIndex]="currentIndex">
+      <mat-tab label="Block Content">
+        <!--Block Config-->
+        <div fxLayout="column">
+          <div fxLayout="row wrap" class="padding-bottom">
+            <!--Left-->
+            <div fxFlex="100" fxFlex.gt-sm="30" fxFlexOrder="2" fxFlexOrder.gt-sm="1" class="pad" fxLayout="column">
+              <div fxFlex class="">
+                <div class="pad backg bg white-text" fxLayout="row" fxLayoutAlign="start center">
+                  <h4 class="no-margin">Left Sidebar</h4>
+                  <div fxFlex></div>
+                  <div fxLayout="column" fxLayoutAlign="center center" style="cursor: pointer"
+                       (click)="addBlocksTo(currblocks['left'])">
+                    <mat-icon class="white-text">add_circle</mat-icon>
+                  </div>
+                </div>
+                <div dnd-sortable-container [sortableData]="currblocks['left']" [dropZones]="['left']" class="pad">
+                  <div *ngFor="let item of currblocks['left']; let index = index" dnd-sortable
+                       [sortableIndex]="index" [dragEnabled]="true" [dragData]="item" class="backg border margin-bottom">
+                    <div fxLayout="row" fxLayoutAlign="start stretch">
+                      <div class="mat-caption pad-sm backg bg white-text"
+                           fxLayout="column" fxLayoutAlign="center center">
+                        <div>{{index + 1}}</div>
+                      </div>
+                      <div class="pad" [innerHTML]="item.title"></div>
+                      <div fxFlex></div>
+                      <div class="pad-sm" (click)="currblocks['left'].splice(index, 1)"
+                           fxLayout="column" fxLayoutAlign="center center">
+                        <mat-icon class="alert icon">remove_circle</mat-icon>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div fxLayout="column" fxLayoutAlign="center center" class="backg1 bg pad margin-top"
+                     dnd-droppable (onDropSuccess)="addTo($event, currblocks['left'])"
+                     [dropZones]="['left','right','content_top','content_bottom']">
+                  <div class="pad">
+                    <mat-icon class="backg icon">add</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Middle-->
+            <div fxFlex="100" fxFlex.gt-sm fxFlexOrder="1" fxFlexOrder.gt-sm="2" fxLayout="column" class="pad">
+              <!--Title-->
+              <div class="pad aquabg bg white-text margin-bottom">
+                <h4 class="no-margin">Title</h4>
+              </div>
+              <!--Content Top-->
+              <div>
+                <div class="pad backg bg white-text" fxLayout="row" fxLayoutAlign="start center">
+                  <h4 class="no-margin">Content Top</h4>
+                  <div fxFlex></div>
+                  <div fxLayout="column" fxLayoutAlign="center center" style="cursor: pointer"
+                       (click)="addBlocksTo(currblocks['content_top'])">
+                    <mat-icon class="white-text">add_circle</mat-icon>
+                  </div>
+                </div>
+                <div dnd-sortable-container [sortableData]="currblocks['content_top']" [dropZones]="['content_top']" class="pad">
+                  <div *ngFor="let item of currblocks['content_top']; let index = index" dnd-sortable
+                       [sortableIndex]="index" [dragEnabled]="true" [dragData]="item" class="backg border margin-bottom">
+                    <div fxLayout="row" fxLayoutAlign="start stretch">
+                      <div class="mat-caption pad-sm backg bg white-text"
+                           fxLayout="column" fxLayoutAlign="center center">
+                        <div>{{index + 1}}</div>
+                      </div>
+                      <div class="pad" [innerHTML]="item.title"></div>
+                      <div fxFlex></div>
+                      <div class="pad-sm" (click)="currblocks['content_top'].splice(index, 1)"
+                           fxLayout="column" fxLayoutAlign="center center">
+                        <mat-icon class="alert icon">remove_circle</mat-icon>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div fxLayout="column" fxLayoutAlign="center center" class="backg1 bg pad margin-top"
+                     dnd-droppable (onDropSuccess)="addTo($event, currblocks['content_top'])"
+                     [dropZones]="['left','right','content_top','content_bottom']">
+                  <div class="pad">
+                    <mat-icon class="backg icon">add</mat-icon>
+                  </div>
+                </div>
+              </div>
+              <!--Body-->
+              <div class="pad aquabg bg white-text margin-top margin-bottom">
+                <h4 class="no-margin">Body</h4>
+              </div>
+              <!--Content Bottom-->
+              <div>
+                <div class="pad backg bg white-text" fxLayout="row" fxLayoutAlign="start center">
+                  <h4 class="no-margin">Content Bottom</h4>
+                  <div fxFlex></div>
+                  <div fxLayout="column" fxLayoutAlign="center center" style="cursor: pointer"
+                       (click)="addBlocksTo(currblocks['content_bottom'])">
+                    <mat-icon class="white-text">add_circle</mat-icon>
+                  </div>
+                </div>
+                <div dnd-sortable-container [sortableData]="currblocks['content_bottom']" [dropZones]="['content_bottom']" class="pad">
+                  <div *ngFor="let item of currblocks['content_bottom']; let index = index" dnd-sortable
+                       [sortableIndex]="index" [dragEnabled]="true" [dragData]="item" class="backg border margin-bottom">
+                    <div fxLayout="row" fxLayoutAlign="start stretch">
+                      <div class="mat-caption pad-sm backg bg white-text"
+                           fxLayout="column" fxLayoutAlign="center center">
+                        <div>{{index + 1}}</div>
+                      </div>
+                      <div class="pad" [innerHTML]="item.title"></div>
+                      <div fxFlex></div>
+                      <div class="pad-sm" (click)="currblocks['content_bottom'].splice(index, 1)"
+                           fxLayout="column" fxLayoutAlign="center center">
+                        <mat-icon class="alert icon">remove_circle</mat-icon>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div fxLayout="column" fxLayoutAlign="center center" class="backg1 bg pad margin-top"
+                     dnd-droppable (onDropSuccess)="addTo($event, currblocks['content_bottom'])"
+                     [dropZones]="['left','right','content_top','content_bottom']">
+                  <div class="pad">
+                    <mat-icon class="backg icon">add</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Right-->
+            <div fxFlex="100" fxFlex.gt-sm="30" fxFlexOrder="3" fxFlexOrder.gt-sm="3" class="pad" fxLayout="column">
+              <div fxFlex class="">
+                <div class="pad backg bg white-text" fxLayout="row" fxLayoutAlign="start center">
+                  <h4 class="no-margin">Right Sidebar</h4>
+                  <div fxFlex></div>
+                  <div fxLayout="column" fxLayoutAlign="center center" style="cursor: pointer"
+                       (click)="addBlocksTo(currblocks['right'])">
+                    <mat-icon class="white-text">add_circle</mat-icon>
+                  </div>
+                </div>
+                <div dnd-sortable-container [sortableData]="currblocks['right']" [dropZones]="['right']" class="pad">
+                  <div *ngFor="let item of currblocks['right']; let index = index" dnd-sortable
+                       [sortableIndex]="index" [dragEnabled]="true" [dragData]="item" class="backg border margin-bottom">
+                    <div fxLayout="row" fxLayoutAlign="start stretch">
+                      <div class="mat-caption pad-sm backg bg white-text"
+                           fxLayout="column" fxLayoutAlign="center center">
+                        <div>{{index + 1}}</div>
+                      </div>
+                      <div class="pad" [innerHTML]="item.title"></div>
+                      <div fxFlex></div>
+                      <div class="pad-sm" (click)="currblocks['right'].splice(index, 1)"
+                           fxLayout="column" fxLayoutAlign="center center">
+                        <mat-icon class="alert icon">remove_circle</mat-icon>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div fxLayout="column" fxLayoutAlign="center center" class="backg1 bg pad"
+                     dnd-droppable (onDropSuccess)="addTo($event, currblocks['right'])"
+                     [dropZones]="['left','right','content_top','content_bottom']">
+                  <div class="pad">
+                    <mat-icon class="backg icon">add</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Blocks List-->
+        <div *ngIf="showBlockList" class="blocks-list whitebg bg mat-elevation-z2" fxLayout="column">
+          <div fxLayout="row" fxLayoutAlign="start center" class="pad-sm">
+            <div fxFlex></div>
+            <button mat-raised-button mat-icon-button (click)="showBlockList = false">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <div fxFlex class="list">
+            <div *ngFor="let item of blocks;" class="pad margin-bottom">
+              <div fxLayout="row" fxLayoutAlign="start center">
+                <div [innerHTML]="item.title" class="margin-right"></div>
+                <div fxLayout="column" fxLayoutAlign="center center" style="cursor: pointer"
+                     (click)="addBlockTo(item, blockSrc)">
+                  <mat-icon>add_circle</mat-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Block Settings">
+        <!--Block Setup-->
+        <div fxLayout="column" class="pad">
+          <div>
+            <form name="editing">
+              <div fxLayout="column" class="pad">
+                <div>Name</div>
+                <input [(ngModel)]="variables.currentBlocksSrc.term_export.name[0].value" name="name">
+              </div>
+              <div fxLayout="column" class="pad">
+                <div>Description</div>
+                <textarea [(ngModel)]="variables.currentBlocksSrc.term_export.description[0].value" name="desc"></textarea>
+              </div>
+              <div *ngIf="!isManaged(variables.currentBlocksSrc)" fxLayout="column" class="pad">
+                <div>Activation Settings</div>
+                <div>
+                  <mat-form-field>
+                    <mat-select placeholder="Source" [(ngModel)]="variables.currentBlocksSrc.source" name="source">
+                      <mat-option value="node">Node Based</mat-option>
+                      <mat-option value="taxonomy">Taxonomy Based</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <!--Node Based-->
+                <div *ngIf="variables.currentBlocksSrc.source === 'node'">
+                  <div>
+                    <div *ngFor="let entry of variables.currentBlocksSrc.term_export.field_block_source; let index = index;">
+                      <div fxLayout="row" fxLayoutAlign="start center" class="margin-bottom">
+                        <div class="margin-right">Source NID</div>
+                        <div><input [(ngModel)]="entry.target_id" [ngModelOptions]="{standalone: true}"></div>
+                        <div class="margin-left" style="cursor: pointer" fxLayout="column" fxLayoutAlign="center center"
+                             (click)="variables.currentBlocksSrc.term_export.field_block_source.splice(index, 1)">
+                          <mat-icon class="alert icon">remove_circle</mat-icon>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <button mat-raised-button mat-icon-button
+                              (click)="addSource(variables.currentBlocksSrc.term_export.field_block_source)">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <!--Taxonomy Based-->
+                <div *ngIf="variables.currentBlocksSrc.source === 'taxonomy'">
+                  <div>
+                    <div *ngFor="let entry of variables.currentBlocksSrc.term_export.field_block_taxonomy_source; let index = index;">
+                      <div fxLayout="row" fxLayoutAlign="start center" class="margin-bottom">
+                        <div class="margin-right">Source TID</div>
+                        <div><input [(ngModel)]="entry.target_id" [ngModelOptions]="{standalone: true}"></div>
+                        <div class="margin-left" style="cursor: pointer" fxLayout="column" fxLayoutAlign="center center"
+                             (click)="variables.currentBlocksSrc.term_export.field_block_taxonomy_source.splice(index, 1)">
+                          <mat-icon class="alert icon">remove_circle</mat-icon>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <button mat-raised-button mat-icon-button
+                              (click)="addSource(variables.currentBlocksSrc.term_export.field_block_taxonomy_source)">
+                        <mat-icon>add</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

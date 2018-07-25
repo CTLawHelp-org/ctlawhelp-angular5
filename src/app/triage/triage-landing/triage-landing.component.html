@@ -1,0 +1,72 @@
+<div class="triage-landing" fxLayout="column">
+  <div class="border-bottom pad-r" fxLayout="row wrap" fxLayoutAlign="start stretch">
+    <div fxLayout="row" fxLayoutAlign="start center" class="pad">
+      <app-icon fxHide fxShow.gt-sm svgClass="svg md primary icon" svgIcon="tid631"></app-icon>
+      <app-icon fxHide.gt-sm svgClass="svg sm primary icon" svgIcon="tid631"></app-icon>
+    </div>
+    <div class="pad">
+      <h1 fxHide fxShow.gt-sm class="no-margin">
+        <app-label src="home_lhf"></app-label>
+      </h1>
+      <h2 fxHide.gt-sm class="no-margin">
+        <app-label src="home_lhf"></app-label>
+      </h2>
+    </div>
+    <div fxHide.gt-sm fxFlex="100"></div>
+    <div *ngIf="in_state" fxFlex="100" fxFlex.gt-sm="auto"
+         fxLayout="row" fxLayoutAlign="space-between center" fxLayoutAlign.gt-sm="end center" class="pad"
+         [ngClass]="{'border-top-sm': !media.isMatched('(min-width: 960px)')}">
+      <div [ngClass]="{'margin-right': issues.length > 0}">
+        <button mat-raised-button class="primary button" (click)="startOver()" appHighlight>
+          <div fxLayout="row" fxLayoutAlign="start center">
+            <mat-icon>refresh</mat-icon>
+            <app-label src="triage_start_over"></app-label>
+          </div>
+        </button>
+      </div>
+      <div class="margin-left" *ngIf="issues.length > 0 && in_state">
+        <button mat-raised-button class="primary button" [routerLink]="'/' + variables.lang + '/legal-help/results'" appHighlight>
+          <div fxLayout="row" fxLayoutAlign="start center">
+            <app-label src="triage_view_results"></app-label>
+            <mat-icon>chevron_right</mat-icon>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+  <div *ngIf="!working" fxLayout="row" fxLayoutAlign="center start">
+    <div fxFlex="100" fxFlex.gt-sm="75" *ngIf="!in_state" fxLayout="column" class="padding-bottom-lg">
+      <div *ngIf="state === ''" class="pad">
+        <div class="pad-r intro-text" [ngClass]="{'margin-top-lg margin-bottom-lg': media.isMatched('(min-width: 960px)')}">
+          <h3 class="no-margin">
+            <app-label src="triage_step1_intro"></app-label>
+          </h3>
+        </div>
+        <div fxLayout="column" fxLayoutAlign="center center">
+          <mat-radio-group fxLayout="column" fxLayoutAlign="center start" [(ngModel)]="state" (change)="continue()">
+            <mat-radio-button value="1" class="pad">
+              <app-label src="triage_step1_yes"></app-label>
+            </mat-radio-button>
+            <mat-radio-button value="0" class="pad">
+              <app-label src="triage_step1_no"></app-label>
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </div>
+      <div *ngIf="state === '0'" fxLayout="column" fxLayoutAlign="center center">
+        <div class="pad">
+          <app-block [nid]="'797'"></app-block>
+        </div>
+        <div class="pad">
+          <button (click)="reset()" mat-raised-button class="primary button" appHighlight>Back</button>
+        </div>
+      </div>
+    </div>
+    <div fxFlex="100" *ngIf="in_state">
+      <app-triage-input [term]="id" (success)="search()"></app-triage-input>
+    </div>
+  </div>
+</div>

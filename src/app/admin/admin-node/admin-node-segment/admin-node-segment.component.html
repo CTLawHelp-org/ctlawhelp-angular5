@@ -1,0 +1,23 @@
+<div class="admin-node-segment-wrapper" fxLayout="column">
+  <div *ngIf="!working">
+    <form [formGroup]="formGroup" class="ui-fluid">
+      <dynamic-primeng-form [group]="formGroup" [model]="formModel" [layout]="formLayout"
+                            hasErrorMessaging="true" (dfChange)="onChange($event)">
+        <ng-template modelId="node_ref_en">
+          <app-admin-form-node-ref [src]="node_ref_en" type="page+segment"></app-admin-form-node-ref>
+        </ng-template>
+        <ng-template modelId="node_ref_es">
+          <app-admin-form-node-ref [src]="node_ref_es" type="page+segment"></app-admin-form-node-ref>
+        </ng-template>
+      </dynamic-primeng-form>
+      <div class="ui-g-12" fxLayout="row" fxLayoutAlign="end center">
+        <!--<div class="margin-right-lg" fxLayout="column" fxLayoutAlign="center center">
+          <a mat-raised-button class="button">Cancel</a>
+        </div>-->
+        <div>
+          <button mat-raised-button color="primary" type="submit" (click)="saveNode()">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

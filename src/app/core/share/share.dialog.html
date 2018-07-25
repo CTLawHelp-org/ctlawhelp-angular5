@@ -1,0 +1,35 @@
+<div class="custom-typography" fxFill fxLayout="column">
+  <div fxFlex>
+    <mat-dialog-content fxFill class="dialog-node backg1 bg pad">
+      <div fxFill fxLayout="column" fxLayoutAlign="space-around center">
+        <div fxLayout="column">
+          <a [routerLink]="[ '/' + variables.lang + '/node', node[0].nid ]" target="_blank"
+             mat-raised-button class="primary button">
+            <div fxLayout="row" fxLayoutAlign="center center" class="pad">
+              <mat-icon>link</mat-icon>
+              <div class="margin-left"><h3 class="no-margin">Direct Link</h3></div>
+            </div>
+          </a>
+        </div>
+        <div fxLayout="column" class="margin-top margin-bottom">
+          <a [href]="'https://twitter.com/intent/tweet/?text=&amp;url='+extlink" target="_blank"
+             mat-raised-button class="primary button">
+            <div fxLayout="row" fxLayoutAlign="center center" class="pad">
+              <app-icon svgClass="svg sm" svgIcon="tid719"></app-icon>
+              <div class="margin-left"><h3 class="no-margin">Share on Twitter</h3></div>
+            </div>
+          </a>
+        </div>
+        <div fxLayout="column">
+          <a [href]="'https://facebook.com/sharer/sharer.php?u='+extlink" target="_blank"
+             mat-raised-button class="primary button">
+            <div fxLayout="row" fxLayoutAlign="center center" class="pad">
+              <app-icon svgClass="svg sm" svgIcon="tid718"></app-icon>
+              <div class="margin-left"><h3 class="no-margin">Share on Facebook</h3></div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </mat-dialog-content>
+  </div>
+</div>

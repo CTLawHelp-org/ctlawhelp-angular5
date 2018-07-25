@@ -1,0 +1,91 @@
+<div class="admin-nsmi" fxLayout="column">
+  <div *ngIf="working">
+    <app-admin-loader></app-admin-loader>
+  </div>
+  <div *ngIf="!working" fxLayout="row wrap">
+    <div fxFlex="100" fxFlex.gt-sm="50" class="backg1 bg pad">
+      <div fxLayout="row" fxLayoutAlign="start center" class="margin-bottom">
+        <div>
+          <button mat-raised-button (click)="collpaseAll()">Collapse</button>
+        </div>
+        <div class="margin-left margin-right">
+          <button mat-raised-button (click)="expandAll()">Expand</button>
+        </div>
+        <div>
+          <button mat-raised-button color="primary" [matMenuTriggerFor]="rootmenu">
+            Actions
+          </button>
+          <mat-menu #rootmenu="matMenu">
+            <button mat-menu-item (click)="addTerm()">Add Term</button>
+            <button mat-menu-item (click)="reorderTerms(nsmi)">Reorder</button>
+          </mat-menu>
+        </div>
+      </div>
+      <tree-root #tree class="tree" [nodes]="nsmi" [options]="nsmi_options">
+        <ng-template #treeNodeWrapperTemplate let-node let-index="index">
+          <div class="node-wrapper">
+            <tree-node-expander [node]="node"></tree-node-expander>
+            <div class="node-content-wrapper"
+                 [class.node-content-wrapper-active]="node.isActive"
+                 [class.node-content-wrapper-focused]="node.isFocused"
+                 (click)="node.mouseAction('click', $event)"
+                 (dblclick)="node.mouseAction('dblClick', $event)"
+                 (contextmenu)="node.mouseAction('contextMenu', $event)"
+                 (treeDrop)="node.onDrop($event)"
+                 [treeAllowDrop]="node.allowDrop"
+                 [treeDrag]="node"
+                 [treeDragEnabled]="node.allowDrag()">
+              <tree-node-content [node]="node" [index]="index"></tree-node-content>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
+          <div [class]="node.getClass()"
+            [class.tree-node]="true"
+            [class.tree-node-expanded]="node.isExpanded && node.hasChildren"
+            [class.tree-node-collapsed]="node.isCollapsed && node.hasChildren"
+            [class.tree-node-leaf]="node.isLeaf"
+            [class.tree-node-active]="node.isActive"
+            [class.tree-node-focused]="node.isFocused">
+            <tree-node-drop-slot
+              *ngIf="index === 0"
+              [dropIndex]="node.index"
+              [node]="node.parent"></tree-node-drop-slot>
+            <div class="nsmi-node-wrapper margin-bottom-sm backg border">
+              <div fxLayout="row" fxLayoutAlign="start center" class="whitebg bg">
+                <tree-node-wrapper class="node-title" [ngClass]="{'highlight bg': node.data.tid === activeTermID}"
+                                   [node]="node" [index]="index" [templates]="templates"></tree-node-wrapper>
+                <div class="margin-left" fxLayout="column" fxLayoutAlign="center center">
+                  <button mat-icon-button [matMenuTriggerFor]="termmenu">
+                    <mat-icon>more_horiz</mat-icon>
+                  </button>
+                  <mat-menu #termmenu="matMenu">
+                    <button mat-menu-item (click)="editTerm(node.data)">Edit</button>
+                    <button *ngIf="node.data.children.length > 0" mat-menu-item
+                            (click)="reorderTerms(node.data.children)">Reorder</button>
+                    <button *ngIf="node.data.children.length < 1" mat-menu-item
+                            (click)="orderTerm(node.data)">Node Order</button>
+                    <button mat-menu-item (click)="confirmDelete(node.data)">Delete</button>
+                  </mat-menu>
+                </div>
+              </div>
+            </div>
+            <tree-node-children [node]="node" [templates]="templates"></tree-node-children>
+            <tree-node-drop-slot [dropIndex]="node.index + 1" [node]="node.parent"></tree-node-drop-slot>
+          </div>
+        </ng-template>
+      </tree-root>
+    </div>
+    <div fxFlex="100" fxFlex.gt-sm="50">
+      <div *ngIf="reorder.active">
+        <app-admin-term-reorder [terms]="reorder.src" (output)="closePanel(reorder, $event)"></app-admin-term-reorder>
+      </div>
+      <div *ngIf="edit.active">
+        <app-admin-term-nsmi-edit [term]="edit.src" (output)="closePanel(edit, $event)"></app-admin-term-nsmi-edit>
+      </div>
+      <div *ngIf="order.active">
+        <app-admin-term-node-order [term]="order.src" (output)="closePanel(order, $event)"></app-admin-term-node-order>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+.search-bar {
+  form {
+    input {
+      border:none;
+      padding:8px;
+      height: 32px;
+      min-width:160px;
+      &:focus {
+        outline:none;
+      }
+    }
+  }
+  .submit {
+    cursor: pointer;
+    background-color:#fff;
+    border:none;
+    padding:2px 5px;
+    height: 32px;
+    &:focus {
+      outline:none;
+    }
+  }
+  .icon {
+    height:24px !important;
+  }
+}

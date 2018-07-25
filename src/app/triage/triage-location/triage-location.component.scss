@@ -1,0 +1,48 @@
+.triage-location {
+  .zip-wrapper {
+    position:relative;
+    padding:0 2px;
+    text-align:center;
+  }
+  .zip_i {
+    padding:2px 4px;
+    max-width:70px;
+  }
+  .zipinput {
+    padding:2px 4px;
+    letter-spacing: 0.6em;
+    border:none;
+    z-index:1;
+    position:relative;
+    background:transparent;
+    max-width:105px;
+    font-size:1.1em;
+    &:focus {
+      outline:none;
+    }
+  }
+  .zipdesign {
+    position:absolute;
+    z-index:0;
+    top:0;
+    .entry {
+      width:18px;
+      height:26px;
+      border:1px solid #ddd;
+    }
+  }
+  .go-btn {
+    padding:0 8px;
+  }
+  .error-wrapper {
+    position:relative;
+    .zip-error {
+      position:absolute;
+      bottom:-25px;
+      left:2px;
+      color:#fff;
+      z-index:1;
+      min-width:120px;
+    }
+  }
+}

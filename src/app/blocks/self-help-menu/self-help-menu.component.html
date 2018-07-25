@@ -1,0 +1,29 @@
+<div class="self-help-menu pad">
+  <div>
+    <div *ngIf="working">
+      <app-loader></app-loader>
+    </div>
+    <div *ngIf="!working" fxLayout="column">
+      <div fxLayout="column" *ngFor="let item of nsmi" class="item-wrapper">
+        <div fxLayout="column" class="pad">
+          <div fxLayout="row" fxLayoutAlign="start center">
+            <app-icon *ngIf="item.term_export.field_public_term_file.length > 0"
+                      svgClass="margin-right svg sm" svgIcon="tid{{item.id}}"></app-icon>
+            <div fxFlex>
+              <a [routerLink]="[ '/' + variables.lang + '/self-help', item.tid ]">
+                <h3 class="no-margin">
+                  <div *ngIf="variables.lang === 'en'">
+                    <span [innerHTML]="item.name"></span>
+                  </div>
+                  <div *ngIf="variables.lang === 'es'">
+                    <span [innerHTML]="item.i18n['es'].name[0].value"></span>
+                  </div>
+                </h3>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

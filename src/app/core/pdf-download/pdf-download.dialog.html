@@ -1,0 +1,12 @@
+<div class="custom-typography" fxFill fxLayout="column">
+  <div fxFlex>
+    <mat-dialog-content fxFill class="dialog-pdf" fxLayout="column" fxLayoutAlign="center center">
+      <div *ngIf="working">
+        <app-loader></app-loader>
+      </div>
+      <div *ngIf="!working" class="text-center">
+        <a [href]="link" target="_blank">View / Save PDF</a>
+      </div>
+    </mat-dialog-content>
+  </div>
+</div>

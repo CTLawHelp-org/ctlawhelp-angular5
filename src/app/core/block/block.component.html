@@ -1,0 +1,148 @@
+<div class="block" fxLayout="column" [ngClass]="{'pad-r': style && showBlock(node[0])}">
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+  <div *ngIf="!working && node.length > 0 && showBlock(node[0])" [ngClass]="classes">
+    <!--Node Admin-->
+    <div *ngIf="variables.auth" class="node-admin">
+      <button mat-button [matMenuTriggerFor]="menu" class="min" aria-label="Node Menu">
+        <mat-icon>more_horiz</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu">
+        <a mat-menu-item [href]="adminUrl">Edit</a>
+      </mat-menu>
+    </div>
+    <!--No Style-->
+    <div *ngIf="!style">
+      <app-node [curNode]="node"></app-node>
+    </div>
+    <!--Home Large Style-->
+    <div *ngIf="style && node[0].node_export.field_style[0].value === 'home_lg'">
+      <a *ngIf="node[0].node_export.field_link.length > 0" class="home-lg-wrapper" appHighlight
+         [routerLink]="'/' + variables.lang + '/' + node[0].node_export.field_link[0].value">
+        <div fxLayout="row" fxLayout.gt-xs="column">
+          <!--Mobile-->
+          <div *ngIf="node[0].node_export.field_private_image.length > 0" fxHide.gt-xs fxFlex="27"
+               fxLayout="column" fxLayoutAlign="center center" class="img-pad">
+            <img [src]="node[0].node_export.field_private_image[0].desktop"
+                 [alt]="node[0].node_export.field_private_image[0].alt" />
+          </div>
+          <!--Desktop-->
+          <div *ngIf="node[0].node_export.field_private_image.length > 0" fxHide fxShow.gt-xs fxFlex fxLayout="column">
+            <img [src]="node[0].node_export.field_private_image[0].desktop"
+                 [alt]="node[0].node_export.field_private_image[0].alt" class="fill" />
+          </div>
+          <div fxFlex.xs class="home-info home-text primary tbg white-text"
+               fxLayout="row wrap" fxLayoutAlign="start center">
+            <div fxFlex>
+              <app-node [curNode]="node"></app-node>
+            </div>
+            <div *ngIf="node[0].node_export.field_icon.length > 0" class="icon-pad">
+              <app-icon fxHide.gt-xs svgClass="svg sm white-text"
+                        svgIcon="tid{{node[0].node_export.field_icon[0].target_id}}"></app-icon>
+              <app-icon fxHide fxShow.gt-xs svgClass="svg lg white-text"
+                        svgIcon="tid{{node[0].node_export.field_icon[0].target_id}}"></app-icon>
+            </div>
+          </div>
+        </div>
+      </a>
+      <div *ngIf="node[0].node_export.field_link.length < 1" fxLayout="row" fxLayout.gt-xs="column">
+        <!--Mobile-->
+        <div *ngIf="node[0].node_export.field_private_image.length > 0" fxHide.gt-xs fxFlex="27"
+             fxLayout="column" fxLayoutAlign="center center" class="img-pad">
+          <img [src]="node[0].node_export.field_private_image[0].desktop"
+               [alt]="node[0].node_export.field_private_image[0].alt" />
+        </div>
+        <!--Desktop-->
+        <div *ngIf="node[0].node_export.field_private_image.length > 0" fxHide fxShow.gt-xs fxFlex fxLayout="column">
+          <img [src]="node[0].node_export.field_private_image[0].desktop"
+               [alt]="node[0].node_export.field_private_image[0].alt" class="fill" />
+        </div>
+        <div fxFlex.xs class="home-info home-text primary tbg white-text"
+             fxLayout="row wrap" fxLayoutAlign="start center">
+          <div fxFlex>
+            <app-node [curNode]="node"></app-node>
+          </div>
+          <div *ngIf="node[0].node_export.field_icon.length > 0" class="icon-pad">
+            <app-icon fxHide.gt-xs svgClass="svg sm white-text"
+                      svgIcon="tid{{node[0].node_export.field_icon[0].target_id}}"></app-icon>
+            <app-icon fxHide fxShow.gt-xs svgClass="svg lg white-text"
+                      svgIcon="tid{{node[0].node_export.field_icon[0].target_id}}"></app-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--Home Small Style-->
+    <div *ngIf="style && node[0].node_export.field_style[0].value === 'home_sm'">
+      <a *ngIf="node[0].node_export.field_link.length > 0"
+         [routerLink]="'/' + variables.lang + '/' + node[0].node_export.field_link[0].value" class="primary-color">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <div *ngIf="node[0].node_export.field_private_image.length > 0" fxFlex="27"
+               fxLayout="column" class="img-pad-sm">
+            <img [src]="node[0].node_export.field_private_image[0].desktop"
+                 [alt]="node[0].node_export.field_private_image[0].alt" class="fill" />
+          </div>
+          <div fxFlex class="home-text" fxLayout="row wrap" fxLayoutAlign="start center">
+            <div fxFlex>
+              <app-node [curNode]="node"></app-node>
+            </div>
+            <div *ngIf="node[0].node_export.field_icon.length > 0" class="icon-pad">
+              <app-icon fxHide.gt-xs svgClass="svg sm"
+                        svgIcon="tid{{node[0].node_export.field_icon[0].target_id}}"></app-icon>
+              <app-icon fxHide fxShow.gt-xs svgClass="svg lg"
+                        svgIcon="tid{{node[0].node_export.field_icon[0].target_id}}"></app-icon>
+            </div>
+          </div>
+        </div>
+      </a>
+      <div *ngIf="node[0].node_export.field_link.length < 1" fxLayout="row" fxLayoutAlign="start center">
+        <div *ngIf="node[0].node_export.field_private_image.length > 0" fxFlex="27"
+             fxLayout="column" class="img-pad-sm">
+          <img [src]="node[0].node_export.field_private_image[0].desktop"
+               [alt]="node[0].node_export.field_private_image[0].alt" class="fill" />
+        </div>
+        <div fxFlex class="home-text" fxLayout="row wrap" fxLayoutAlign="start center">
+          <div fxFlex>
+            <app-node [curNode]="node"></app-node>
+          </div>
+          <div *ngIf="node[0].node_export.field_icon.length > 0" class="icon-pad">
+            <app-icon fxHide.gt-xs svgClass="svg sm"
+                      svgIcon="tid{{node[0].node_export.field_icon[0].target_id}}"></app-icon>
+            <app-icon fxHide fxShow.gt-xs svgClass="svg lg"
+                      svgIcon="tid{{node[0].node_export.field_icon[0].target_id}}"></app-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--Simple Styles-->
+    <div *ngIf="style && node[0].node_export.field_style[0].value !== 'home_lg' && node[0].node_export.field_style[0].value !== 'home_sm'">
+      <app-node [curNode]="node"></app-node>
+    </div>
+    <!--Extra Comps-->
+    <div *ngIf="node[0].node_export.nid[0].value === '515'">
+      <app-self-help-landing></app-self-help-landing>
+    </div>
+    <div *ngIf="node[0].node_export.nid[0].value === '91'">
+      <app-self-help-menu></app-self-help-menu>
+    </div>
+    <div *ngIf="node[0].node_export.nid[0].value === '864'">
+      <app-temp-top></app-temp-top>
+    </div>
+    <div *ngIf="node[0].node_export.field_block_type.length > 0 && node[0].node_export.field_block_type[0].target_id === '685'">
+      <div *ngIf="node[0].node_export.field_nodes.length > 0 && variables.lang === 'en'" class="pad list">
+        <div *ngFor="let item of node[0].node_export.field_nodes; let last = last;">
+          <div *ngIf="show(item)" class="article" [ngClass]="{'margin-bottom': !last}">
+            <app-content-list [src]="[item]"></app-content-list>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="node[0].node_export.i18n.es.field_nodes.length > 0 && variables.lang === 'es'" class="pad list">
+        <div *ngFor="let item of node[0].node_export.i18n.es.field_nodes; let last = last;">
+          <div *ngIf="show(item)" class="article" [ngClass]="{'margin-bottom': !last}">
+            <app-content-list [src]="[item]"></app-content-list>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

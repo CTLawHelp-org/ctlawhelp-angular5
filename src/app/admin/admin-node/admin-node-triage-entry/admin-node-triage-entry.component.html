@@ -1,0 +1,41 @@
+<div class="admin-node-triage-entry-wrapper" fxLayout="column">
+  <div *ngIf="!working">
+    <div style="margin-bottom:-40px;" fxLayout="row wrap" fxLayoutAlign="end center">
+      <div>
+        <mat-slide-toggle labelPosition="before" [checked]="isPublished()" (change)="setStatus($event)">
+          <div class="mat-caption">
+            <span *ngIf="isPublished()">Published</span>
+            <span *ngIf="!isPublished()">Unpublished</span>
+          </div>
+        </mat-slide-toggle>
+      </div>
+    </div>
+    <form [formGroup]="formGroup" class="ui-fluid">
+      <dynamic-primeng-form [group]="formGroup" [model]="formModel" [layout]="formLayout"
+                            hasErrorMessaging="true" (dfChange)="onChange($event)">
+        <ng-template modelId="icon">
+          <mat-form-field>
+            <mat-select placeholder="Icon" [(ngModel)]="selectedIcon" [ngModelOptions]="{standalone: true}">
+              <mat-option *ngFor="let item of icons" [value]="item.value">
+                <div fxLayout="row" fxLayoutAlign="start center">
+                  <div class="margin-right">
+                    <mat-icon svgIcon="tid{{item.value}}" class="svg sm primary icon"></mat-icon>
+                  </div>
+                  <div>{{item.label}}</div>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </ng-template>
+      </dynamic-primeng-form>
+      <div class="ui-g-12" fxLayout="row" fxLayoutAlign="end center">
+        <div class="margin-right-lg" fxLayout="column" fxLayoutAlign="center center">
+          <a mat-raised-button class="button" routerLink="/admin/content/triage-entries">Cancel</a>
+        </div>
+        <div>
+          <button mat-raised-button color="primary" type="submit" (click)="saveNode()">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

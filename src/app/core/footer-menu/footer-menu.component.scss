@@ -1,0 +1,9 @@
+.footer-menu {
+  a.link {
+    color:#fff;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,0 +1,73 @@
+<div class="admin-blocks" fxLayout="column">
+  <div *ngIf="working">
+    <app-admin-loader></app-admin-loader>
+  </div>
+  <div *ngIf="!working" fxLayout="row wrap">
+    <div fxLayout="column" fxFlex="100" fxFlex.gt-sm="50">
+      <div>
+        <div class="pad">
+          <div class="pad backg bg white-text" fxLayout="row" fxLayoutAlign="start center">
+            <h4 class="no-margin">Core Block Setups</h4>
+            <div fxFlex></div>
+          </div>
+        </div>
+        <div class="pad">
+          <div *ngFor="let item of blocks; let index = index;">
+            <div *ngIf="isManaged(item)" class="entry-wrapper pad" fxLayout="row" fxLayoutAlign="start start">
+              <div class="margin-right">
+                <button mat-icon-button mat-raised-button (click)="editBlocks(item)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+              <div fxLayout="column">
+                <div fxLayout="row" fxLayoutAlign="start center">
+                  <div class="margin-right"><strong [innerHTML]="item.name"></strong></div>
+                  <div class="status-circle bg" [ngClass]="{'alert': !isEnabled(item), 'enabled': isEnabled(item)}"></div>
+                </div>
+                <div *ngIf="item.term_export.description.length > 0" class="mat-caption"
+                     [innerHTML]="item.term_export.description[0].value"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div fxLayout="column" fxFlex="100" fxFlex.gt-sm="50">
+      <div>
+        <div class="pad">
+          <div class="pad backg bg white-text" fxLayout="row" fxLayoutAlign="start center">
+            <h4 class="no-margin">Custom Block Setups</h4>
+            <div fxFlex></div>
+            <div fxLayout="column" fxLayoutAlign="center center" style="cursor: pointer" (click)="newBlock()">
+              <mat-icon class="white-text">add_circle</mat-icon>
+            </div>
+          </div>
+        </div>
+        <div class="pad">
+          <div *ngFor="let item of blocks; let index = index;">
+            <div *ngIf="!isManaged(item)" class="entry-wrapper pad" fxLayout="row" fxLayoutAlign="start start">
+              <div class="margin-right">
+                <button mat-icon-button mat-raised-button (click)="editBlocks(item)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+              <div fxLayout="column" class="margin-right">
+                <div fxLayout="row" fxLayoutAlign="start center">
+                  <div class="margin-right"><strong [innerHTML]="item.name"></strong></div>
+                  <div class="status-circle bg" [ngClass]="{'alert': !isEnabled(item), 'enabled': isEnabled(item)}"></div>
+                </div>
+                <div *ngIf="item.term_export.description.length > 0" class="mat-caption"
+                     [innerHTML]="item.term_export.description[0].value"></div>
+              </div>
+              <div class="margin-left">
+                <button mat-icon-button mat-raised-button (click)="confirmDelete(item)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<div fxLayout="column">
+  <div class="admin-segments-wrapper" fxLayout="column">
+    <div class="admin-segments" fxLayout="column">
+      <div *ngIf="working">
+        <app-admin-loader></app-admin-loader>
+      </div>
+      <div fxFlex [fxHide]="working" fxLayout="column">
+        <div fxLayout="row" fxLayoutAlign="start center" class="margin-bottom">
+          <div fxLayout="column" fxLayoutAlign="center center">
+            <mat-menu #actionMenu="matMenu">
+              <button mat-menu-item class="button" (click)="unpubSelection()">Unpublish</button>
+              <button mat-menu-item class="button" (click)="pubSelection()">Publish</button>
+              <button mat-menu-item class="button" (click)="confirmDelete()">Delete</button>
+            </mat-menu>
+            <button mat-button class="primary button" [matMenuTriggerFor]="actionMenu">
+              Actions
+            </button>
+          </div>
+          <div fxLayout="column" fxLayoutAlign="center center" class="margin-left">
+            <button mat-button (click)="clearSelection()">
+              Clear Selection
+            </button>
+          </div>
+        </div>
+        <ag-grid-angular fxFlex #agGrid [columnDefs]="columns" [rowData]="nodes"
+                         [gridOptions]="gridOptions" class="ag-theme-material grid-wrapper"></ag-grid-angular>
+      </div>
+    </div>
+  </div>
+</div>

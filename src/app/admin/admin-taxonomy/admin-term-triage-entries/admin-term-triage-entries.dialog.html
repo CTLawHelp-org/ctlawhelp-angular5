@@ -1,0 +1,77 @@
+<div class="custom-typography" fxFill fxLayout="column">
+  <mat-toolbar mat-dialog-title fxLayout="row" class="dialog-header">
+    <div class="mat-body-1">
+      <span *ngIf="status.length > 0">Status </span>
+      <span *ngIf="locations.length > 0">Location </span>
+      Conditions
+    </div>
+    <div fxFlex></div>
+    <div class="margin-right">
+      <button mat-raised-button (click)="saveCond()" color="primary">
+        Save
+      </button>
+    </div>
+    <div>
+      <button mat-icon-button mat-raised-button (click)="onNoClick()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div fxFlex>
+    <mat-dialog-content fxFill class="dialog-node" fxLayout="column">
+      <div *ngIf="working">
+        <app-admin-loader></app-admin-loader>
+      </div>
+      <div fxFlex [fxHide]="working" fxLayout="column">
+        <!--Status based-->
+        <div *ngIf="status.length > 0">
+          <div fxLayout="column" class="pad">
+            <div *ngFor="let item of status" class="pad">
+              <mat-checkbox [checked]="isChecked(item)" (change)="updateCheck(item)">
+                <span [innerHTML]="item.name"></span>
+              </mat-checkbox>
+            </div>
+          </div>
+        </div>
+        <!--Location based-->
+        <div *ngIf="locations.length > 0" fxLayout="row">
+          <!--County-->
+          <div fxFlex="40" fxLayout="column" class="pad">
+            <div class="pad"><strong>County Based</strong></div>
+            <div *ngFor="let item of locations" class="pad">
+              <mat-checkbox [checked]="isChecked(item)" (change)="updateCheck(item)">
+                <span [innerHTML]="item.name"></span>
+              </mat-checkbox>
+            </div>
+          </div>
+          <!--City-->
+          <div fxFlex="60" fxLayout="column" class="pad">
+            <div class="pad"><strong>City Based</strong></div>
+            <div>
+              <div fxLayout="row" fxLayoutAlign="start center">
+                <mat-form-field>
+                  <mat-select [(value)]="selected" placeholder="Cities">
+                    <mat-option *ngFor="let cur of cities" [value]="cur.city">{{cur.city}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <div class="margin-left">
+                  <button mat-raised-button color="primary" (click)="addCity(selected)">Add</button>
+                </div>
+              </div>
+              <div>
+                <div *ngFor="let city of sel_cities; let index = index" class="pad">
+                  <div fxLayout="row" fxLayoutAlign="start center">
+                    <div>{{city}}</div>
+                    <div class="margin-left" (click)="sel_cities.splice(index, 1)" style="cursor: pointer">
+                      <mat-icon class="alert icon">remove_circle</mat-icon>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+  </div>
+</div>

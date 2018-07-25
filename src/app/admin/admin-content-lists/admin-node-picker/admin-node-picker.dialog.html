@@ -1,0 +1,30 @@
+<div class="custom-typography" fxFill fxLayout="column">
+  <mat-toolbar mat-dialog-title fxLayout="row" class="dialog-header">
+    <div class="mat-body">
+      Choose Node(s)
+    </div>
+    <div fxFlex></div>
+    <div class="margin-right-lg">
+      <button mat-raised-button color="primary" [disabled]="selection.length < 1" (click)="addNodes()">
+        Add
+      </button>
+    </div>
+    <div>
+      <button mat-icon-button mat-raised-button (click)="onNoClick()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div fxFlex>
+    <mat-dialog-content fxFill class="dialog-node" fxLayout="column">
+      <div *ngIf="working">
+        <app-admin-loader></app-admin-loader>
+      </div>
+      <div fxFlex [fxHide]="working" fxLayout="column">
+        <ag-grid-angular fxFlex #agGrid [columnDefs]="columns" [rowData]="nodes"
+                         [gridOptions]="gridOptions" class="ag-theme-material grid-wrapper"
+                         (selectionChanged)="onSelectionChanged($event)"></ag-grid-angular>
+      </div>
+    </mat-dialog-content>
+  </div>
+</div>

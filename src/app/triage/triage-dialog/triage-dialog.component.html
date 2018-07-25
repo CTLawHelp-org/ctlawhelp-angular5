@@ -1,0 +1,19 @@
+<div class="custom-typography" fxFill fxLayout="column">
+  <mat-toolbar mat-dialog-title fxLayout="row" class="mat-elevation-z2 dialog-header primary bg">
+    <div>
+      <h3 class="no-margin"><app-label src="home_lhf"></app-label></h3>
+    </div>
+    <div fxFlex></div>
+    <div>
+      <button mat-icon-button mat-raised-button (click)="onNoClick()" aria-label="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div fxFlex>
+    <mat-dialog-content fxFill>
+      <app-triage-input (success)="onNoClick()"></app-triage-input>
+    </mat-dialog-content>
+  </div>
+</div>
+

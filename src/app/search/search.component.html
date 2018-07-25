@@ -1,0 +1,119 @@
+<div class="search-wrapper" fxLayout="column">
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+  <div *ngIf="!working">
+    <div class="pad-r border-bottom">
+      <div>
+        <h1 fxHide fxShow.gt-sm class="no-margin"><app-label src="search_title"></app-label></h1>
+        <h2 fxHide.gt-sm class="no-margin"><app-label src="search_title"></app-label></h2>
+      </div>
+      <div fxFlex></div>
+    </div>
+    <div fxLayout="row wrap">
+      <!--Search Results-->
+      <div fxFlex="100" fxFlex.gt-sm="70" class="results-wrapper pad" fxLayout="column">
+        <mat-tab-group class="triage-summary-tabs" [selectedIndex]="currentIdx" (selectedTabChange)="tabChange($event)">
+          <mat-tab *ngFor="let item of searches; let last = last; let index = index;">
+            <ng-template mat-tab-label>
+              <div fxLayout="row" fxLayoutAlign="start center">
+                <h4 class="no-margin"><em>{{item.key}}</em></h4>
+                <div *ngIf="searches.length > 1" fxLayout="column" fxLayoutAlign="center center">
+                  <button aria-label="Close" (click)="remove(index)" class="primary icon item" mat-icon-button>
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </ng-template>
+            <!--Title / Toggle / Remove-->
+            <div fxLayout="row" fxLayoutAlign="start center" class="pad">
+              <div>Showing <strong>{{item.search.pages.length}}
+                <span *ngIf="item.search.overflow.length > 0">of {{item.search.pages.length + item.search.overflow.length}}</span></strong>
+                <span>results for <em>{{item.key}}</em></span></div>
+              <div fxFlex></div>
+              <div class="search-actions" fxLayout="column" fxLayoutAlign="center center">
+                <div fxLayout="row">
+                  <div fxLayout="column" fxLayoutAlign="center center" class="margin-right">
+                    <button *ngIf="media.isMatched('(min-width: 960px)')" aria-label="Print" class="primary icon item"
+                            mat-icon-button mat-raised-button (click)="print()">
+                      <app-icon svgClass="svg sm" svgIcon="tid717"></app-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Spelling Suggestions-->
+            <div *ngIf="item.spelling.length > 0" class="pad">
+              <strong>Did you mean: </strong>
+              <span><a [routerLink]="[ '/' + variables.lang + '/search', item.new_key ]"
+                       (click)="remove(index)">{{item.new_key}}</a></span>
+            </div>
+            <!--Triage Search Results-->
+            <div *ngIf="item.search.triage.length > 0" class="pad">
+              <div fxLayout="column" class="highlight border pad border-radius">
+                <div fxLayout="row" fxLayoutAlign="start center">
+                  <app-icon svgClass="svg sm primary icon margin-right" svgIcon="tid631"></app-icon>
+                  <h3 class="no-margin"><app-label src="search_triage_label"></app-label></h3>
+                </div>
+                <div>
+                  <div class="margin-bottom margin-top">
+                    <app-label src="search_triage"></app-label>
+                  </div>
+                  <div>
+                    <ul>
+                      <li *ngFor="let item of item.search.triage; let last = last;">
+                        <a [routerLink]="[ '/' + variables.lang + '/legal-help/view', item.tid]">
+                          <strong [innerHTML]="item.name"></strong>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Search Results-->
+            <div class="">
+              <!--Segment Display-->
+              <div *ngIf="item.search.segments.length > 0 && showSeg(item.search.segments[0])" class="pad margin-bottom">
+                <app-segment-display [src]="item.search.segments[0]"></app-segment-display>
+              </div>
+              <!--Normal Results-->
+              <div *ngIf="item.search.pages.length > 0" class="pad">
+                <div *ngFor="let entry of item.search.pages; let last = last; let odd = odd; let index = index;">
+                  <div *ngIf="show(entry)" class="pad" [ngClass]="{'margin-bottom': !last, 'backg1 bg': odd}">
+                    <app-content-list [search]="[entry]" preview="true"></app-content-list>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="item.search.overflow.length > 0" class="pad">
+                <div *ngIf="!item.show_overflow">
+                  <button mat-raised-button class="primary button pad"
+                          (click)="processOverflow(item)">
+                    <div fxLayout="row" fxLayoutAlign="start center" *ngIf="!item.overflow_loading">
+                      View More <mat-icon>expand_more</mat-icon>
+                    </div>
+                    <div *ngIf="item.overflow_loading">Loading...</div>
+                  </button>
+                </div>
+                <div *ngIf="item.show_overflow">
+                  <div *ngFor="let entry of item.search.overflow; let last = last; let odd = odd; let index = index;">
+                    <div *ngIf="show(entry)" class="pad" [ngClass]="{'margin-bottom': !last, 'backg1 bg': odd}">
+                      <app-content-list [search]="[entry]" preview="true"></app-content-list>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+      <!--Right Block System-->
+      <div *ngIf="hasBlocks && blocks['right'].length > 0" fxFlex="100" fxFlex.gt-sm="30" class="blocks side-pad-r"
+           [ngClass]="{'backg1 bg': !media.isMatched('(min-width: 960px)'), 'border-left': media.isMatched('(min-width: 960px)')}">
+        <div *ngFor="let item of blocks['right']">
+          <app-block [nid]="item"></app-block>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

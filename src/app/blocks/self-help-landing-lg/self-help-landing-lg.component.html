@@ -1,0 +1,46 @@
+<div class="self-help-landing">
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+  <div *ngIf="!working" fxLayout="row wrap" fxLayoutAlign="space-between stretch">
+    <div fxFlex="100" fxFlex.sm="50" fxFlex.md="50" fxFlex.gt-md="33" fxLayout="column" *ngFor="let item of nsmi"
+         class="item-wrapper margin-bottom-lg-lt-xs">
+      <a fxFlex [routerLink]="[ '/' + variables.lang + '/self-help', item.tid ]" class="backg1 bg border-radius-lg">
+        <div fxLayout="row" class="pad entry">
+          <div fxLayout="column" fxLayoutAlign="start center">
+            <app-icon *ngIf="item.term_export.field_public_term_file.length > 0"
+                      svgClass="margin-right svg xl" svgIcon="tid{{item.id}}"></app-icon>
+          </div>
+          <div fxFlex>
+            <div class="primary color">
+              <h3 fxHide.gt-xs class="no-margin">
+                <div *ngIf="variables.lang === 'en'">
+                  <span [innerHTML]="item.name"></span>
+                </div>
+                <div *ngIf="variables.lang === 'es'">
+                  <span [innerHTML]="item.i18n['es'].name[0].value"></span>
+                </div>
+              </h3>
+              <h2 fxHide fxShow.gt-xs class="no-margin">
+                <div *ngIf="variables.lang === 'en'">
+                  <span [innerHTML]="item.name"></span>
+                </div>
+                <div *ngIf="variables.lang === 'es'">
+                  <span [innerHTML]="item.i18n['es'].name[0].value"></span>
+                </div>
+              </h2>
+            </div>
+            <div class="desc margin-top-gt-xs">
+              <div *ngIf="variables.lang === 'en'">
+                <div [innerHTML]="item.term_export.description[0].value"></div>
+              </div>
+              <div *ngIf="variables.lang === 'es'">
+                <div [innerHTML]="item.i18n['es'].description[0].value"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

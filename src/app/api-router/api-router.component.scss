@@ -1,0 +1,6 @@
+// Print styles
+@media only print {
+  .left, .right, .hide-print {
+    display:none !important;
+  }
+}

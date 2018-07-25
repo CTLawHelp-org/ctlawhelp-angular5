@@ -1,0 +1,6 @@
+<div *ngIf="variables.lang === 'en'">
+  <div class="site-label" [innerHTML]="variables.site_vars[src]?.desc"></div>
+</div>
+<div *ngIf="variables.lang === 'es'">
+  <div class="site-label" [innerHTML]="variables.site_vars[src]?.es.desc"></div>
+</div>

@@ -1,0 +1,33 @@
+.home-top-wrapper {
+  position:relative;
+  overflow:hidden;
+  a {
+    text-decoration: none;
+  }
+}
+
+.home-wrapper {
+  h1.hidden {
+    visibility: hidden;
+    display:none;
+  }
+}
+
+@media only screen and (min-width: 960px) {
+  .home-top-wrapper {
+    .home-info {
+      position:absolute;
+      bottom:0;
+      left:0;
+      right:0;
+      margin:auto;
+    }
+    img {
+      width:100%;
+    }
+  }
+}
+
+@media only screen and (min-width: 1280px) {
+
+}

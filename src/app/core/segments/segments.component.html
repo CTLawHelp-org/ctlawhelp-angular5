@@ -1,0 +1,185 @@
+<div class="segments-wrapper">
+  <!--Page and Article Styles-->
+  <div *ngIf="type === '9' || type === '7'">
+    <div *ngFor="let item of src; let last = last; let index = index;" class="margin-bottom-lg-r seg-item">
+      <div *ngIf="showSeg(item)" [id]="'s' + index">
+        <a [name]="'s' + index"></a>
+        <!--Title-->
+        <div class="margin-bottom" fxLayout="row" fxLayoutAlign="start end"
+             [ngClass]="{'padding-bottom border-bottom': type === '7'}">
+          <div *ngIf="variables.lang === 'en'">
+            <h2 class="no-margin" [innerHTML]="item.name"></h2>
+          </div>
+          <div *ngIf="variables.lang === 'es'">
+            <h2 class="no-margin" [innerHTML]="item.src.i18n['es'].title[0].value"></h2>
+          </div>
+          <div fxFlex></div>
+          <div>
+            <a routerLink="." [fragment]="'s' + index">
+              <mat-icon class="link-icon backg2 icon" appHighlight>link</mat-icon>
+            </a>
+          </div>
+        </div>
+        <!--Body / Node Reference-->
+        <div>
+          <div *ngIf="variables.lang === 'en'">
+            <div *ngIf="item.src.body.length > 0" [innerHTML]="item.src.body[0].value | safeHtml"></div>
+            <div *ngIf="item.src.field_node_reference.length > 0">
+              <div *ngIf="item.src.field_node_reference[0].src.body.length > 0"
+                   [innerHTML]="item.src.field_node_reference[0].src.body[0].value | safeHtml"></div>
+            </div>
+          </div>
+          <div *ngIf="variables.lang === 'es'">
+            <div *ngIf="item.src.i18n['es'].body.length > 0" [innerHTML]="item.src.i18n['es'].body[0].value | safeHtml"></div>
+            <div *ngIf="item.src.field_node_reference.length > 0">
+              <div *ngIf="item.src.field_node_reference[0].src.i18n['es'].body.length > 0"
+                   [innerHTML]="item.src.field_node_reference[0].src.i18n['es'].body[0].value | safeHtml"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Classroom / Guide Style-->
+  <div *ngIf="type === '6'" fxLayout="row wrap" id="guide">
+    <!--Guide Content-->
+    <div fxFlex="100" fxFlex.gt-sm="70" fxFlexOrder="1" fxFlexOrder.gt-sm="2" *ngIf="curitem"
+         class="whitebg bg hide-print pad-r-gt-xs">
+      <div class="pad-r mat-elevation-z2 border-radius" fxLayout="column">
+        <!--Title-->
+        <div class="margin-bottom" fxLayout="row" fxLayoutAlign="start center">
+          <div>
+            <div *ngIf="variables.lang === 'en'">
+              <h2 class="no-margin" [innerHTML]="curitem.name"></h2>
+            </div>
+            <div *ngIf="variables.lang === 'es'">
+              <h2 class="no-margin" [innerHTML]="curitem.src.i18n?.es.title[0].value"></h2>
+            </div>
+          </div>
+          <div fxFlex></div>
+          <div fxLayout="row" fxLayoutAlign="space-between center">
+            <a routerLink="." [queryParams]="{'s': prevIndex(curIndex)}" mat-icon-button mat-raised-button
+               aria-label="Previous" (click)="prevItem(curIndex)">
+              <mat-icon>chevron_left</mat-icon>
+            </a>
+            <div fxFlex class="pad"></div>
+            <a routerLink="." [queryParams]="{'s': nextIndex(curIndex)}" mat-icon-button mat-raised-button
+               aria-label="Next" (click)="nextItem(curIndex)">
+              <mat-icon>chevron_right</mat-icon>
+            </a>
+          </div>
+        </div>
+        <!--Body / Node Reference-->
+        <div class="pad">
+          <div *ngIf="variables.lang === 'en'">
+            <div *ngIf="curitem.src.body.length > 0" [innerHTML]="curitem.src.body[0].value | safeHtml"></div>
+            <div *ngIf="curitem.src.field_node_reference.length > 0">
+              <div *ngIf="curitem.src.field_node_reference[0].src.body.length > 0"
+                   [innerHTML]="curitem.src.field_node_reference[0].src.body[0].value | safeHtml"></div>
+            </div>
+          </div>
+          <div *ngIf="variables.lang === 'es'">
+            <div *ngIf="curitem.src.i18n.es.body.length > 0" [innerHTML]="curitem.src.i18n.es.body[0].value | safeHtml"></div>
+            <div *ngIf="curitem.src.field_node_reference.length > 0">
+              <div *ngIf="curitem.src.field_node_reference[0].src.i18n['es'].body.length > 0"
+                   [innerHTML]="curitem.src.field_node_reference[0].src.i18n['es'].body[0].value | safeHtml"></div>
+            </div>
+          </div>
+        </div>
+        <!--Bottom Pagination-->
+        <div fxLayout="column" class="backg1 bg pad border-radius">
+          <div fxLayout="row wrap" fxLayoutAlign="space-between center">
+            <div fxFlex="100" fxFlex.gt-sm fxLayout="row" fxLayoutAlign="start center">
+              <a routerLink="." [queryParams]="{'s': prevIndex(curIndex)}" mat-icon-button mat-raised-button
+                 aria-label="Previous" (click)="prevItem(curIndex)">
+                <mat-icon>chevron_left</mat-icon>
+              </a>
+              <div class="pad">
+                <div *ngIf="variables.lang === 'en'">
+                  <h4 class="no-margin" [innerHTML]="src[prevIndex(curIndex)].name"></h4>
+                </div>
+                <div *ngIf="variables.lang === 'es'">
+                  <h4 class="no-margin" [innerHTML]="src[prevIndex(curIndex)].src.i18n['es'].title[0].value"></h4>
+                </div>
+              </div>
+            </div>
+            <div fxFlex></div>
+            <div fxFlex="100" fxFlex.gt-sm fxLayout="row" fxLayoutAlign="start center">
+              <div fxFlex class="pad" style="text-align:right;">
+                <div *ngIf="variables.lang === 'en'">
+                  <h4 class="no-margin" [innerHTML]="src[nextIndex(curIndex)].name"></h4>
+                </div>
+                <div *ngIf="variables.lang === 'es'">
+                  <h4 class="no-margin" [innerHTML]="src[nextIndex(curIndex)].src.i18n['es'].title[0].value"></h4>
+                </div>
+              </div>
+              <a routerLink="." [queryParams]="{'s': nextIndex(curIndex)}" mat-icon-button mat-raised-button
+                 aria-label="Next" (click)="nextItem(curIndex)">
+                <mat-icon>chevron_right</mat-icon>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--Guide Menu-->
+    <div fxFlex="100" fxFlex.gt-sm="30" fxFlexOrder="2" fxFlexOrder.gt-sm="1" fxLayout="column"
+         class="pad-r guide-menu whitebg bg hide-print">
+      <div *ngFor="let item of src; let last = last; let index = index;" class="guide-item"
+           [ngClass]="{'margin-bottom': !last}" fxLayout="row" fxLayoutAlign="start center">
+        <div class="margin-right">
+          <button mat-raised-button mat-icon-button (click)="complete(index)"
+                  class="button" [ngClass]="{'highlight': item.done}">
+            <mat-icon>check</mat-icon>
+          </button>
+        </div>
+        <div fxFlex fxLayout="column">
+          <a routerLink="." [queryParams]="{'s': index}" (click)="chooseItem(index, $event)"
+             mat-raised-button class="primary button border-radius pad guide-btn"
+                  appHighlight [ngClass]="{'active': index === curIndex}">
+            <div *ngIf="variables.lang === 'en'">
+              <div class="no-margin" [innerHTML]="item.name"></div>
+            </div>
+            <div *ngIf="variables.lang === 'es'">
+              <div class="no-margin" [innerHTML]="item.src.i18n['es'].title[0].value"></div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <!--Print View-->
+    <div class="print-view">
+      <div *ngFor="let item of src; let last = last; let index = index;" class="guides"
+           [ngClass]="{'margin-bottom': !last}" fxLayout="column">
+        <!--Title-->
+        <div class="margin-bottom" fxLayout="row" fxLayoutAlign="start center">
+          <div>
+            <div *ngIf="variables.lang === 'en'">
+              <h2 class="no-margin" [innerHTML]="item.name"></h2>
+            </div>
+            <div *ngIf="variables.lang === 'es'">
+              <h2 class="no-margin" [innerHTML]="item.src.i18n?.es.title[0].value"></h2>
+            </div>
+          </div>
+        </div>
+        <!--Body / Node Reference-->
+        <div class="pad">
+          <div *ngIf="variables.lang === 'en'">
+            <div *ngIf="item.src.body.length > 0" [innerHTML]="item.src.body[0].value | safeHtml"></div>
+            <div *ngIf="item.src.field_node_reference.length > 0">
+              <div *ngIf="item.src.field_node_reference[0].src.body.length > 0"
+                   [innerHTML]="item.src.field_node_reference[0].src.body[0].value | safeHtml"></div>
+            </div>
+          </div>
+          <div *ngIf="variables.lang === 'es'">
+            <div *ngIf="item.src.i18n.es.body.length > 0" [innerHTML]="item.src.i18n.es.body[0].value | safeHtml"></div>
+            <div *ngIf="item.src.field_node_reference.length > 0">
+              <div *ngIf="item.src.field_node_reference[0].src.i18n['es'].body.length > 0"
+                   [innerHTML]="item.src.field_node_reference[0].src.i18n['es'].body[0].value | safeHtml"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

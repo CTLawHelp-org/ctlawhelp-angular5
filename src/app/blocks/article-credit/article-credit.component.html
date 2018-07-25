@@ -1,0 +1,8 @@
+<div *ngIf="node.length > 0" class="article-credit">
+  <div *ngIf="variables.lang === 'en'">
+    <span [innerHTML]="node[0].node_export.body[0].value"></span>
+  </div>
+  <div *ngIf="variables.lang === 'es'">
+    <span [innerHTML]="node[0].node_export.i18n.es.body[0].value"></span>
+  </div>
+</div>

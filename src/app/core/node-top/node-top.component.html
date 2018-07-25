@@ -1,0 +1,80 @@
+<div fxLayout="column" class="node-top-wrapper">
+  <div *ngIf="curNode.length > 0 && !working" fxLayout="column">
+    <!--Crumb-->
+    <div *ngIf="showCrumb()" fxLayout="row" fxLayoutAlign="start stretch" class="crumb border-bottom margin-bottom">
+      <div fxFlex fxLayout="column" fxLayoutAlign="center stretch">
+        <div fxLayout="row" fxLayoutAlign="start center" class="pad crumb-link">
+          <a fxHide fxShow.gt-xs [routerLink]="[ '/' + variables.lang + '/home' ]">
+            <app-label src="home_label"></app-label>
+          </a>
+          <mat-icon fxHide fxShow.gt-xs class="backg2 icon">chevron_left</mat-icon>
+          <a [routerLink]="[ '/' + variables.lang + '/self-help' ]">
+            <app-label src="selfhelp_title"></app-label>
+          </a>
+          <mat-icon class="backg2 icon">chevron_left</mat-icon>
+          <a [routerLink]="[ '/' + variables.lang + '/self-help', nsmi_term.tid ]" fxLayout="row" fxLayoutAlign="start center">
+            <div class="pad-sm"><app-icon svgClass="svg xs" svgIcon="tid{{nsmi_term.tid}}"></app-icon></div>
+            <div *ngIf="variables.lang === 'en'">
+              <span [innerHTML]="nsmi_term.name"></span>
+            </div>
+            <div *ngIf="variables.lang === 'es'">
+              <span [innerHTML]="nsmi_term.i18n.es.name[0].value"></span>
+            </div>
+          </a>
+          <mat-icon *ngIf="nsmi_subterm" fxHide fxShow.gt-xs class="backg2 icon">chevron_left</mat-icon>
+          <a *ngIf="nsmi_subterm" fxHide fxShow.gt-xs
+             routerLink="/{{variables.lang}}/self-help/{{nsmi_term.tid}}/{{nsmi_subterm.tid}}"
+             fxLayout="row" fxLayoutAlign="start center">
+            <div *ngIf="variables.lang === 'en'">
+              <span [innerHTML]="nsmi_subterm.name"></span>
+            </div>
+            <div *ngIf="variables.lang === 'es'">
+              <span [innerHTML]="nsmi_subterm.i18n.es.name[0].value"></span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <!--Title-->
+    <div *ngIf="curNode[0].node_export.type[0].target_id !== 'block'" fxLayout="row wrap">
+      <div fxFlex fxLayout="row nowrap" class="pad">
+        <div *ngIf="setupIcon(curNode[0]) !== ''" fxLayout="column" fxLayoutAlign="center start" class="hide-print">
+          <app-icon svgClass="margin-right svg resp" [svgIcon]="setupIcon(curNode[0])"></app-icon>
+        </div>
+        <div fxFlex fxLayout="row" fxLayoutAlign="start center"
+             [ngClass]="{'padding-left': setupIcon(curNode[0]) !== ''}">
+          <h1 fxHide fxShow.gt-sm class="no-margin">
+            <div *ngIf="variables.lang === 'en'" [innerHTML]="curNode[0].title"></div>
+            <div *ngIf="variables.lang === 'es'" [innerHTML]="curNode[0].node_export.i18n['es'].title[0].value"></div>
+          </h1>
+          <h2 fxHide.gt-sm class="no-margin mobile-title">
+            <div *ngIf="variables.lang === 'en'" [innerHTML]="curNode[0].title"></div>
+            <div *ngIf="variables.lang === 'es'" [innerHTML]="curNode[0].node_export.i18n['es'].title[0].value"></div>
+          </h2>
+        </div>
+      </div>
+      <!--Admin and Node Actions-->
+      <div *ngIf="curNode[0].node_export.field_type.length > 0 && curNode[0].node_export.field_type[0].target_id === '9'"
+           fxLayout="row" fxLayoutAlign="end center" class="node-buttons padding-right">
+        <!--Node Admin-->
+        <div *ngIf="variables.auth" class="node-admin">
+          <button mat-icon-button mat-raised-button [matMenuTriggerFor]="menu" aria-label="Node Menu">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <a mat-menu-item [routerLink]="['/admin/content/edit/', curNode[0].node_export.nid[0].value]">Edit</a>
+          </mat-menu>
+        </div>
+        <!--Node Actions-->
+        <div class="node-actions" fxLayout="row" fxLayoutAlign="end start">
+          <div fxHide fxShow.gt-sm class="margin-left">
+            <button mat-icon-button mat-raised-button class="min" (click)="print()">
+              <app-icon svgClass="svg sm" svgIcon="tid717"></app-icon>
+            </button>
+          </div>
+          <app-share [curNode]="curNode" class="margin-left"></app-share>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

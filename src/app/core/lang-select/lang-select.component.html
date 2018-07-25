@@ -1,0 +1,32 @@
+<div class="lang-select" fxLayout="row" fxLayoutAlign="start center">
+  <div *ngIf="isBrowser" fxLayout="row" fxLayoutAlign="start center">
+    <button *ngIf="variables.lang === 'en'" title="Change Language"
+            mat-button (click)="changeLang('es')" class="lang-btn">
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <app-icon aria-hidden="true" svgClass="white-text svg lang" svgIcon="tid630" title="Language Select"></app-icon>
+        <div>Español</div>
+      </div>
+    </button>
+    <button *ngIf="variables.lang === 'es'" title="Change Language"
+            mat-button (click)="changeLang('en')" class="lang-btn">
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <app-icon aria-hidden="true" svgClass="white-text svg lang" svgIcon="tid630" title="Language Select"></app-icon>
+        <div>Inglés</div>
+      </div>
+    </button>
+  </div>
+  <div *ngIf="!isBrowser" fxLayout="row" fxLayoutAlign="start center">
+    <a *ngIf="variables.lang === 'en'" class="mat-button" [routerLink]="[newUrl]" title="Change Language">
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <app-icon aria-hidden="true" svgClass="white-text svg lang" svgIcon="tid630" title="Language Select"></app-icon>
+        <div>Español</div>
+      </div>
+    </a>
+    <a *ngIf="variables.lang === 'es'" class="mat-button" [routerLink]="[newUrl]" title="Change Language">
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <app-icon aria-hidden="true" svgClass="white-text svg lang" svgIcon="tid630" title="Language Select"></app-icon>
+        <div>Inglés</div>
+      </div>
+    </a>
+  </div>
+</div>

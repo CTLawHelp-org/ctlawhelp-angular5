@@ -1,0 +1,12 @@
+.triage-results {
+
+}
+
+// Print styles
+@media only print {
+  .triage-results {
+    .result-actions, .triage-loc, .blocks {
+      display:none !important;
+    }
+  }
+}

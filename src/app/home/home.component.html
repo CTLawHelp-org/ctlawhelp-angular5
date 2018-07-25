@@ -1,0 +1,29 @@
+<div fxLayout="column" class="home-wrapper">
+  <h1 class="hidden">{{title}}</h1>
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+  <div *ngIf="!working" class="backg1 bg">
+    <!--Content Top Block System-->
+    <div *ngIf="hasBlocks && blocks['content_top'].length > 0"
+         fxLayout="row wrap" fxLayoutAlign="start center" class="pad-r whitebg bg">
+      <div fxFlex="100" fxFlex.gt-sm="50" *ngFor="let item of blocks['content_top']">
+        <app-block [nid]="item"></app-block>
+      </div>
+    </div>
+    <!--Content Bottom Block System-->
+    <div *ngIf="hasBlocks && blocks['content_bottom'].length > 0" class="pad-r margin-top-r"
+         fxLayout="row wrap" fxLayoutAlign="space-between stretch">
+      <div *ngFor="let item of blocks['content_bottom']; let index = index;"
+           fxFlex="100" [fxFlex.gt-sm]="setFlex(index)" class="margin-bottom-lg" fxLayout="column">
+        <div fxFlex class="mat-elevation-z1 pad border-radius whitebg bg" fxLayout="column">
+          <app-block [nid]="item"></app-block>
+        </div>
+      </div>
+    </div>
+    <!--Self-Help Categories-->
+    <div class="pad-r whitebg bg">
+      <app-self-help-landing-lg></app-self-help-landing-lg>
+    </div>
+  </div>
+</div>

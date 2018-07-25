@@ -1,0 +1,14 @@
+@import '~@angular/material/theming';
+@import 'custom-theme.scss';
+
+// @include mat-core(); // overrides font styles if used
+$app-primary: mat-palette($mat-light-blue, 800);
+$app-accent: mat-palette($mat-blue);
+$app-theme: mat-light-theme($app-primary, $app-accent);
+
+@mixin custom-theme($theme) {
+  @include material-theme($theme);
+}
+
+@include angular-material-theme($app-theme);
+@include custom-theme($app-theme);

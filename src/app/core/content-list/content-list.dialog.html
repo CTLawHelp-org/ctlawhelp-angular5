@@ -1,0 +1,28 @@
+<div class="custom-typography" fxLayout="column">
+  <mat-toolbar mat-dialog-title fxLayout="row" class="mat-elevation-z2 dialog-header primary bg">
+    <div *ngIf="variables.lang === 'en'">
+      <button [routerLink]="[node[0].link]" (click)="viewClick()" mat-raised-button class="primary link">
+        View Article
+      </button>
+    </div>
+    <div *ngIf="variables.lang === 'es'">
+      <button [routerLink]="[node[0].link_es]" (click)="viewClick()" mat-raised-button class="primary link">
+        Ver articulo
+      </button>
+    </div>
+    <div fxFlex></div>
+    <div>
+      <button mat-icon-button mat-raised-button (click)="onNoClick()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div>
+    <mat-dialog-content class="dialog-node" fxLayout="column">
+      <div class="pad">
+        <app-node-top [curNode]="node"></app-node-top>
+        <app-node [curNode]="node"></app-node>
+      </div>
+    </mat-dialog-content>
+  </div>
+</div>

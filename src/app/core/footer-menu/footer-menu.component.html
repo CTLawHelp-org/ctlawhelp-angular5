@@ -1,0 +1,14 @@
+<div fxLayout="column" class="footer-menu">
+  <div *ngFor="let item of menu; let last = last;">
+    <div [ngClass]="{'margin-bottom border-bottom': !last}" class="pad">
+      <a class="link" [routerLink]="variables.lang + '/' + item.link">
+        <div *ngIf="variables.lang === 'en'">
+          <span [innerHTML]="item.name"></span>
+        </div>
+        <div *ngIf="variables.lang === 'es'">
+          <span [innerHTML]="item.es"></span>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

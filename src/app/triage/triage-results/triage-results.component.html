@@ -1,0 +1,83 @@
+<div class="triage-results" fxLayout="column">
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+  <div *ngIf="!working">
+    <!--Header / Title-->
+    <div fxLayout="column" [ngClass]="{'border-bottom': media.isMatched('(min-width: 960px)')}">
+      <div fxLayout="row wrap" fxLayoutAlign="start stretch" class="pad-r">
+        <div fxHide fxShow.gt-sm fxLayout="row" fxLayoutAlign="start center" class="pad">
+          <app-icon svgClass="svg md primary icon" svgIcon="tid631"></app-icon>
+        </div>
+        <div class="pad">
+          <h1 fxHide fxShow.gt-sm class="no-margin">
+            <app-label src="triage_results"></app-label>
+          </h1>
+          <h2 fxHide.gt-sm class="no-margin">
+            <app-label src="triage_results"></app-label>
+          </h2>
+        </div>
+        <div fxFlex></div>
+        <div fxFlex="100" fxFlex.gt-sm="none" class="pad result-actions" [ngClass]="{'border-top-sm': !media.isMatched('(min-width: 960px)')}"
+             fxLayout="row wrap" fxLayoutAlign="space-between center" fxLayoutAlign.gt-sm="start center">
+          <div ngClass.xs="margin-bottom-lg" ngClass.gt-sm="margin-right">
+            <button mat-raised-button class="primary button" (click)="startOver()" appHighlight>
+              <div fxLayout="row" fxLayoutAlign="start center">
+                <mat-icon>refresh</mat-icon>
+                <app-label src="triage_start_over"></app-label>
+              </div>
+            </button>
+          </div>
+          <div ngClass.gt-sm="margin-left">
+            <button mat-raised-button class="primary button site-label" (click)="newSearch()" appHighlight>
+              <div fxLayout="row wrap" fxLayoutAlign="center center">
+                <app-icon svgClass="margin-right" svgIcon="tid631"></app-icon>
+                <app-label src="triage_add_search"></app-label>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--Content-->
+    <div fxLayout="row wrap">
+      <!--Status and Triage Content-->
+      <div fxFlex="100" fxFlex.gt-sm class="results-wrapper pad-r-gt-xs" fxLayout="column">
+        <div *ngIf="showDV() || hasStatus('592') || hasStatus('595') || show_loc" fxLayout="row wrap" class="pad">
+          <div *ngIf="showDV()" fxFlex="100" fxFlex.gt-md="50">
+            <app-block [nid]="'88'"></app-block>
+          </div>
+          <div *ngIf="hasStatus('592')" fxFlex="100" fxFlex.gt-md="50">
+            <app-block [nid]="'89'"></app-block>
+          </div>
+          <div *ngIf="hasStatus('595')" fxFlex="100" fxFlex.gt-md="50">
+            <app-block [nid]="'839'"></app-block>
+          </div>
+          <div *ngIf="show_loc" fxFlex="100" fxFlex.gt-md="50" class="triage-loc" fxLayout="row">
+            <div class="pad">
+              <div class="mat-elevation-z2 border-radius pad whitebg bg">
+                <app-triage-location></app-triage-location>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Triage Content-->
+        <app-triage-summary [idx]="id"></app-triage-summary>
+      </div>
+      <!--Right Block System-->
+      <div *ngIf="hasBlocks && blocks['right'].length > 0" fxFlex="100" fxFlex.gt-sm="30"
+           class="blocks api-sidebar right side-pad-r">
+        <div class="backg1 bg pad border-radius margin-bottom">
+          <h3 class="no-margin"><app-label src="triage_searchbar_title"></app-label></h3>
+          <div class="mat-caption margin-bottom">
+            <strong><app-label src="triage_searchbar"></app-label></strong>
+          </div>
+          <app-triage-search-bar></app-triage-search-bar>
+        </div>
+        <div *ngFor="let item of blocks['right']">
+          <app-block [nid]="item"></app-block>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

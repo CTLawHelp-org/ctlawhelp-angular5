@@ -1,0 +1,24 @@
+@import "../../../../node_modules/ng2-dnd/bundles/style.css";
+
+.blocks-config {
+  position:relative;
+  .desc {
+    p {
+      margin:0;
+    }
+  }
+  .blocks-list {
+    position:fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    width:500px;
+    height:500px;
+    margin:auto;
+    z-index: 10;
+    .list {
+      overflow: auto;
+    }
+  }
+}

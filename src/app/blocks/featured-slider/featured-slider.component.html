@@ -1,0 +1,112 @@
+<!--Desktop-->
+<div fxHide fxShow.gt-xs *ngIf="!working" class="featured-slider">
+  <ngu-carousel *ngIf="variables.lang === 'en'" [inputs]="slider">
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/legal-help'" fxLayout="column">
+          <img src="../../../assets/slider1.jpg" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/represent-renter'" fxLayout="column">
+          <img src="../../../assets/slider3.jpg" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/node/777'" fxLayout="column">
+          <img src="../../../assets/slider2.jpg" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <!--Pagination-->
+    <button class="prevBtn" NguCarouselPrev aria-label="Previous Slide">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button class="nextBtn" NguCarouselNext aria-label="Next Slide">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </ngu-carousel>
+  <ngu-carousel *ngIf="variables.lang === 'es'" [inputs]="slider">
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/legal-help'" fxLayout="column">
+          <img src="../../../assets/slider1_es.png" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/node/777'" fxLayout="column">
+          <img src="../../../assets/slider2_es.jpg" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <!--Pagination-->
+    <button class="prevBtn" NguCarouselPrev aria-label="Previous Slide">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button class="nextBtn" NguCarouselNext aria-label="Next Slide">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </ngu-carousel>
+</div>
+<!--Mobile-->
+<div fxHide.gt-xs *ngIf="!working" class="featured-slider mobile">
+  <ngu-carousel *ngIf="variables.lang === 'en'" [inputs]="slider">
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/legal-help'" fxLayout="column">
+          <img src="../../../assets/slider1_m.jpg" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/represent-renter'" fxLayout="column">
+          <img src="../../../assets/slider2_m.jpg" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/node/777'" fxLayout="column">
+          <img src="../../../assets/slider3_m.jpg" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <!--Pagination-->
+    <button class="prevBtn" NguCarouselPrev aria-label="Previous Slide">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button class="nextBtn" NguCarouselNext aria-label="Next Slide">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </ngu-carousel>
+  <ngu-carousel *ngIf="variables.lang === 'es'" [inputs]="slider">
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/legal-help'" fxLayout="column">
+          <img src="../../../assets/slider1_m_es.png" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <ngu-item NguCarouselItem class="bannerStyle">
+      <div fxLayout="column">
+        <a [href]="'/' + variables.lang + '/node/777'" fxLayout="column">
+          <img src="../../../assets/slider2_m_es.jpg" alt="CTLawHelp.org" />
+        </a>
+      </div>
+    </ngu-item>
+    <!--Pagination-->
+    <button class="prevBtn" NguCarouselPrev aria-label="Previous Slide">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button class="nextBtn" NguCarouselNext aria-label="Next Slide">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </ngu-carousel>
+</div>

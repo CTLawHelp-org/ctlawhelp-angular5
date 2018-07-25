@@ -1,0 +1,70 @@
+.main-menu {
+  a {
+    color:#fff;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    overflow:hidden;
+    font-size:20px;
+    font-weight: 500;
+  }
+  .item-wrapper {
+    position:relative;
+    margin-right:8px;
+    &:last-child {
+      margin-right:0;
+    }
+    .icon {
+      transition: transform 0.2s ease-in-out;
+      -webkit-transition: -webkit-transform 0.2s ease-in-out;
+      color:#fff;
+    }
+    .dropdown {
+      display:none;
+      position:absolute;
+      width:100%;
+      max-width:100%;
+      min-width:230px;
+      left:50%;
+      transform: translate(-50%, 0);
+      transition: transform 0.2s ease-in-out;
+      -webkit-transition: -webkit-transform 0.2s ease-in-out;
+      padding:4px;
+      text-align:center;
+      font-size:0.9em;
+      &.tid-643 {
+        min-width:285px;
+      }
+      .drop-item {
+
+      }
+      .nsmi-icon {
+        color:#fff;
+        fill:#fff;
+      }
+    }
+    &:hover {
+      .icon {
+        transform: rotate(90deg);
+        -webkit-transform: rotate(90deg);
+      }
+      .dropdown {
+        display:block;
+      }
+    }
+  }
+  .item {
+    padding:4px 8px;
+    cursor: pointer;
+    &.inactive {
+      background:none !important;
+    }
+  }
+}
+
+@media only screen and (min-width: 1280px) {
+  .main-menu {
+    .item-wrapper {
+      margin-right: 16px;
+    }
+  }
+}

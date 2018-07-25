@@ -1,0 +1,35 @@
+.segments-wrapper {
+  .seg-item {
+    clear:both;
+    overflow:hidden;
+  }
+  .guide-menu {
+    .guide-item {
+      a {
+        text-decoration: none;
+      }
+      .guide-btn {
+        text-align:left;
+        padding:8px;
+        white-space:normal;
+        line-height:normal;
+        font-size:1.1em;
+      }
+    }
+  }
+  .print-view {
+    display:none;
+  }
+}
+
+// Print styles
+@media only print {
+  .segments-wrapper {
+    .hide-print {
+      display:none !important;
+    }
+    .print-view {
+      display:block;
+    }
+  }
+}

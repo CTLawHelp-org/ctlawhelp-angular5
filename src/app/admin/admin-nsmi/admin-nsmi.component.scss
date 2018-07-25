@@ -1,0 +1,12 @@
+@import "../../../../node_modules/angular-tree-component/dist/angular-tree-component.css";
+
+.tree {
+  .tree-children {
+    padding-left:26px;
+  }
+  .nsmi-node-wrapper {
+    .node-title {
+      font-size:1.1em;
+    }
+  }
+}

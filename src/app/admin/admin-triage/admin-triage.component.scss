@@ -1,0 +1,13 @@
+@import "../../../../node_modules/angular-tree-component/dist/angular-tree-component.css";
+
+.tree {
+  .tree-children {
+    padding-left:26px;
+  }
+  .triage-node-wrapper {
+    padding:2px;
+    .node-title {
+      font-size:1.1em;
+    }
+  }
+}

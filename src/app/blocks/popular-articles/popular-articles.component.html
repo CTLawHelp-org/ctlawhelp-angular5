@@ -1,0 +1,44 @@
+<div fxLayout="column" class="popular-articles pad">
+  <div *ngIf="working" class="loader-wrapper">
+    <div class="loader">
+      <mat-spinner></mat-spinner>
+    </div>
+  </div>
+  <div *ngIf="!working" class="pad">
+    <div class="border-bottom-lg margin-bottom">
+      <div *ngIf="variables.lang === 'en'">
+        <h2>What's New</h2>
+      </div>
+      <div *ngIf="variables.lang === 'es'">
+        <h2>Que es Nuevo</h2>
+      </div>
+    </div>
+    <div *ngFor="let item of articles; let last = last;">
+      <div *ngIf="show(item)" class="article" [ngClass]="{'margin-bottom': !last}">
+        <div fxLayout="row" fxLayoutAlign="start center" class="margin-bottom-sm">
+          <app-icon svgClass="margin-right svg sm" svgIcon="tid{{item.node_export.field_type[0].target_id}}"></app-icon>
+          <div>
+            <a [routerLink]="[ '/' + variables.lang + '/node', item.nid]">
+              <h3 class="no-margin">
+                <div *ngIf="variables.lang === 'en'">
+                  <span [innerHTML]="item.title"></span>
+                </div>
+                <div *ngIf="variables.lang === 'es'">
+                  <span [innerHTML]="item.node_export.i18n['es'].title[0].value"></span>
+                </div>
+              </h3>
+            </a>
+          </div>
+        </div>
+        <div>
+          <div *ngIf="variables.lang === 'en'">
+            <span [innerHTML]="item.node_export.body[0].summary"></span>
+          </div>
+          <div *ngIf="variables.lang === 'es'">
+            <span [innerHTML]="item.node_export.i18n['es'].body[0].summary"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

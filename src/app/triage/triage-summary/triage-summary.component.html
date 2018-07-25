@@ -1,0 +1,81 @@
+<div *ngIf="!working" fxLayout="column" class="triage-summary">
+  <mat-tab-group class="triage-summary-tabs" [selectedIndex]="currentIdx" (selectedTabChange)="tabChange($event)">
+    <mat-tab *ngFor="let item of issues; let last = last; let index = index;">
+      <ng-template mat-tab-label>
+        <div fxLayout="column">
+          <div fxLayout="row" fxLayoutAlign="start center">
+            <app-icon *ngIf="item.issues[0].term_export.field_public_term_file.length > 0"
+                      svgClass="svg sm" svgIcon="tid{{item.issues[0].term_export.tid[0].value}}"></app-icon>
+            <div class="pad-sm">
+              <h4 class="no-margin">
+                <div *ngIf="variables.lang === 'en'">
+                  <div [innerHTML]="item.issues[0].name"></div>
+                </div>
+                <div *ngIf="variables.lang === 'es'">
+                  <div [innerHTML]="item.issues[0].i18n.es.name[0].value"></div>
+                </div>
+              </h4>
+            </div>
+            <div *ngIf="issues.length > 1" fxLayout="column" fxLayoutAlign="center center" class="entry-actions">
+              <button aria-label="Close" (click)="remove(index)" class="primary icon item" mat-icon-button>
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <div class="entry-wrapper pad-r">
+        <!-- Entry Top -->
+        <div class="pad" [ngClass]="{'border-bottom': media.isMatched('(min-width: 960px)'), 'border-bottom-sm': !media.isMatched('(min-width: 960px)')}"
+             fxLayout="row" fxLayoutAlign="start start">
+          <div fxFlex>
+            <h4 class="no-margin">Viewing:</h4>
+            <div *ngFor="let label of item.issues; let first = first;">
+              <div *ngIf="!first">
+                <div *ngIf="variables.lang === 'en'">
+                  <div>- <span [innerHTML]="label.name"></span></div>
+                </div>
+                <div *ngIf="variables.lang === 'es'">
+                  <div>- <span [innerHTML]="label.i18n.es.name[0].value"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="margin-left entry-actions" fxLayout="row" fxLayoutAlign="end start">
+            <div fxLayout="column" fxLayoutAlign="center center" class="margin-right">
+              <button *ngIf="media.isMatched('(min-width: 960px)')" aria-label="Print" class="primary icon item"
+                      mat-icon-button mat-raised-button (click)="print()">
+                <app-icon svgClass="svg sm" svgIcon="tid717"></app-icon>
+              </button>
+            </div>
+            <div fxLayout="column" fxLayoutAlign="center center" class="margin-right">
+              <app-triage-save [issue]="item" [status]="user_status"></app-triage-save>
+            </div>
+          </div>
+        </div>
+        <!-- Entry Content -->
+        <div *ngIf="showEntry(item)" class="margin-top pad-r">
+          <div *ngFor="let entry of item.issues[item.issues.length - 1].term_export.field_entry_settings; let elast = last; let even = even; let odd = odd;"
+               [@entryAnimation]="entry.hide">
+            <div *ngIf="!entry.hide" [ngClass]="{'margin-bottom-r': !elast, 'backg1 bg border-radius': odd}"
+                 class="pad entry-wrapper">
+              <div *ngIf="entry.node_export.type[0].target_id === 'segment'" fxLayout="column" class="padding-bottom-lg">
+                <app-segment-display [src]="entry"></app-segment-display>
+              </div>
+              <div *ngIf="entry.node_export.type[0].target_id !== 'segment'" class="margin-bottom" fxLayout="row" fxLayoutAlign="start start">
+                <app-content-list fxFlex [triage]="[entry]" preview="true"></app-content-list>
+                <div *ngIf="entry.show_type === 'locations'">
+                  <app-icon svgClass="primary icon svg sm" svgIcon="tid633"></app-icon>
+                </div>
+              </div>
+              <div *ngIf="entry.node_export.type[0].target_id === 'page'">
+                <a *ngIf="variables.lang === 'en'" [routerLink]="[setupLink(entry)]"><app-label src="read_more"></app-label></a>
+                <a *ngIf="variables.lang === 'es'" [routerLink]="[setupLinkES(entry)]"><app-label src="read_more"></app-label></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

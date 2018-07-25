@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>CTLawHelp.org</title>
+  <base href="/">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme-color" content="#2e2e2e">
+  <meta name="viewport" content="width=device-width">
+  <link rel="icon" type="image/x-icon" href="./assets/favicon.png">
+  <script>
+    if (window.document.documentMode) {
+      // IE11
+    } else if (!Object.assign) {
+      // polyfill other non-evergreen browsers in a blocking way
+      var corejs = "https://cdnjs.cloudflare.com/ajax/libs/core-js/2.5.3/core.min.js";
+      var xhr = new XMLHttpRequest();
+      xhr.addEventListener("load", function() {
+        var s = document.createElement('script');
+        s.type = 'text/javascript';
+        var code = this.responseText;
+        s.appendChild(document.createTextNode(code));
+        document.head.appendChild(s);
+      });
+      xhr.open("GET", corejs, false);
+      xhr.send();
+    }
+  </script>
+</head>
+<body>
+  <app-root></app-root>
+</body>
+</html>

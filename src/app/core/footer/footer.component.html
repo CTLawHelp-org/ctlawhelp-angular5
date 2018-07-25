@@ -1,0 +1,37 @@
+<div class="footer-wrapper" [ngClass]="{'editing': variables.labelEdit}">
+  <div class="max-width-layout">
+    <div class="footer pad" fxLayout="row wrap" fxLayoutAlign="start start">
+      <div fxFlex="100" fxFlex.gt-sm="60" fxFlexOrder="2" fxFlexOrder.gt-sm="1">
+        <app-block [nid]="'757'"></app-block>
+        <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutAlign.gt-sm="start start">
+          <app-block [nid]="'768'"></app-block>
+          <div>
+            <div class="block" fxLayout="column">
+              <div class="pad">
+                <div class="block-inner">
+                  <h3>
+                    <app-label src="footer_social"></app-label>
+                  </h3>
+                  <div fxLayout="row" fxLayoutAlign="space-evenly center">
+                    <a href="https://twitter.com/ctlawhelp" target="_blank" aria-label="Twitter Account">
+                      <app-icon svgClass="svg md" svgIcon="tid719"></app-icon>
+                    </a>
+                    <a href="https://www.facebook.com/ctnla" target="_blank" aria-label="Facebook Account">
+                      <app-icon svgClass="svg md" svgIcon="tid718"></app-icon>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div fxFlex="100" fxFlex.gt-sm="20" fxFlexOrder="1" fxFlexOrder.gt-sm="2">
+        <app-footer-menu></app-footer-menu>
+      </div>
+      <div fxFlex="100" fxFlex.gt-sm="20" fxFlexOrder="3" fxFlexOrder.gt-sm="3">
+        <app-block [nid]="'767'"></app-block>
+      </div>
+    </div>
+  </div>
+</div>

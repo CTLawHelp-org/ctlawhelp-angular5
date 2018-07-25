@@ -1,0 +1,58 @@
+<div fxLayout="column" class="files-wrapper">
+  <div *ngIf="type === 'file'" fxLayout="column">
+    <p-fileUpload name="myphotos[]" customUpload="true" multiple="multiple"
+                  (uploadHandler)="myUploader($event)"></p-fileUpload>
+  </div>
+  <div *ngIf="type === 'image'" fxLayout="column">
+    <p-fileUpload name="myphotos[]" customUpload="true" multiple="multiple"
+                  accept="image/*" (uploadHandler)="myUploader($event)"></p-fileUpload>
+  </div>
+  <div *ngIf="value && type === 'file'" class="backg1 bg pad-sm">
+    <ngx-datatable [fxHide]="value.length < 1" class="material" [columnMode]="'force'" [scrollbarH]="true" [rows]="rows"
+                   [headerHeight]="65" [rowHeight]="'auto'">
+      <ngx-datatable-column name="Filename" [flexGrow]="1">
+        <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+          <span (click)="sort()" style="cursor: pointer">{{column.name}}</span>
+          <div class="filter" fxLayout="row">
+            <input #nameFilter type="text" (keyup)="updateTextFilter($event, 'filename')">
+            <mat-icon (click)="clearFilter(nameFilter)" style="cursor: pointer">close</mat-icon>
+          </div>
+        </ng-template>
+        <ng-template let-value="value" let-row="row" let-rowIndex="rowIndex" ngx-datatable-cell-template>
+          <div fxLayout="row" fxLayoutAlign="start center">
+            <div>{{value}}</div>
+            <div class="margin-left" fxLayout="row" fxLayoutAlign="center center">
+              <a [href]="row.url" target="_blank" class="button">
+                <div fxLayout="row" fxLayoutAlign="center center"><mat-icon>link</mat-icon></div>
+              </a>
+            </div>
+            <button mat-icon-button (click)="remove(rowIndex)"><mat-icon>close</mat-icon></button>
+          </div>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+  <div *ngIf="value && type === 'image'" fxLayout="row wrap" fxLayoutAlign="start start" class="backg1 bg pad-sm"
+       dnd-sortable-container [sortableData]="value">
+    <div *ngFor="let item of value; let index = index;" fxFlex="100" fxFlex.sm="50" fxFlex.gt-sm="25"
+         class="pad" dnd-sortable [sortableIndex]="index" (onDropSuccess)="updateMove(index)">
+      <div fxLayout="row wrap">
+        <div fxFlex fxFlex.gt-sm="100" fxLayout="column">
+          <div><img [src]="item.desktop" /></div>
+        </div>
+        <div fxFlex="none" fxFlex.gt-sm="100" fxLayout="row" fxLayoutAlign="start center" class="whitebg bg">
+          <div fxFlex class="pad-sm" fxLayout="row" fxLayoutAlign="start center">
+            <form fxFlex="100">
+              <input matInput placeholder="Alt tag" [(ngModel)]="item.alt" name="alt" (keyup)="updateMove(true)" required>
+            </form>
+          </div>
+          <div class="pad-sm" fxLayout="row" fxLayoutAlign="end center">
+            <button mat-icon-button mat-raised-button color="primary" (click)="remove(index)">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

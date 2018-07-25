@@ -1,0 +1,109 @@
+<div class="admin-node-page-wrapper" fxLayout="column">
+  <div *ngIf="!working">
+    <div style="margin-bottom:-40px;" fxLayout="row wrap" fxLayoutAlign="end center">
+      <div class="margin-right-lg">
+        <mat-slide-toggle labelPosition="before" [checked]="isPublished()" (change)="setStatus($event)">
+          <div class="mat-caption">
+            <span *ngIf="isPublished()">Published</span>
+            <span *ngIf="!isPublished()">Unpublished</span>
+          </div>
+        </mat-slide-toggle>
+      </div>
+      <div class="mat-caption margin-right">Meta Text / Paths</div>
+      <app-admin-form-node-settings [src]="curNode" [history]="changes"></app-admin-form-node-settings>
+    </div>
+    <form [formGroup]="formGroup" class="ui-fluid" [ngClass]="{'hide-en-sum': !showSummaryEN, 'hide-es-sum': !showSummaryES}">
+      <dynamic-primeng-form [group]="formGroup" [model]="formModel" [layout]="formLayout"
+                            hasErrorMessaging="true" (dfChange)="onChange($event)">
+        <ng-template modelId="icon">
+          <mat-form-field>
+            <mat-select placeholder="Icon" [(ngModel)]="selectedIcon" [ngModelOptions]="{standalone: true}">
+              <mat-option *ngFor="let item of icons" [value]="item.value">
+                <div fxLayout="row" fxLayoutAlign="start center">
+                  <div *ngIf="item.value" class="margin-right">
+                    <mat-icon svgIcon="tid{{item.value}}" class="svg sm primary icon"></mat-icon>
+                  </div>
+                  <div>{{item.label}}</div>
+                </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </ng-template>
+        <ng-template modelId="body_en" align="START">
+          <div fxLayout="row" fxLayoutAlign="end center" style="margin-top:-24px;">
+            <div><mat-slide-toggle [(ngModel)]="showSummaryEN" name="summ-en"
+                                   [ngModelOptions]="{standalone: true}">Show Summary</mat-slide-toggle></div>
+          </div>
+        </ng-template>
+        <ng-template modelId="body_es" align="START">
+          <div fxLayout="row" fxLayoutAlign="end center" style="margin-top:-24px;">
+            <div><mat-slide-toggle [(ngModel)]="showSummaryES" name="summ-es"
+                                   [ngModelOptions]="{standalone: true}">Show Summary</mat-slide-toggle></div>
+          </div>
+        </ng-template>
+        <ng-template modelId="segments_en">
+          <app-admin-form-segment-ref [src]="segments_en"
+                                      type="segments_en" [history]="changes"></app-admin-form-segment-ref>
+        </ng-template>
+        <ng-template modelId="segments_es">
+          <app-admin-form-segment-ref [src]="segments_es"
+                                      type="segments_es" [history]="changes"></app-admin-form-segment-ref>
+        </ng-template>
+        <ng-template modelId="nsmi">
+          <div class="tree" fxLayout="column">
+            <tree-root #tree [nodes]="nsmi" [options]="nsmi_options">
+              <ng-template #treeNodeWrapperTemplate let-node let-index="index">
+                <div fxLayout="row nowrap" fxLayoutAlign="start center">
+                  <div fxLayout="column" fxLayoutAlign="center center">
+                    <tree-node-expander [node]="node"></tree-node-expander>
+                  </div>
+                  <div fxLayout="column" fxLayoutAlign="center center">
+                    <tree-node-checkbox *ngIf="node.children.length < 1" [node]="node"></tree-node-checkbox>
+                    <mat-icon *ngIf="node.hasChildren" class="svg icon">indeterminate_check_box</mat-icon>
+                  </div>
+                  <div class="node-content-wrapper"
+                       [class.node-content-wrapper-active]="node.isActive"
+                       [class.node-content-wrapper-focused]="node.isFocused"
+                       (click)="node.mouseAction('click', $event)"
+                       (dblclick)="node.mouseAction('dblClick', $event)"
+                       (treeDrop)="node.onDrop($event)"
+                       [treeAllowDrop]="node.allowDrop"
+                       [treeDrag]="node"
+                       [treeDragEnabled]="node.allowDrag()"
+                       fxLayout="row" fxLayoutAlign="start center">
+                    <tree-node-content [node]="node" [index]="index"></tree-node-content>
+                  </div>
+                  <div>
+                    <div *ngIf="node.children.length < 1 && node.isSelected && isMain(node.data.tid)"
+                         fxLayout="column" fxLayoutAlign="center center">
+                      <mat-icon>radio_button_checked</mat-icon>
+                    </div>
+                    <div *ngIf="node.children.length < 1 && node.isSelected && node.isActive && !isMain(node.data.tid)"
+                         (click)="setMain(node.data)" style="cursor: pointer"
+                         fxLayout="column" fxLayoutAlign="center center">
+                      <mat-icon>radio_button_unchecked</mat-icon>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </tree-root>
+          </div>
+        </ng-template>
+        <ng-template modelId="file" let-value="value">
+          <app-file-upload [value]="value" type="file" [history]="changes"></app-file-upload>
+        </ng-template>
+        <ng-template modelId="image" let-value="value">
+          <app-file-upload [value]="value" type="image" [history]="changes"></app-file-upload>
+        </ng-template>
+      </dynamic-primeng-form>
+      <div class="ui-g-12" fxLayout="row" fxLayoutAlign="end center">
+        <div class="margin-right-lg" fxLayout="column" fxLayoutAlign="center center">
+          <a mat-raised-button class="button" routerLink="/admin/content/pages">Cancel</a>
+        </div>
+        <div>
+          <button mat-raised-button color="primary" type="submit" (click)="saveNode()">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

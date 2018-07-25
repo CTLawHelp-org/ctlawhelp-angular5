@@ -1,0 +1,38 @@
+<div style="margin-top:-20px;" fxLayout="row" fxLayoutAlign="end center">
+  <div class="margin-right" style="cursor: pointer" (click)="newSegment()">
+    <mat-icon>fiber_new</mat-icon>
+  </div>
+  <app-admin-node-picker [src]="src" [type]="'segment'" (output)="updateHistory()"></app-admin-node-picker>
+</div>
+<div *ngIf="src && src.length > 0" class="segment-ref-wrapper">
+  <div dnd-sortable-container [sortableData]="src" [dropZones]="['source-dropZone']" fxLayout="column">
+    <div *ngFor="let item of src; let index = index;" dnd-sortable [dragEnabled]="true"
+         [dragData]="item" [sortableIndex]="index" class="item pad-sm">
+      <div fxLayout="column" class="mat-elevation-z1">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <div class="pad mat-caption"><strong>{{index + 1}}</strong></div>
+          <div *ngIf="type !== 'segments_es'" [innerHTML]="item.src.title[0].value"></div>
+          <div *ngIf="type === 'segments_es'" [innerHTML]="item.src.i18n.es.title[0].value"></div>
+          <div fxFlex></div>
+          <div class="pad" (click)="editSegment(item, index)">
+            <mat-icon>edit</mat-icon>
+          </div>
+          <div class="pad" (click)="src.splice(index, 1);updateHistory()">
+            <mat-icon class="alert icon">remove_circle</mat-icon>
+          </div>
+        </div>
+        <div class="backg3 bg pad-sm mat-caption" fxLayout="row" fxLayoutAlign="start center">
+          <div class="margin-right"><strong>Language:</strong> {{item.src.field_lang_status[0].value}}</div>
+          <div><strong>NID:</strong> {{item.src.nid[0].value}}</div>
+          <div fxFlex></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div fxLayout="column" fxLayoutAlign="center center" class="backg1 bg pad margin-top"
+     dnd-droppable (onDropSuccess)="addTo($event)" [dropZones]="['source-dropZone']">
+  <div class="pad">
+    <mat-icon class="backg icon">add</mat-icon>
+  </div>
+</div>

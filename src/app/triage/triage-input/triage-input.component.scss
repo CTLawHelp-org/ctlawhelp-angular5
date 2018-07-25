@@ -1,0 +1,56 @@
+.status-wrapper {
+
+}
+
+.level-label {
+  margin-bottom:8px;
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.step-label {
+
+}
+
+.triage-status {
+  .mat-checkbox-layout {
+    white-space: normal;
+  }
+}
+
+.triage-items {
+  .lvl-item {
+    cursor: pointer;
+    min-height:100%;
+    &:hover {
+      .blur {
+        display:none;
+      }
+      .focus {
+        display:flex;
+      }
+    }
+  }
+  .focus {
+    display:none;
+  }
+  .history {
+
+  }
+  .top {
+
+  }
+  .current {
+
+  }
+  .submit {
+    padding:4px 16px !important;
+    font-size:1.4em;
+  }
+}
+
+@media only screen and (min-width: 960px) {
+  .triage-status {
+    //font-size:0.9em;
+  }
+}

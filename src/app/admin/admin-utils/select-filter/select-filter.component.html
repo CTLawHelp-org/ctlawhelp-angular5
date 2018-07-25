@@ -1,0 +1,3 @@
+<select [(ngModel)]="currentValue" (ngModelChange)="valueChanged()">
+  <option *ngFor="let item of opts" [value]="item.value">{{item.value}}</option>
+</select>

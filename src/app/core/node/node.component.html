@@ -1,0 +1,89 @@
+<div fxLayout="column" class="main-node-wrapper">
+  <div [fxHide]="curNode.length < 1 && working" fxLayout="column">
+    <div id="curnode">
+      <!--Copy / Credit-->
+      <div *ngIf="curNode[0].node_export.type[0].target_id !== 'block'"
+           fxLayout="row wrap" fxLayoutAlign="start center" class="backg1 bg border-radius">
+        <div fxFlex *ngIf="variables.lang === 'en' && curNode[0].node_export.field_copyright?.length > 0">
+          <div fxLayout="row wrap" fxLayoutAlign="start center" class="pad">
+            <div fxLayout="row wrap" fxLayoutAlign="start center">
+              <mat-icon class="margin-right hide-print">update</mat-icon>
+              <div><strong>{{curNode[0].node_export.field_copyright[0].value}}</strong></div>
+            </div>
+          </div>
+        </div>
+        <div fxFlex *ngIf="variables.lang === 'es' && curNode[0].node_export.i18n.es.field_copyright?.length > 0">
+          <div fxLayout="row wrap" fxLayoutAlign="start center" class="pad">
+            <div fxLayout="row wrap" fxLayoutAlign="start center">
+              <mat-icon class="margin-right hide-print">update</mat-icon>
+              <div><strong>{{curNode[0].node_export.i18n['es'].field_copyright[0].value}}</strong></div>
+            </div>
+          </div>
+        </div>
+        <!--Admin and Node Actions-->
+        <div fxFlex *ngIf="curNode[0].node_export.field_type.length > 0 && curNode[0].node_export.field_type[0].target_id !== '9'"
+             fxLayout="row" fxLayoutAlign="end center" class="node-buttons pad">
+          <!--Node Admin-->
+          <div *ngIf="variables.auth" class="node-admin">
+            <button mat-icon-button mat-raised-button [matMenuTriggerFor]="menu" aria-label="Node Menu">
+              <mat-icon>more_horiz</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <a mat-menu-item [routerLink]="['/admin/content/edit/', curNode[0].node_export.nid[0].value]">Edit</a>
+            </mat-menu>
+          </div>
+          <!--Node Actions-->
+          <div class="node-actions" fxLayout="row" fxLayoutAlign="end start">
+            <div fxHide fxShow.gt-sm class="margin-left"
+                 *ngIf="curNode[0].node_export.field_type.length > 0 && curNode[0].node_export.field_type[0].target_id !== '622'">
+              <button mat-icon-button mat-raised-button class="min" (click)="print()">
+                <app-icon svgClass="svg sm" svgIcon="tid717"></app-icon>
+              </button>
+            </div>
+            <div *ngIf="isBrowser && curNode[0].node_export.field_type.length > 0 && curNode[0].node_export.field_type[0].target_id !== '622'"
+                 class="margin-left">
+              <app-pdf-download [curNode]="curNode"></app-pdf-download>
+            </div>
+            <app-share [curNode]="curNode" class="margin-left"></app-share>
+          </div>
+        </div>
+      </div>
+      <!--Page Body-->
+      <div [fxHide]="curNode[0].node_export.type[0].target_id !== 'page'" class="margin-top-lg">
+        <div [fxHide]="variables.lang !== 'en'" [ngClass]="{'hide-print': variables.lang !== 'en'}">
+          <div class="content-pad-r">
+            <div #body_en name="body_en"></div>
+          </div>
+        </div>
+        <div [fxHide]="variables.lang !== 'es'" [ngClass]="{'hide-print': variables.lang !== 'es'}">
+          <div class="content-pad-r">
+            <div #body_es name="body_es"></div>
+          </div>
+        </div>
+      </div>
+      <!--Block Body-->
+      <div *ngIf="curNode[0].node_export.type[0].target_id === 'block'">
+        <div *ngIf="variables.lang === 'en'">
+          <div *ngIf="curNode[0].node_export.body.length > 0" class="pad">
+            <div [innerHTML]="curNode[0].node_export.body[0].value | safeHtml"></div>
+          </div>
+        </div>
+        <div *ngIf="variables.lang === 'es'">
+          <div *ngIf="curNode[0].node_export.i18n['es'].body.length > 0" class="pad">
+            <div [innerHTML]="curNode[0].node_export.i18n['es'].body[0].value | safeHtml"></div>
+          </div>
+        </div>
+      </div>
+      <!--Segments-->
+      <div *ngIf="curNode[0].node_export.field_segments?.length > 0 && curNode[0].node_export.field_type?.length > 0"
+           class="content-pad-r margin-bottom-lg margin-top-lg">
+        <app-segments [src]="curNode[0].node_export.field_segments" [type]="curNode[0].node_export.field_type[0].target_id"></app-segments>
+      </div>
+      <!--Article Credit-->
+      <div *ngIf="curNode[0].node_export.type[0].target_id !== 'block' && showCredit()"
+           class="backg1 bg pad-r border-radius margin-bottom-lg">
+        <app-article-credit *ngIf="showCredit()"></app-article-credit>
+      </div>
+    </div>
+  </div>
+</div>

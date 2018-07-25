@@ -1,0 +1,57 @@
+.featured-slider {
+  position:relative;
+  .prevBtn, .nextBtn {
+    position:absolute;
+    border:none;
+    outline:none;
+    background:rgba(0,0,0,0.75);
+    cursor: pointer;
+    .mat-icon {
+      color:#fff;
+    }
+  }
+  .prevBtn {
+    left:0;
+    top:0;
+    bottom:32px;
+  }
+  .nextBtn {
+    right:0;
+    top:0;
+    bottom:32px;
+  }
+  .item {
+    text-align:center;
+    img {
+      margin:0 auto;
+    }
+  }
+  .bannerStyle {
+    background:#000;
+  }
+  &.mobile {
+    .prevBtn, .nextBtn {
+      display:none !important;
+    }
+    .item {
+      img {
+        min-width:100%;
+      }
+    }
+  }
+  ul.ngucarouselPoint {
+    padding:4px 0 !important;
+  }
+}
+
+@media only screen and (min-width: 960px) {
+  .featured-slider {
+
+  }
+}
+
+@media only screen and (min-width: 1280px) {
+  .featured-slider {
+    padding-top:16px;
+  }
+}

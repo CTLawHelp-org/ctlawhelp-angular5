@@ -1,0 +1,17 @@
+<div fxLayout="column">
+  <div fxLayout="row" fxLayoutAlign="start center">
+    <div (click)="addNew()" style="cursor: pointer"><mat-icon>add_circle</mat-icon></div>
+  </div>
+  <div *ngIf="value" fxLayout="column">
+    <div *ngFor="let item of value; let index = index;">
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <div fxFlex fxLayout="column">
+          <input [(ngModel)]="item.value" (ngModelChange)="updateHistory($event)">
+        </div>
+        <div class="pad-sm" fxLayout="row" fxLayoutAlign="end center">
+          <mat-icon (click)="remove(index)" style="cursor: pointer" class="alert icon">remove_circle</mat-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

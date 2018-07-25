@@ -1,0 +1,38 @@
+<div fxLayout="row" fxLayoutAlign="end center">
+  <app-admin-node-picker style="margin-top:-20px;" [src]="src" [type]="type"></app-admin-node-picker>
+</div>
+<div *ngIf="src && src.length > 0" class="node-ref-wrapper">
+  <div dnd-sortable-container [sortableData]="src" [dropZones]="['source-dropZone']" fxLayout="column">
+    <div *ngFor="let item of src; let index = index;" dnd-sortable [dragEnabled]="true"
+         [dragData]="item" [sortableIndex]="index" class="item pad-sm">
+      <div fxLayout="column" class="mat-elevation-z1">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <div class="pad mat-caption"><strong>{{index + 1}}</strong></div>
+          <div [innerHTML]="item.src.title[0].value"></div>
+          <div fxFlex></div>
+          <div class="pad" (click)="src.splice(index, 1)">
+            <mat-icon class="alert icon">remove_circle</mat-icon>
+          </div>
+        </div>
+        <div class="backg3 bg pad-sm mat-caption" fxLayout="row" fxLayoutAlign="start center">
+          <div *ngIf="item.src.field_type" class="margin-right"><strong>Type:</strong> {{item.src.field_type[0].name}}</div>
+          <div class="margin-right"><strong>Language:</strong> {{item.src.field_lang_status[0].value}}</div>
+          <div><strong>NID:</strong> {{item.src.nid[0].value}}</div>
+          <div fxFlex></div>
+          <div class="margin-right">
+            <a [routerLink]="['/admin/content/edit/', item.src.nid[0].value]" target="_blank">Edit</a>
+          </div>
+          <div>
+            <a [routerLink]="['/en/node', item.src.nid[0].value]" target="_blank">View</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div fxLayout="column" fxLayoutAlign="center center" class="backg1 bg pad margin-top"
+     dnd-droppable (onDropSuccess)="addTo($event)" [dropZones]="['source-dropZone']">
+  <div class="pad">
+    <mat-icon class="backg icon">add</mat-icon>
+  </div>
+</div>

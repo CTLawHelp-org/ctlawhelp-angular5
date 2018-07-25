@@ -1,0 +1,26 @@
+.triage-summary {
+  a.page-link {
+    text-decoration:none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .entry-wrapper {
+    overflow:hidden;
+  }
+}
+
+// Print styles
+@media only print {
+  .triage-summary {
+    .entry-actions {
+      display:none !important;
+    }
+    .mat-tab-label {
+      display:none;
+    }
+    .mat-tab-label-active {
+      display:flex;
+    }
+  }
+}

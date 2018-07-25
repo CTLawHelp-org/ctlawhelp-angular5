@@ -1,0 +1,22 @@
+.node-top-wrapper {
+  .crumb {
+    a {
+      text-decoration:none;
+      &:hover {
+        text-decoration:none;
+      }
+    }
+  }
+  .node-actions {
+
+  }
+}
+
+// Print styles
+@media only print {
+  .node-top-wrapper {
+    .crumb, .node-admin, .node-actions, .hide-print {
+      display:none !important;
+    }
+  }
+}

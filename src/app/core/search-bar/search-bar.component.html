@@ -1,0 +1,14 @@
+<div class="search-bar whitebg bg border-radius" fxLayout="column">
+  <form *ngIf="variables.lang === 'en'" name="search" fxLayout="row" fxLayoutAlign="start center" action="/en/search">
+    <input fxFlex [(ngModel)]="keyword" name="keyword" value="" placeholder="Enter Search Terms" aria-label="Search Box">
+    <button type="submit" class="submit" (click)="search()" aria-label="Search Button">
+      <app-icon svgClass="backg color icon" svgIcon="tid639"></app-icon>
+    </button>
+  </form>
+  <form *ngIf="variables.lang === 'es'" name="search" fxLayout="row" fxLayoutAlign="start center" action="/es/search">
+    <input fxFlex [(ngModel)]="keyword" name="keyword" value="" placeholder="Ingrese termino que busque" aria-label="Search Box">
+    <button type="submit" class="submit" (click)="search()" aria-label="Search Button">
+      <app-icon svgClass="backg color icon" svgIcon="tid639"></app-icon>
+    </button>
+  </form>
+</div>

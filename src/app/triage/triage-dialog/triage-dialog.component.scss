@@ -1,0 +1,15 @@
+.mat-dialog-title.dialog-header {
+  color:#fff;
+  margin:0;
+  .icon {
+    .mat-icon {
+      color:#fff;
+    }
+  }
+}
+
+@media only screen and (min-width: 1280px) {
+  .mat-dialog-content {
+    max-height:75vh;
+  }
+}
