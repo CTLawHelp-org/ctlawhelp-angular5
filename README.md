@@ -6,6 +6,8 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 ## Project Credits
 
+This project is funded by Statewide Legal Services of Connecticut [SLSCT](https://www.slsct.org/) with a grant from the Legal Services Corporation’s Technology Initiatives Grant Program [LSC](https://www.lsc.gov/), and with funding from the Connecticut Bar Foundation [CBF](https://www.ctbarfdn.org/).
+
 Project setup inspired by the [Angular Universal Starter](https://github.com/angular/universal-starter) project.
 
 Website testing and device testing services graciously provided by [BrowserStack](https://www.browserstack.com)
