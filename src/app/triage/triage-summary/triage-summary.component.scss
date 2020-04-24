@@ -8,6 +8,12 @@
   .entry-wrapper {
     overflow:hidden;
   }
+  .status-wrapper {
+    .block {
+      padding:0 !important;
+      margin-bottom:16px;
+    }
+  }
 }
 
 // Print styles
@@ -16,11 +22,11 @@
     .entry-actions {
       display:none !important;
     }
-    .mat-tab-label {
-      display:none;
+    .mat-tab-label, .mat-tab-header-pagination {
+      display:none !important;
     }
     .mat-tab-label-active {
-      display:flex;
+      display:flex !important;
     }
   }
 }

@@ -18,7 +18,7 @@
       <div *ngFor="let child of item.term_export.field_pages_plus; let first = first">
         <div *ngIf="!first" class="item" fxLayout="column">
           <a [routerLink]="variables.lang + '/' + child.link" routerLinkActive="active" (click)="toggleMenu()"
-             fxLayout="row" fxLayoutAlign="start center" class="item pad menu-link border-radius">
+             fxLayout="row" fxLayoutAlign="start center" class="item pad menu-link border-radius" [ngClass]="{'inactive': isElder(item.tid)}">
             <app-icon *ngIf="child.term_export && child.term_export.field_public_term_file.length > 0"
                       svgClass="nsmi-icon margin-right svg sm" svgIcon="tid{{child.tid}}"></app-icon>
             <span *ngIf="variables.lang === 'en'">

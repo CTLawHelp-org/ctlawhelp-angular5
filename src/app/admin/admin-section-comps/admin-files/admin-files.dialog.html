@@ -1,0 +1,20 @@
+<div class="custom-typography add-file-dialog">
+  <mat-dialog-content class="dialog-content" fxLayout="column">
+    <div class="full-height" fxLayout="column">
+      <div fxLayout="row" fxLayoutAlign="end start" class="controls">
+        <div fxFlex><h3 class="no-margin">Add New File(s)</h3></div>
+        <button mat-icon-button color="primary" (click)="onNoClick()"><mat-icon>close</mat-icon></button>
+      </div>
+      <div fxLayout="column" class="pad">
+        <div class="pad-r">
+          <div class="mat-body-2 margin-bottom"><strong>Images (JPG / PNG)</strong></div>
+          <app-admin-file-upload type="photos" [value]="photos" [standalone]="true"></app-admin-file-upload>
+        </div>
+        <div class="pad-r">
+          <div class="mat-body-2 margin-bottom"><strong>Files (SVG, PDF, etc)</strong></div>
+          <app-admin-file-upload type="files" [value]="files" [standalone]="true"></app-admin-file-upload>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+</div>

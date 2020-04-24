@@ -13,6 +13,8 @@ export class AdminTermNodeOrderComponent implements OnInit {
   @Output() output = new EventEmitter();
   public nodes = [];
   public all_nodes = [];
+  public variables: any;
+  public lastMoved: number;
 
   constructor(
     private apiService: ApiService,
@@ -20,10 +22,16 @@ export class AdminTermNodeOrderComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.variables = this.variableService;
     if (this.term) {
       this.nodes = this.term.term_export.field_node_order;
       this.loadNodes();
     }
+  }
+
+  updateIndex(event: any, value: any) {
+    this.lastMoved = event.currentIndex;
+    this.variables.dropFnc(event, value);
   }
 
   loadNodes() {

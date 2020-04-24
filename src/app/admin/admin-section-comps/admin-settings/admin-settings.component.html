@@ -1,0 +1,23 @@
+<div class="admin-settings" fxLayout="column">
+  <div fxLayout="row wrap" class="pad">
+    <div *ngFor="let item of settings" fxFlex="100">
+      <div *ngIf="item.working" class="pad whitebg bg">
+        <app-admin-loader></app-admin-loader>
+      </div>
+      <form *ngIf="!item.working && item.src.setting !== '0'" name="label-edit" class="pad whitebg bg label-form" fxLayout="column">
+        <div><strong>Setting:</strong> {{item.id}}</div>
+        <div fxLayout="column">
+          <input [(ngModel)]="item.src.desc" name="label_en">
+        </div>
+        <div fxLayout="row" fxLayoutAlign="start center" class="margin-top">
+          <div class="margin-right">
+            <button mat-button mat-raised-button (click)="resetItem(item)">Reset</button>
+          </div>
+          <div>
+            <button mat-button mat-raised-button color="primary" (click)="saveItem(item)">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

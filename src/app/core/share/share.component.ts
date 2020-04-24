@@ -1,6 +1,15 @@
-import { Component, Inject, Input, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  Input,
+  OnInit,
+  PLATFORM_ID,
+  ViewEncapsulation
+} from '@angular/core';
 import { VariableService } from '../../services/variable.service';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -8,6 +17,7 @@ import { isPlatformBrowser } from '@angular/common';
   selector: 'app-share',
   templateUrl: './share.component.html',
   styleUrls: ['./share.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
 export class ShareComponent implements OnInit {
@@ -63,7 +73,7 @@ export class ShareDialogComponent {
     public dialogRef: MatDialogRef<ShareDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private variableService: VariableService,
-    @Inject(PLATFORM_ID) private platformId
+    @Inject(PLATFORM_ID) private platformId,
   ) {
     this.variables = this.variableService;
     this.node = data.node;

@@ -1,9 +1,8 @@
-import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { VariableService } from '../services/variable.service';
 import { ApiService } from '../services/api.service';
-import { MetaService } from '@ngx-meta/core';
-import { makeStateKey, TransferState } from '@angular/platform-browser';
+import { makeStateKey, Meta, TransferState } from '@angular/platform-browser';
 
 const STATE_KEY = makeStateKey;
 
@@ -11,10 +10,12 @@ const STATE_KEY = makeStateKey;
   selector: 'app-min-router',
   templateUrl: './min-router.component.html',
   styleUrls: ['./min-router.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
 export class MinRouterComponent implements OnInit, OnDestroy {
   private connection: any;
+  private langsub: any;
   public node = [];
   private id = '';
   public working = true;
@@ -25,8 +26,9 @@ export class MinRouterComponent implements OnInit, OnDestroy {
     private router: Router,
     private apiService: ApiService,
     private variableService: VariableService,
-    private meta: MetaService,
+    private meta: Meta,
     private state: TransferState,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -37,13 +39,20 @@ export class MinRouterComponent implements OnInit, OnDestroy {
         this.load();
       }
     });
+
+    this.langsub = this.variableService.langSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
-    this.meta.removeTag('property="og:description"');
+    if (this.langsub) {
+      this.langsub.unsubscribe();
+    }
+    this.meta.removeTag('name="og:description"');
   }
 
   load() {
@@ -74,6 +83,7 @@ export class MinRouterComponent implements OnInit, OnDestroy {
       this.connection.unsubscribe();
     }
     this.working = false;
+    this.cdr.detectChanges();
   }
 
   isNumeric(value: any): boolean {

@@ -12,6 +12,17 @@ import { readFileSync } from 'fs';
 
 const domino = require('domino');
 
+// Redis
+const RURL = process.env.RURL || '127.0.0.1';
+const RDB = process.env.RDB || 0;
+const Redis = require('ioredis');
+const client = new Redis({
+  port: 6379,
+  host: RURL,
+  db: RDB
+});
+client.on('error', (error) => {});
+
 // Faster server renders w/ Prod mode (dev mode never needed)
 enableProdMode();
 
@@ -42,7 +53,7 @@ global['CSS'] = null;
 global['Prism'] = null;
 
 // * NOTE :: leave this as require() since this file is built Dynamically from webpack
-const { AppServerModuleNgFactory, LAZY_MODULE_MAP } = require('./dist/server/main.bundle');
+const { AppServerModuleNgFactory, LAZY_MODULE_MAP } = require('./dist/server/main');
 
 // Our Universal express-engine (found @ https://github.com/angular/universal/tree/master/modules/express-engine)
 app.engine('html', ngExpressEngine({
@@ -54,14 +65,12 @@ app.engine('html', ngExpressEngine({
 
 app.set('view engine', 'html');
 app.set('views', join(DIST_FOLDER, 'browser'));
-let cache = {};
 
 /* - Example Express Rest API endpoints -
   app.get('/api/**', (req, res) => { });
 */
 
 app.get('/admin/**', (req, res) => {
-  cache = {};
   global['navigator'] = req['headers']['user-agent'];
   res.render('index', { req });
 });
@@ -74,19 +83,16 @@ app.get('*.*', express.static(join(DIST_FOLDER, 'browser'), {
 // ALl regular routes use the Universal engine
 app.get('*', (req, res) => {
   global['navigator'] = req['headers']['user-agent'];
-  // res.render('index', { req });
   const url = req.url;
-  const now = new Date();
-
-  if (cache[url] && now < cache[url].expiry) {
-    return res.send(cache[url].html);
-  }
-
-  res.render('index', { req }, (err, html) => {
-    const expiry = new Date();
-    expiry.setDate(expiry.getDate() + 15);
-    cache[url] = { expiry, html };
-    res.send(html);
+  client.get(url, function (err, result) {
+    if (result) {
+      return res.send(result);
+    } else {
+      res.render('index', { req }, (error, html) => {
+        client.set(url, html, 'EX', 864000);
+        res.send(html);
+      });
+    }
   });
 });
 

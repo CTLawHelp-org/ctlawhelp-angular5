@@ -13,9 +13,13 @@
     <div class="backg1 bg pad">
       <div class="whitebg bg pad">
         <div class="pad">Manual Order (Pinned)</div>
-        <div dnd-sortable-container [sortableData]="nodes">
-          <div *ngFor="let item of nodes; let index = index" dnd-sortable [sortableIndex]="index" class="pad">
-            <div class="backg border pad" fxLayout="row" fxLayoutAlign="start center">
+        <div cdkDropList (cdkDropListDropped)="updateIndex($event, nodes)" class="order-wrapper">
+          <div cdkDrag *ngFor="let item of nodes; let index = index"
+               class="item margin-bottom backg border whitebg bg flex-row-center">
+            <div cdkDragHandle class="drag-handle" fxLayout="column" [ngClass]="{'active': index === lastMoved}">
+              <mat-icon class="primary color">drag_handle</mat-icon>
+            </div>
+            <div class="info-wrapper pad flex-row-center">
               <div class="mat-caption">{{index + 1}}</div>
               <div class="margin-left" [innerHTML]="item.name"></div>
               <div class="margin-left mat-caption">{{item.target_id}}</div>
@@ -34,7 +38,7 @@
         <div *ngFor="let item of all_nodes" [fxHide]="item.hide" class="pad">
           <div class="backg border pad" fxLayout="row" fxLayoutAlign="start center">
             <div fxLayout="column" fxLayoutAlign="center center" (click)="addToList(item)" style="cursor: pointer">
-              <mat-icon>add</mat-icon>
+              <mat-icon class="primary color">add</mat-icon>
             </div>
             <div class="margin-left" [innerHTML]="item.title"></div>
             <div fxLayout="row wrap" fxLayoutAlign="start center" class="margin-left mat-caption">

@@ -7,60 +7,95 @@
     <div fxFlex></div>
   </div>
   <div *ngIf="!working">
-    <form [formGroup]="formGroup" class="ui-fluid">
-      <div class="ui-g-12" fxLayout="row" fxLayoutAlign="end center">
-        <div class="mat-caption" [innerHTML]="term.name"></div>
+    <form name="triageForm" #triageForm="ngForm">
+      <div fxLayout="row" fxLayoutAlign="end center" class="pad-r margin-top">
         <div fxFlex></div>
         <div class="margin-right" fxLayout="column" fxLayoutAlign="center center">
           <button mat-raised-button (click)="cancelEdit()">Cancel</button>
         </div>
         <div>
-          <button mat-raised-button color="primary" type="submit" (click)="saveTerm()">Save</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!triageForm.form.valid"
+                  (click)="saveTerm()">Save</button>
         </div>
       </div>
       <div class="pad">
-        <dynamic-primeng-form [group]="formGroup" [model]="formModel" [layout]="formLayout"
-                              hasErrorMessaging="true" (dfChange)="onChange($event)">
-          <ng-template modelId="file" let-value="value">
-            <app-file-upload [value]="value" type="file" [history]="changes"></app-file-upload>
-          </ng-template>
-          <ng-template modelId="parent">
-            <div class="tree" fxLayout="column">
-              <tree-root #tree [nodes]="triage" [options]="triage_options">
-                <ng-template #treeNodeWrapperTemplate let-node let-index="index">
-                  <div fxLayout="row nowrap" fxLayoutAlign="start center">
-                    <div fxLayout="column" fxLayoutAlign="center center">
-                      <tree-node-expander [node]="node"></tree-node-expander>
-                    </div>
-                    <div class="node-content-wrapper"
-                         [class.node-content-wrapper-active]="node.isActive"
-                         [class.node-content-wrapper-focused]="node.isFocused"
-                         (click)="node.mouseAction('click', $event)"
-                         (dblclick)="node.mouseAction('dblClick', $event)"
-                         (treeDrop)="node.onDrop($event)"
-                         [treeAllowDrop]="node.allowDrop"
-                         [treeDrag]="node"
-                         [treeDragEnabled]="node.allowDrag()"
-                         fxLayout="row" fxLayoutAlign="start center">
-                      <tree-node-content [node]="node" [index]="index"></tree-node-content>
-                    </div>
-                    <div>
-                      <div *ngIf="isParent(node.data.tid)"
-                           fxLayout="column" fxLayoutAlign="center center">
-                        <mat-icon>radio_button_checked</mat-icon>
-                      </div>
-                      <div *ngIf="node.isActive && !isParent(node.data.tid)"
-                           (click)="setParent(node.data)" style="cursor: pointer"
-                           fxLayout="column" fxLayoutAlign="center center">
-                        <mat-icon>radio_button_unchecked</mat-icon>
-                      </div>
-                    </div>
+        <!--English Name-->
+        <div class="pad" fxLayout="column">
+          <mat-form-field appearance="outline">
+            <mat-label>English Name</mat-label>
+            <input matInput [(ngModel)]="term_en['name'][0]['value']" name="name_en"
+                   placeholder="English Name" required>
+          </mat-form-field>
+        </div>
+        <!--English Description-->
+        <div class="pad" fxLayout="column">
+          <mat-form-field appearance="outline">
+            <mat-label>English Description</mat-label>
+            <textarea matInput [(ngModel)]="term_en['description'][0]['value']" name="desc_en"
+                      placeholder="English Description"></textarea>
+          </mat-form-field>
+        </div>
+        <!--Spanish Name-->
+        <div class="pad" fxLayout="column">
+          <mat-form-field appearance="outline">
+            <mat-label>Spanish Name</mat-label>
+            <input matInput [(ngModel)]="term_es['name'][0]['value']" name="name_es"
+                   placeholder="Spanish Name" required>
+          </mat-form-field>
+        </div>
+        <!--Spanish Description-->
+        <div class="pad" fxLayout="column">
+          <mat-form-field appearance="outline">
+            <mat-label>Spanish Description</mat-label>
+            <textarea matInput [(ngModel)]="term_es['description'][0]['value']" name="desc_es"
+                      placeholder="Spanish Description"></textarea>
+          </mat-form-field>
+        </div>
+        <!--Icon-->
+        <div class="pad">
+          <div class="margin-bottom">
+            <mat-label>Icon</mat-label>
+          </div>
+          <app-admin-file-upload type="files" [value]="term_en['field_public_term_file']"></app-admin-file-upload>
+        </div>
+        <!--Parent-->
+        <div *ngIf="term.new" class="pad tree" fxLayout="column">
+          <div class="margin-bottom">
+            <mat-label>Parent</mat-label>
+          </div>
+          <tree-root #tree [nodes]="triage" [options]="triage_options">
+            <ng-template #treeNodeWrapperTemplate let-node let-index="index">
+              <div fxLayout="row nowrap" fxLayoutAlign="start center">
+                <div fxLayout="column" fxLayoutAlign="center center">
+                  <tree-node-expander [node]="node"></tree-node-expander>
+                </div>
+                <div class="node-content-wrapper"
+                     [class.node-content-wrapper-active]="node.isActive"
+                     [class.node-content-wrapper-focused]="node.isFocused"
+                     (click)="node.mouseAction('click', $event)"
+                     (dblclick)="node.mouseAction('dblClick', $event)"
+                     (treeDrop)="node.onDrop($event)"
+                     [treeAllowDrop]="node.allowDrop"
+                     [treeDrag]="node"
+                     [treeDragEnabled]="node.allowDrag()"
+                     fxLayout="row" fxLayoutAlign="start center">
+                  <tree-node-content [node]="node" [index]="index"></tree-node-content>
+                </div>
+                <div>
+                  <div *ngIf="isParent(node.data.tid)"
+                       fxLayout="column" fxLayoutAlign="center center">
+                    <mat-icon>radio_button_checked</mat-icon>
                   </div>
-                </ng-template>
-              </tree-root>
-            </div>
-          </ng-template>
-        </dynamic-primeng-form>
+                  <div *ngIf="node.isActive && !isParent(node.data.tid)"
+                       (click)="setParent(node.data)" style="cursor: pointer"
+                       fxLayout="column" fxLayoutAlign="center center">
+                    <mat-icon>radio_button_unchecked</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </tree-root>
+        </div>
       </div>
     </form>
   </div>

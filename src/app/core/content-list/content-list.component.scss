@@ -30,6 +30,17 @@
   }
 }
 
+// IE
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .content-list-wrapper {
+    a {
+      &:focus {
+        text-decoration:underline !important;
+      }
+    }
+  }
+}
+
 // Print styles
 @media only print {
   .hide-print {

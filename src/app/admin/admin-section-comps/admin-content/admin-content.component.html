@@ -1,0 +1,21 @@
+<div fxLayout="column">
+  <div *ngIf="working">
+    <app-admin-loader></app-admin-loader>
+  </div>
+  <div *ngIf="!working">
+    <div *ngIf="node.length > 0" class="node-form-wrapper">
+      <div *ngIf="node[0].node_export.type[0].target_id === 'page'">
+        <app-admin-page-node [curNode]="node"></app-admin-page-node>
+      </div>
+      <div *ngIf="node[0].node_export.type[0].target_id === 'block'">
+        <app-admin-block-node [curNode]="node"></app-admin-block-node>
+      </div>
+      <div *ngIf="node[0].node_export.type[0].target_id === 'segment'">
+        <app-admin-segment-node [curNode]="node"></app-admin-segment-node>
+      </div>
+      <div *ngIf="node[0].node_export.type[0].target_id === 'triage_entry'">
+        <app-admin-triage-entry-node [curNode]="node"></app-admin-triage-entry-node>
+      </div>
+    </div>
+  </div>
+</div>

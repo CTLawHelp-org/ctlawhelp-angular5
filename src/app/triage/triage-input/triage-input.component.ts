@@ -1,20 +1,29 @@
-import { Component, EventEmitter, Inject, Input, OnInit, Output, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Inject,
+  Input,
+  OnInit,
+  Output,
+  PLATFORM_ID,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
 import { DomSanitizer, makeStateKey, TransferState } from '@angular/platform-browser';
-import { MatIconRegistry } from '@angular/material';
+import { MatIconRegistry } from '@angular/material/icon';
 
 import { ApiService } from '../../services/api.service';
 import { VariableService } from '../../services/variable.service';
 import { transition, trigger, query, stagger, animate, style } from '@angular/animations';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { forkJoin } from 'rxjs/observable/forkJoin';
+import { forkJoin ,  Subject } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { Angulartics2 } from 'angulartics2';
-import { Subject } from 'rxjs/Subject';
 
 const TRIAGE = makeStateKey('triage');
 const STATUS = makeStateKey('status');
-const USER_STATUS = makeStateKey('user_status');
-const ISSUES = makeStateKey('user_issues');
+const TRIAGE_BLOCKS = makeStateKey('triage_input_blocks');
 
 @Component({
   selector: 'app-triage-input',
@@ -36,6 +45,7 @@ const ISSUES = makeStateKey('user_issues');
 })
 export class TriageInputComponent implements OnInit {
   @Input() term;
+  @Input() dialog;
   private connection: any;
   private triage = [];
   private user_status: any;
@@ -47,8 +57,9 @@ export class TriageInputComponent implements OnInit {
   private issues = [];
   public variables: any;
   public media: any;
-
+  @ViewChild('top', { static: false }) top: ElementRef;
   @Output() success = new EventEmitter();
+  public block_setup = [];
 
   constructor(
     private apiService: ApiService,
@@ -67,30 +78,34 @@ export class TriageInputComponent implements OnInit {
     this.variables = this.variableService;
     const _triage = this.state.get(TRIAGE, null as any);
     const _status = this.state.get(STATUS, null as any);
-    const _user_status = this.state.get(USER_STATUS, null as any);
-    const _issues = this.state.get(ISSUES, null as any);
-    if (_triage !== null && _status !== null && _user_status !== null && _issues !== null) {
+    const _blocks = this.state.get(TRIAGE_BLOCKS, null as any);
+    if (_triage !== null && _status !== null && _blocks !== null) {
+      this.block_setup = this.variables.processBlock(_blocks);
       this.triage = _triage;
       this.status = _status;
-      this.user_status = _user_status;
-      this.issues = _issues;
       this.current = this.triage;
-      this.doneLoading();
+      const status_obs = this.variableService.getStatus();
+      const issues_obs = this.variableService.getIssues();
+      this.connection = forkJoin([status_obs, issues_obs]).subscribe(results => {
+        this.user_status = results[0];
+        this.issues = results[1];
+        this.doneLoading();
+      });
     } else {
       const triage_obs = this.apiService.getTriage();
       const status_obs = this.variableService.getStatus();
       const issues_obs = this.variableService.getIssues();
-
-      this.connection = forkJoin([triage_obs, status_obs, issues_obs]).subscribe(results => {
+      const block_obs = this.apiService.getBlocks('all', 'triage_input', 'all');
+      this.connection = forkJoin([triage_obs, status_obs, issues_obs, block_obs]).subscribe(results => {
         this.triage = results[0]['triage'];
         this.state.set(TRIAGE, this.triage as any);
         this.status = JSON.parse(JSON.stringify(results[0]['triage_status']));
         this.state.set(STATUS, this.status as any);
         this.user_status = results[1];
-        this.state.set(USER_STATUS, this.user_status as any);
         this.issues = results[2];
-        this.state.set(ISSUES, this.issues as any);
         this.current = this.triage;
+        this.state.set(TRIAGE_BLOCKS, results[3] as any);
+        this.block_setup = this.variables.processBlock(results[3]);
         this.doneLoading();
       });
     }
@@ -113,7 +128,7 @@ export class TriageInputComponent implements OnInit {
       });
     }
     if (this.term) {
-      this.gotoTerm();
+      this.gotoTerm(this.term);
     }
     this.working = false;
     if (this.connection) {
@@ -122,8 +137,8 @@ export class TriageInputComponent implements OnInit {
     this.startStats();
   }
 
-  gotoTerm() {
-    if (this.isNumeric(this.term)) {
+  gotoTerm(term: any) {
+    if (this.isNumeric(term)) {
       const sub = new Subject();
       const map = [];
       sub.subscribe( data => {
@@ -137,12 +152,28 @@ export class TriageInputComponent implements OnInit {
           });
         }
       });
-      this.findTid(this.triage, this.term, sub);
+      this.findTid(this.triage, term, sub);
     }
   }
 
   isNumeric(value: any): boolean {
     return !isNaN(value - parseFloat(value));
+  }
+
+  hasStatus(item: any): boolean {
+    if (this.user_status === null || this.user_status.length < 1) {
+      return false;
+    }
+    return this.user_status.indexOf(item.tid) !== -1;
+  }
+
+  setStatus(item: any) {
+    const idx = this.user_status.indexOf(item.tid);
+    if (idx === -1) {
+      this.user_status.push(item.tid);
+    } else {
+      this.user_status.splice(idx, 1);
+    }
   }
 
   findTid(array: any, target: string, sub: Subject<any>) {
@@ -187,24 +218,15 @@ export class TriageInputComponent implements OnInit {
       } else {
         const tar = item.term_export.field_redirect[0].value.split(',');
         this.history = [];
-        tar.forEach(function(t, index) {
-          self.triage.forEach(function(i) {
-            if (i.tid === t) {
-              self.history.push(i);
-              if (index === (tar.length - 1)) {
-                self.current = i.children;
-              } else {
-                self.triage = i.children;
-              }
-            }
-          });
-        });
+        this.gotoTerm(tar[tar.length - 1]);
       }
     } else {
       this.history.push(item);
       this.current = item.children;
     }
-    this.scroll();
+    if (this.top) {
+      this.top.nativeElement.focus();
+    }
   }
 
   back(item: any, index: number) {
@@ -217,6 +239,7 @@ export class TriageInputComponent implements OnInit {
         this.history = this.history.slice(0, index);
       }
     }
+    this.scroll();
   }
 
   mnext() {
@@ -249,13 +272,7 @@ export class TriageInputComponent implements OnInit {
   }
 
   submit() {
-    const cur_status = [];
-    this.status.forEach(function(i) {
-      if (i.enabled) {
-        cur_status.push(i.tid);
-      }
-    });
-    const status_obs = this.variableService.setStatus(cur_status);
+    const status_obs = this.variableService.setStatus(this.user_status);
     // minimize issue map
     const issues = [];
     const self = this;

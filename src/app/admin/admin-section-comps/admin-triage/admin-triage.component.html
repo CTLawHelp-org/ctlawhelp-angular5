@@ -1,0 +1,141 @@
+<div class="admin-triage" fxLayout="column">
+  <div fxLayout="row wrap">
+    <div fxFlex="100" fxFlex.gt-sm="50" class="pad backg1 bg">
+      <div fxLayout="row" fxLayoutAlign="start center" class="margin-bottom">
+        <div>
+          <button mat-raised-button (click)="collpaseAll()">Collapse</button>
+        </div>
+        <div class="margin-left margin-right">
+          <button mat-raised-button (click)="expandAll()">Expand</button>
+        </div>
+        <div *ngIf="variables.adminAuth" class="margin-right">
+          <button mat-raised-button color="primary" [matMenuTriggerFor]="rootmenu">
+            Actions
+          </button>
+          <mat-menu #rootmenu="matMenu">
+            <button mat-menu-item (click)="addTerm()">Add Term</button>
+            <button mat-menu-item (click)="reorderTerms(triage)">Reorder</button>
+          </mat-menu>
+        </div>
+        <div class="margin-right">
+          <button mat-raised-button routerLink="/admin/triage-overview">Overview</button>
+        </div>
+        <div class="margin-right">
+          <button mat-raised-button color="primary" [matMenuTriggerFor]="exportmenu">
+            Export
+          </button>
+          <mat-menu #exportmenu="matMenu">
+            <button mat-menu-item (click)="exportTriage()">Basic Export</button>
+            <button mat-menu-item (click)="exportStats()">Stats Export</button>
+          </mat-menu>
+        </div>
+        <div>
+          <div *ngIf="export_working">
+            <mat-spinner diameter="20" strokeWidth="2"></mat-spinner>
+          </div>
+          <a *ngIf="!export_working && export_link !== ''" class="mat-raised-button min" [href]="export_link" target="_blank">
+            <mat-icon class="padding-left padding-right" style="vertical-align: middle">save</mat-icon>
+          </a>
+        </div>
+      </div>
+      <div class="left-side">
+        <tree-root #tree class="tree" [nodes]="triage" [options]="triage_options">
+          <ng-template #treeNodeWrapperTemplate let-node let-index="index">
+            <div class="node-wrapper">
+              <tree-node-expander [node]="node"></tree-node-expander>
+              <div class="node-content-wrapper"
+                   [class.node-content-wrapper-active]="node.isActive"
+                   [class.node-content-wrapper-focused]="node.isFocused"
+                   (click)="node.mouseAction('click', $event)"
+                   (dblclick)="node.mouseAction('dblClick', $event)"
+                   (contextmenu)="node.mouseAction('contextMenu', $event)"
+                   (treeDrop)="node.onDrop($event)"
+                   [treeAllowDrop]="node.allowDrop"
+                   [treeDrag]="node"
+                   [treeDragEnabled]="node.allowDrag()">
+                <tree-node-content [node]="node" [index]="index"></tree-node-content>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #treeNodeFullTemplate let-node let-index="index" let-templates="templates">
+            <div [class]="node.getClass()"
+                 [class.tree-node]="true"
+                 [class.tree-node-expanded]="node.isExpanded && node.hasChildren"
+                 [class.tree-node-collapsed]="node.isCollapsed && node.hasChildren"
+                 [class.tree-node-leaf]="node.isLeaf"
+                 [class.tree-node-active]="node.isActive"
+                 [class.tree-node-focused]="node.isFocused">
+              <tree-node-drop-slot
+                *ngIf="index === 0"
+                [dropIndex]="node.index"
+                [node]="node.parent"></tree-node-drop-slot>
+              <div fxLayout="column" class="triage-node-wrapper margin-bottom-sm backg border">
+                <div fxLayout="row" fxLayoutAlign="start center" class="whitebg bg">
+                  <tree-node-wrapper fxFlex class="node-title" [ngClass]="{'highlight bg': node.data.tid === activeTermID}"
+                                     [node]="node" [index]="index" [templates]="templates"></tree-node-wrapper>
+                  <div class="margin-left" fxLayout="row" fxLayoutAlign="start center">
+                    <div class="margin-right mat-caption"><strong>TID: </strong>{{node.data.id}}</div>
+                    <button *ngIf="variables.adminAuth" mat-icon-button [matMenuTriggerFor]="termmenu">
+                      <mat-icon>more_horiz</mat-icon>
+                    </button>
+                    <mat-menu [fxHide]="!variables.adminAuth" #termmenu="matMenu">
+                      <a *ngIf="node.data.children.length < 1" [routerLink]="getViewLink(node)"
+                         target="_blank" class="mat-menu-item no-history">View</a>
+                      <button mat-menu-item (click)="editTerm(node.data)">Edit</button>
+                      <button *ngIf="node.data.children.length > 0" mat-menu-item
+                              (click)="reorderTerms(node.data.children)">Reorder</button>
+                      <button *ngIf="node.data.children.length < 1" mat-menu-item
+                              (click)="termEntries(node.data)">Triage Entries</button>
+                      <button *ngIf="node.data.children.length < 1" mat-menu-item
+                              (click)="redirectTerm(node.data)">Redirect</button>
+                      <button mat-menu-item (click)="moveTerm(node.data)">Move</button>
+                      <button mat-menu-item (click)="confirmDelete(node.data)">Delete</button>
+                    </mat-menu>
+                  </div>
+                </div>
+                <div class="pad-sm mat-caption backg1 bg" fxLayout="row wrap" fxLayoutAlign="start center">
+                  <div *ngIf="node.hasChildren" fxLayout="row" fxLayoutAlign="start center">
+                    <mat-icon class="svg icon xs backg">folder</mat-icon>
+                    <div>{{node.data.children.length}}</div>
+                  </div>
+                  <div *ngIf="!node.hasChildren && node.data.term_export.field_redirect.length < 1"
+                       fxLayout="row" fxLayoutAlign="start center">
+                    <mat-icon class="svg icon xs backg">list</mat-icon>
+                    <div>{{node.data.term_export.field_entry_settings.length}}</div>
+                  </div>
+                  <div *ngIf="!node.hasChildren && node.data.term_export.field_redirect.length > 0"
+                       fxLayout="row" fxLayoutAlign="start center">
+                    <strong>Redirected</strong>
+                  </div>
+                </div>
+              </div>
+              <tree-node-children [node]="node" [templates]="templates"></tree-node-children>
+              <tree-node-drop-slot [dropIndex]="node.index + 1" [node]="node.parent"></tree-node-drop-slot>
+            </div>
+          </ng-template>
+        </tree-root>
+      </div>
+    </div>
+    <div fxFlex="100" fxFlex.gt-sm="50" class="right-side">
+      <div *ngIf="working">
+        <app-admin-loader></app-admin-loader>
+      </div>
+      <div *ngIf="reorder.active">
+        <app-admin-term-reorder [terms]="reorder.src" (output)="closePanel(reorder, $event)"></app-admin-term-reorder>
+      </div>
+      <div *ngIf="edit.active">
+        <app-admin-term-triage-edit [term]="edit.src" (output)="closePanel(edit, $event)"></app-admin-term-triage-edit>
+      </div>
+      <div *ngIf="entries.active">
+        <app-admin-term-triage-entries [term]="entries.src" (output)="closePanel(entries, $event)"></app-admin-term-triage-entries>
+      </div>
+      <div *ngIf="redirect.active">
+        <app-admin-term-triage-redirect [term]="redirect.src" [triage]="triage"
+                                        (output)="closePanel(redirect, $event)"></app-admin-term-triage-redirect>
+      </div>
+      <div *ngIf="move.active">
+        <app-admin-term-move [term]="move.src" (output)="closePanel(move, $event)"></app-admin-term-move>
+      </div>
+    </div>
+  </div>
+</div>

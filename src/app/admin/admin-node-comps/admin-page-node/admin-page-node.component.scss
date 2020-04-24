@@ -1,0 +1,18 @@
+@import "../../../../../node_modules/angular-tree-component/dist/angular-tree-component.css";
+
+.admin-page-node-wrapper {
+  .tree {
+    input[type="checkbox"] {
+      width:20px;
+      height:20px;
+    }
+    tree-node-checkbox {
+      width:26px;
+      height:26px;
+      padding:0;
+    }
+    .tree-children {
+      padding-left:26px;
+    }
+  }
+}

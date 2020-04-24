@@ -7,8 +7,8 @@
     <div fxFlex></div>
   </div>
   <div *ngIf="!working">
-    <form [formGroup]="formGroup" class="ui-fluid">
-      <div class="ui-g-12" fxLayout="row" fxLayoutAlign="end center">
+    <form name="menuForm" #menuForm="ngForm">
+      <div fxLayout="row" fxLayoutAlign="end center" class="pad margin-top">
         <div fxFlex></div>
         <div class="margin-right-lg">
           <mat-slide-toggle labelPosition="before" [checked]="isPublished()" (change)="setStatus($event)">
@@ -22,12 +22,35 @@
           <button mat-raised-button (click)="cancelEdit()">Cancel</button>
         </div>
         <div>
-          <button mat-raised-button color="primary" type="submit" (click)="saveTerm()">Save</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!menuForm.form.valid"
+                  (click)="saveTerm()">Save</button>
         </div>
       </div>
       <div class="pad">
-        <dynamic-primeng-form [group]="formGroup" [model]="formModel" [layout]="formLayout"
-                              hasErrorMessaging="true" (dfChange)="onChange($event)"></dynamic-primeng-form>
+        <!--English Name-->
+        <div class="pad" fxLayout="column">
+          <mat-form-field appearance="outline">
+            <mat-label>English Name</mat-label>
+            <input matInput [(ngModel)]="term_en['name'][0]['value']" name="name_en"
+                   placeholder="English Name" required>
+          </mat-form-field>
+        </div>
+        <!--Spanish Name-->
+        <div class="pad" fxLayout="column">
+          <mat-form-field appearance="outline">
+            <mat-label>Spanish Name</mat-label>
+            <input matInput [(ngModel)]="term_es['name'][0]['value']" name="name_es"
+                   placeholder="Spanish Name" required>
+          </mat-form-field>
+        </div>
+        <!--Link-->
+        <div class="pad" fxLayout="column">
+          <mat-form-field appearance="outline">
+            <mat-label>Link</mat-label>
+            <input matInput [(ngModel)]="term_en['field_link'][0]['value']" name="link"
+                   placeholder="Link" required>
+          </mat-form-field>
+        </div>
       </div>
     </form>
   </div>

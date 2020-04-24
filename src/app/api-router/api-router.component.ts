@@ -1,16 +1,21 @@
-import { Component, Inject, OnDestroy, OnInit, Renderer2, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  ViewEncapsulation
+} from '@angular/core';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
-import 'rxjs/add/operator/switchMap';
-
 import { ApiService } from '../services/api.service';
 import { VariableService } from '../services/variable.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Observable } from 'rxjs/Observable';
-import { Location } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { Location, DOCUMENT } from '@angular/common';
 import { Angulartics2 } from 'angulartics2';
-import { MetaService } from '@ngx-meta/core';
-import { DOCUMENT, makeStateKey, TransferState } from '@angular/platform-browser';
-import { forkJoin } from 'rxjs/observable/forkJoin';
+import { makeStateKey, Meta, TransferState } from '@angular/platform-browser';
 
 const STATE_KEY = makeStateKey;
 const PATHS = makeStateKey('paths');
@@ -21,10 +26,13 @@ const TERM_PATHS = makeStateKey('term_paths');
   selector: 'app-api-router',
   templateUrl: './api-router.component.html',
   styleUrls: ['./api-router.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
 export class ApiRouterComponent implements OnInit, OnDestroy {
   private connection: any;
+  private langconn: any;
+  private authsub: any;
   public node = [];
   private id = '';
   private path: string;
@@ -36,13 +44,8 @@ export class ApiRouterComponent implements OnInit, OnDestroy {
   private subscription: any;
   public media: any;
   private lang: string;
-  public hasBlocks = false;
-  public blocks = {
-    content_top: [],
-    left: [],
-    right: [],
-    content_bottom: [],
-  };
+  public variables: any;
+  public block_setup = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -52,15 +55,17 @@ export class ApiRouterComponent implements OnInit, OnDestroy {
     private breakpointObserver: BreakpointObserver,
     private location: Location,
     private angulartics2: Angulartics2,
-    private meta: MetaService,
+    private meta: Meta,
     @Inject(DOCUMENT) private document: any,
     private renderer2: Renderer2,
     private state: TransferState,
+    private cdr: ChangeDetectorRef,
   ) {
     this.media = breakpointObserver;
   }
 
   ngOnInit() {
+    this.variables = this.variableService;
     this.load();
 
     this.subscription = this.router.events.subscribe(e => {
@@ -70,9 +75,16 @@ export class ApiRouterComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.variableService.langSubject.subscribe( e => {
-      this.setTitle();
-      this.updatePath();
+    this.langconn = this.variableService.langSubject.subscribe( e => {
+      if (this.node.length > 0) {
+        this.setTitle();
+        this.updatePath();
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.authsub = this.variableService.authSubject.subscribe(result => {
+      this.cdr.detectChanges();
     });
   }
 
@@ -80,7 +92,13 @@ export class ApiRouterComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
-    this.meta.removeTag('property="og:description"');
+    if (this.langconn) {
+      this.langconn.unsubscribe();
+    }
+    if (this.authsub) {
+      this.authsub.unsubscribe();
+    }
+    this.meta.removeTag('name="og:description"');
   }
 
   load() {
@@ -178,18 +196,20 @@ export class ApiRouterComponent implements OnInit, OnDestroy {
     }
     const self = this;
     let found = false;
+    let ptid = '';
     this.term_paths.forEach(function(i) {
       if (i.path === self.url) {
         found = true;
         self.id = i.tid;
+        ptid = i.ptid;
       }
     });
     if (found) {
-      const new_url = this.lang + '/self-help/' + this.id;
-      this.router.navigate([new_url]);
+      const new_url = ptid !== '' ? this.lang + '/self-help/' + ptid + '/' + this.id : this.lang + '/self-help/' + this.id;
+      this.router.navigate([new_url], { skipLocationChange: true });
     } else {
       // Page not found - Send to error page / home
-      const er = this.lang + '/home';
+      const er = this.lang + '/404';
       this.router.navigate([er]);
     }
   }
@@ -200,52 +220,47 @@ export class ApiRouterComponent implements OnInit, OnDestroy {
     if (_node !== null && _blocks !== null) {
       this.working = false;
       this.node = _node;
-      this.setupBlocks(_blocks, _blocks.term_export.field_block_setup);
+      this.variables.currentBlockSetup = _blocks[0];
+      this.block_setup = this.variables.processBlock(_blocks[0]);
       this.processNode(usePath);
       this.doneLoading();
     } else {
       const node_obs = this.apiService.getNode(this.id);
-      const block_nid = this.apiService.getBlocks(this.id, 'all', 'all');
-      const block_page = this.apiService.getBlocks('all', 'page_node', 'all');
-      const block_selfhelp = this.apiService.getBlocks('all', 'selfhelp_node', 'all');
-      this.connection = forkJoin([node_obs, block_nid, block_page, block_selfhelp]).subscribe(data => {
+      const blockset = this.apiService.getBlockSetup(this.id);
+      this.connection = forkJoin([node_obs, blockset]).subscribe(data => {
         this.node = data[0];
         if (this.node.length > 0) {
-          if (data[1].length > 0) {
-            this.state.set(STATE_KEY('blocks' + this.id), data[1][0] as any);
-            this.setupBlocks(data[1][0], data[1][0].term_export.field_block_setup);
-          } else if (this.node[0].node_export.field_type && this.node[0].node_export.field_type.length > 0) {
-            if (this.node[0].node_export.field_type[0].name === 'Page') {
-              this.state.set(STATE_KEY('blocks' + this.id), data[2][0] as any);
-              this.setupBlocks(data[2][0], data[2][0].term_export.field_block_setup);
-            } else {
-              this.state.set(STATE_KEY('blocks' + this.id), data[3][0] as any);
-              this.setupBlocks(data[3][0], data[3][0].term_export.field_block_setup);
-            }
+          if (data[1]['results'].length > 0) {
+            this.state.set(STATE_KEY('blocks' + this.id), data[1]['results'] as any);
+            this.variables.currentBlockSetup = data[1]['results'][0];
+            this.block_setup = this.variables.processBlock(data[1]['results'][0]);
           }
           this.state.set(STATE_KEY(this.id), this.node as any);
           this.processNode(usePath);
           this.doneLoading();
         } else {
           // Page not found - Send to error page / home
-          const er = this.lang + '/home';
+          const er = this.lang + '/404';
           this.router.navigate([er]);
         }
+      }, error => {
+        const er = this.lang + '/404';
+        this.router.navigate([er]);
       });
     }
   }
 
   processNode(usePath: boolean) {
-    this.meta.setTag('og:url', this.document.location.href);
+    this.meta.updateTag({ name: 'og:url', content: this.document.location.href});
     // meta title
     this.setTitle();
     // meta desc
     if (this.node[0].node_export.field_meta_desc && this.node[0].node_export.field_meta_desc.length > 0) {
-      this.meta.setTag('og:description', this.htmlToPlain(this.node[0].node_export.field_meta_desc[0].value));
+      this.meta.updateTag({ name: 'og:description', content: this.htmlToPlain(this.node[0].node_export.field_meta_desc[0].value)});
     } else if (this.node[0].node_export.body.length > 0
       && typeof this.node[0].node_export.body[0].summary !== 'undefined'
       && this.node[0].node_export.body[0].summary !== null) {
-      this.meta.setTag('og:description', this.htmlToPlain(this.node[0].node_export.body[0].summary));
+      this.meta.updateTag({ name: 'og:description', content: this.htmlToPlain(this.node[0].node_export.body[0].summary)});
     }
     const dimensions = {};
     // analytics for field_reporting
@@ -284,18 +299,18 @@ export class ApiRouterComponent implements OnInit, OnDestroy {
     if (this.variableService.lang === 'en') {
       if (this.node[0].node_export.field_meta_title && this.node[0].node_export.field_meta_title.length > 0) {
         this.variableService.setPageTitle(this.decodeTitle(this.node[0].node_export.field_meta_title[0].value));
-        this.meta.setTag('og:title', this.decodeTitle(this.node[0].node_export.field_meta_title[0].value));
+        this.meta.updateTag({ name: 'og:title', content: this.decodeTitle(this.node[0].node_export.field_meta_title[0].value)});
       } else {
         this.variableService.setPageTitle(this.decodeTitle(this.node[0].title));
-        this.meta.setTag('og:title', this.decodeTitle(this.node[0].title));
+        this.meta.updateTag({ name: 'og:title', content: this.decodeTitle(this.node[0].title)});
       }
     } else if (this.variableService.lang === 'es') {
       if (this.node[0].node_export.i18n.es.field_meta_title && this.node[0].node_export.i18n.es.field_meta_title.length > 0) {
         this.variableService.setPageTitle(this.decodeTitle(this.node[0].node_export.i18n.es.field_meta_title[0].value));
-        this.meta.setTag('og:title', this.decodeTitle(this.node[0].node_export.i18n.es.field_meta_title[0].value));
+        this.meta.updateTag({ name: 'og:title', content: this.decodeTitle(this.node[0].node_export.i18n.es.field_meta_title[0].value)});
       } else {
         this.variableService.setPageTitle(this.decodeTitle(this.node[0].node_export.i18n.es.title[0].value));
-        this.meta.setTag('og:title', this.decodeTitle(this.node[0].node_export.i18n.es.title[0].value));
+        this.meta.updateTag({ name: 'og:title', content: this.decodeTitle(this.node[0].node_export.i18n.es.title[0].value)});
       }
     }
   }
@@ -328,20 +343,7 @@ export class ApiRouterComponent implements OnInit, OnDestroy {
       this.connection.unsubscribe();
     }
     this.working = false;
-  }
-
-  setupBlocks(src: any, items: any) {
-    this.hasBlocks = true;
-    const self = this;
-    items.forEach(function (item) {
-      if (!item.processed) {
-        item.value = item.value.split(',');
-        item.processed = true;
-      }
-      self.blocks[item.value[0]][item.value[1]] = item.target_id;
-    });
-    this.variableService.currentBlocksSrc = src;
-    this.variableService.currentBlocks = items;
+    this.cdr.detectChanges();
   }
 
   isNumeric(value: any): boolean {

@@ -1,5 +1,5 @@
-import { Component, Inject, Input, OnInit, PLATFORM_ID } from '@angular/core';
-import { MatIconRegistry } from '@angular/material';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, Input, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { environment } from '../../../environments/environment';
 import { VariableService } from '../../services/variable.service';
@@ -12,10 +12,13 @@ const NSMI = makeStateKey('nsmi');
 @Component({
   selector: 'app-node-top',
   templateUrl: './node-top.component.html',
-  styleUrls: ['./node-top.component.scss']
+  styleUrls: ['./node-top.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NodeTopComponent implements OnInit {
+export class NodeTopComponent implements OnInit, OnDestroy {
   @Input() curNode;
+  private langsub: any;
+  private authsub: any;
   public variables: any;
   public adminUrl: string;
   public media: any;
@@ -34,6 +37,7 @@ export class NodeTopComponent implements OnInit {
     private sanitizer: DomSanitizer,
     @Inject(PLATFORM_ID) private platformId,
     private state: TransferState,
+    private cdr: ChangeDetectorRef,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
     this.media = breakpointObserver;
@@ -47,7 +51,7 @@ export class NodeTopComponent implements OnInit {
       const _nsmi = this.state.get(NSMI, null as any);
       if (_nsmi !== null) {
         this.nsmi = _nsmi;
-        this.working = false;
+        this.doneLoading();
       } else {
         this.connection = this.apiService.getNSMI().subscribe(results => {
           this.nsmi = results.nsmi;
@@ -56,7 +60,24 @@ export class NodeTopComponent implements OnInit {
         });
       }
     } else {
-      this.working = false;
+      this.doneLoading();
+    }
+
+    this.langsub = this.variableService.langSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+
+    this.authsub = this.variableService.authSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.langsub) {
+      this.langsub.unsubscribe();
+    }
+    if (this.authsub) {
+      this.authsub.unsubscribe();
     }
   }
 
@@ -65,16 +86,14 @@ export class NodeTopComponent implements OnInit {
       this.connection.unsubscribe();
     }
     this.working = false;
+    this.cdr.detectChanges();
   }
 
   setupIcon(item: any): string {
-    if (item.node_export.field_type && item.node_export.field_type.length > 0 && item.node_export.field_type[0].target_id === '9') {
-      return '';
-    }
     let icon = '';
     if (item.node_export.field_icon && item.node_export.field_icon.length > 0) {
       icon = 'tid' + item.node_export.field_icon[0].target_id;
-    } else if (item.node_export.field_type && item.node_export.field_type.length > 0) {
+    } else if (item.node_export.field_type && item.node_export.field_type.length > 0 && item.node_export.field_type[0].target_id !== '9') {
       icon = 'tid' + item.node_export.field_type[0].target_id;
     }
     return icon;

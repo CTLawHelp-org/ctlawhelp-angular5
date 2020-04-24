@@ -7,12 +7,25 @@
       }
     }
   }
-  .node-actions {
-
-  }
   .mobile-title {  // temp?
     font-size:26px;
     line-height:28px;
+  }
+  .page-body-wrapper {
+    h2 {
+      padding-top:40px;
+    }
+    h3 {
+      padding:30px 0 10px;
+    }
+  }
+  .segments-wrapper {
+    padding-bottom:40px;
+  }
+  .credit {
+    p {
+      margin:0 !important;
+    }
   }
 }
 
@@ -25,8 +38,5 @@
     .crumb, .node-admin, .node-actions, .hide-print {
       display:none !important;
     }
-  }
-  table tr {
-
   }
 }

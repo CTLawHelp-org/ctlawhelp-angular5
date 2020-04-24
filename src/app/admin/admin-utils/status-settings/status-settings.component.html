@@ -1,0 +1,114 @@
+<div fxLayout="row wrap">
+  <!--Show Conditions-->
+  <div fxFlex="100" fxFlex.gt-sm="50" class="pad-sm">
+    <div fxLayout="row" fxLayoutAlign="start center">
+      <div fxLayout="column" fxLayoutAlign="center center">
+        <mat-icon class="svg xs icon backg">visibility</mat-icon>
+      </div>
+      <div>
+        <button mat-icon-button [matMenuTriggerFor]="showmenu">
+          <mat-icon class="svg xs icon">add_circle</mat-icon>
+        </button>
+        <mat-menu #showmenu="matMenu">
+          <button [disabled]="hasCondition('show', 'locations', item)"
+                  mat-menu-item (click)="addCondition('show', 'locations', item)">Location Condition</button>
+          <button [disabled]="hasCondition('show', 'triage_status', item)"
+                  mat-menu-item (click)="addCondition('show', 'triage_status', item)">Status Condition</button>
+          <button *ngIf="src === 'block'" [disabled]="hasCondition('show', 'triage_issue', item)"
+                  mat-menu-item (click)="addCondition('show', 'triage_issue', item)">Triage Condition</button>
+        </mat-menu>
+      </div>
+      <div *ngIf="src === 'block'">
+        <select [(ngModel)]="showSetting" [ngModelOptions]="{standalone: true}" (change)="selChange('show')">
+          <option value="and">AND</option>
+          <option value="or">OR</option>
+        </select>
+      </div>
+    </div>
+    <div class="mat-caption">
+      <div *ngIf="hasCondition('show', 'locations', item)" fxLayout="row" fxLayoutAlign="start center">
+        <div><strong>Location Condition</strong></div>
+        <div class="margin-left" (click)="addCondition('show', 'locations', item)" style="cursor: pointer">
+          <mat-icon class="svg xs icon">edit</mat-icon>
+        </div>
+        <div class="margin-left" (click)="removeCondition('show', 'locations', item)" style="cursor: pointer">
+          <mat-icon class="alert svg xs icon">remove_circle</mat-icon>
+        </div>
+      </div>
+      <div *ngIf="hasCondition('show', 'triage_status', item)" fxLayout="row" fxLayoutAlign="start center">
+        <div><strong>Status Condition</strong></div>
+        <div class="margin-left" (click)="addCondition('show', 'triage_status', item)" style="cursor: pointer">
+          <mat-icon class="svg xs icon">edit</mat-icon>
+        </div>
+        <div class="margin-left" (click)="removeCondition('show', 'triage_status', item)" style="cursor: pointer">
+          <mat-icon class="alert svg xs icon">remove_circle</mat-icon>
+        </div>
+      </div>
+      <div *ngIf="hasCondition('show', 'triage_issue', item)" fxLayout="row" fxLayoutAlign="start center">
+        <div><strong>Triage Condition</strong></div>
+        <div class="margin-left" (click)="addCondition('show', 'triage_issue', item)" style="cursor: pointer">
+          <mat-icon class="svg xs icon">edit</mat-icon>
+        </div>
+        <div class="margin-left" (click)="removeCondition('show', 'triage_issue', item)" style="cursor: pointer">
+          <mat-icon class="alert svg xs icon">remove_circle</mat-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Hide Conditions-->
+  <div fxFlex="100" fxFlex.gt-sm="50" class="pad-sm">
+    <div fxLayout="row" fxLayoutAlign="start center">
+      <div fxLayout="column" fxLayoutAlign="center center">
+        <mat-icon class="svg xs icon backg">visibility_off</mat-icon>
+      </div>
+      <div>
+        <button mat-icon-button [matMenuTriggerFor]="hidemenu">
+          <mat-icon class="svg xs icon">add_circle</mat-icon>
+        </button>
+        <mat-menu #hidemenu="matMenu">
+          <button [disabled]="hasCondition('hide', 'locations', item)"
+                  mat-menu-item (click)="addCondition('hide', 'locations', item)">Location Condition</button>
+          <button [disabled]="hasCondition('hide', 'triage_status', item)"
+                  mat-menu-item (click)="addCondition('hide', 'triage_status', item)">Status Condition</button>
+          <button *ngIf="src === 'block'" [disabled]="hasCondition('hide', 'triage_issue', item)"
+                  mat-menu-item (click)="addCondition('hide', 'triage_issue', item)">Triage Condition</button>
+        </mat-menu>
+      </div>
+      <div *ngIf="src === 'block'">
+        <select [(ngModel)]="hideSetting" [ngModelOptions]="{standalone: true}" (change)="selChange('hide')">
+          <option value="and">AND</option>
+          <option value="or">OR</option>
+        </select>
+      </div>
+    </div>
+    <div class="mat-caption">
+      <div *ngIf="hasCondition('hide', 'locations', item)" fxLayout="row" fxLayoutAlign="start center">
+        <div><strong>Location Condition</strong></div>
+        <div class="margin-left" (click)="addCondition('hide', 'locations', item)" style="cursor: pointer">
+          <mat-icon class="svg xs icon">edit</mat-icon>
+        </div>
+        <div class="margin-left" (click)="removeCondition('hide', 'locations', item)" style="cursor: pointer">
+          <mat-icon class="alert svg xs icon">remove_circle</mat-icon>
+        </div>
+      </div>
+      <div *ngIf="hasCondition('hide', 'triage_status', item)" fxLayout="row" fxLayoutAlign="start center">
+        <div><strong>Status Condition</strong></div>
+        <div class="margin-left" (click)="addCondition('hide', 'triage_status', item)" style="cursor: pointer">
+          <mat-icon class="svg xs icon">edit</mat-icon>
+        </div>
+        <div class="margin-left" (click)="removeCondition('hide', 'triage_status', item)" style="cursor: pointer">
+          <mat-icon class="alert svg xs icon">remove_circle</mat-icon>
+        </div>
+      </div>
+      <div *ngIf="hasCondition('hide', 'triage_issue', item)" fxLayout="row" fxLayoutAlign="start center">
+        <div><strong>Triage Condition</strong></div>
+        <div class="margin-left" (click)="addCondition('hide', 'triage_issue', item)" style="cursor: pointer">
+          <mat-icon class="svg xs icon">edit</mat-icon>
+        </div>
+        <div class="margin-left" (click)="removeCondition('hide', 'triage_issue', item)" style="cursor: pointer">
+          <mat-icon class="alert svg xs icon">remove_circle</mat-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

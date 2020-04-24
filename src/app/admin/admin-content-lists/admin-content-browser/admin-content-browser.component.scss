@@ -1,0 +1,26 @@
+.admin-content-browse-wrapper {
+  .content-table-wrapper {
+    height:100%;
+    max-height:800px;
+    overflow:scroll;
+  }
+  .content-table {
+    tbody tr:nth-child(odd) {
+      background:#f2f2f2;
+    }
+    .mat-column-select {
+      width:30px;
+    }
+    .lang-wrapper {
+      &.en {
+        color:blue;
+      }
+      &.es {
+        color:orange;
+      }
+      &.both {
+        color:#f44336;
+      }
+    }
+  }
+}

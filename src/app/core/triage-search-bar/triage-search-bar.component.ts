@@ -1,5 +1,15 @@
-import { Component, EventEmitter, Inject, OnInit, Output, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
-import { MatIconRegistry } from '@angular/material';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Inject, OnDestroy,
+  OnInit,
+  Output,
+  PLATFORM_ID,
+  ViewEncapsulation
+} from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -10,9 +20,11 @@ import { Angulartics2 } from 'angulartics2';
   selector: 'app-triage-search-bar',
   templateUrl: './triage-search-bar.component.html',
   styleUrls: ['./triage-search-bar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class TriageSearchBarComponent implements OnInit {
+export class TriageSearchBarComponent implements OnInit, OnDestroy {
+  private langsub: any;
   public variables: any;
   public keyword: any;
   public isBrowser: boolean;
@@ -26,12 +38,23 @@ export class TriageSearchBarComponent implements OnInit {
     private router: Router,
     @Inject(PLATFORM_ID) private platformId,
     private angulartics2: Angulartics2,
+    private cdr: ChangeDetectorRef,
   ) {
     this.variables = this.variableService;
   }
 
   ngOnInit() {
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    this.langsub = this.variableService.langSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.langsub) {
+      this.langsub.unsubscribe();
+    }
   }
 
   search() {

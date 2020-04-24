@@ -1,7 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { AdminLabelEditorDialogComponent } from '../../admin/admin-label-editor/admin-label-editor.component';
-import { MatDialog } from '@angular/material';
-import { AdminBlocksEditorDialogComponent } from '../../admin/admin-blocks-editor/admin-blocks-editor.component';
+import { Component, Inject, Input, OnInit } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { VariableService } from '../../services/variable.service';
 
 @Component({
   selector: 'app-admin-dialog',
@@ -9,39 +8,49 @@ import { AdminBlocksEditorDialogComponent } from '../../admin/admin-blocks-edito
   styleUrls: ['./admin-dialog.component.scss']
 })
 export class AdminDialogComponent implements OnInit {
-  @Input() type;
+  public variables: any;
 
   constructor(
     public dialog: MatDialog,
-  ) {}
-
-  ngOnInit() {
+    private variableService: VariableService,
+  ) {
+    this.variables = variableService;
   }
 
-  editLabels() {
-    const width = '80vw';
-    const height = '80vh';
-    const dialogRef = this.dialog.open(AdminLabelEditorDialogComponent, {
+  ngOnInit() {}
+
+  blockInfo() {
+    const width = '50%';
+    const height = '50%';
+    const dialogRef = this.dialog.open(AdminDialogDialogComponent, {
       width: width,
       height: height,
-      maxWidth: '95vw',
-      maxHeight: '95vh',
+      maxWidth: '95%',
+      maxHeight: '95%',
     });
 
     dialogRef.afterClosed().subscribe(result => {});
   }
 
-  editBlocks() {
-    const width = '80vw';
-    const height = '80vh';
-    const dialogRef = this.dialog.open(AdminBlocksEditorDialogComponent, {
-      width: width,
-      height: height,
-      maxWidth: '95vw',
-      maxHeight: '95vh',
-    });
+}
 
-    dialogRef.afterClosed().subscribe(result => {});
+@Component({
+  selector: 'app-admin-dialog-dialog',
+  templateUrl: './admin-dialog.dialog.html',
+})
+export class AdminDialogDialogComponent {
+  public variables: any;
+
+  constructor(
+    public dialogRef: MatDialogRef<AdminDialogDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private variableService: VariableService,
+  ) {
+    this.variables = this.variableService;
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close();
   }
 
 }

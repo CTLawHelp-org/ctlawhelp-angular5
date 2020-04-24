@@ -1,0 +1,119 @@
+<div class="admin-triage-node-wrapper">
+  <div *ngIf="!working && variables.auth">
+    <form name="triageForm" #triageForm="ngForm">
+      <div fxLayout="column">
+        <!--Controls-->
+        <div fxLayout="row wrap" fxLayoutAlign="start center" class="pad backg3 bg margin-bottom-lg border-radius">
+          <div fxFlex></div>
+          <div class="margin-right-lg">
+            <mat-slide-toggle labelPosition="before" [checked]="variables.isPublished(triage_node)"
+                              (change)="variables.setPubStatus($event, triage_node)">
+              <div class="mat-caption">
+                <span *ngIf="variables.isPublished(triage_node)">Published</span>
+                <span *ngIf="!variables.isPublished(triage_node)">Unpublished</span>
+              </div>
+            </mat-slide-toggle>
+          </div>
+          <div class="margin-right-lg"><a routerLink="/admin/content/browse/triage_entry"
+                                          class="mat-raised-button button no-history">Cancel</a></div>
+          <div><button mat-raised-button color="primary" type="submit"
+                       [disabled]="!triageForm.form.valid" (click)="saveNode()">Save</button></div>
+        </div>
+        <!--Top-->
+        <div fxLayout="row wrap">
+          <!--Language-->
+          <div class="pad">
+            <mat-form-field appearance="outline">
+              <mat-label>Language *</mat-label>
+              <mat-select placeholder="Language" [(ngModel)]="triage_node['field_lang_status'][0]['value']" name="language">
+                <mat-option value="en">English</mat-option>
+                <mat-option value="es">Spanish</mat-option>
+                <mat-option value="both">Both</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <!--Icon-->
+          <div class="pad" fxLayout="row wrap" fxLayoutAlign="start start">
+            <mat-form-field appearance="outline">
+              <mat-label>Icon</mat-label>
+              <mat-select placeholder="Icon" [(ngModel)]="selected_icon" name="icon"
+                          (selectionChange)="variables.setField($event, triage_node, 'field_icon')">
+                <mat-select-trigger>{{variables.returnIconLabel(icons, selected_icon)}}</mat-select-trigger>
+                <mat-option *ngFor="let item of icons" [value]="item.value">
+                  <div fxLayout="row" fxLayoutAlign="start center">
+                    <div *ngIf="item.value !== ''" class="margin-right">
+                      <mat-icon svgIcon="tid{{item.value}}" class="svg sm primary icon"></mat-icon>
+                    </div>
+                    <div>{{item.label}}</div>
+                  </div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <div class="padding-left"></div>
+            <div *ngIf="selected_icon" class="pad backg3 bg border-radius margin-top-sm" fxLayout="column">
+              <mat-icon svgIcon="tid{{selected_icon}}" class="svg md primary icon"></mat-icon>
+            </div>
+          </div>
+        </div>
+        <!--Title-->
+        <div class="pad" fxLayout="column">
+          <mat-form-field appearance="outline">
+            <mat-label>Title</mat-label>
+            <input matInput [(ngModel)]="triage_node['title'][0]['value']" name="title_en"
+                   placeholder="Block Title" required>
+          </mat-form-field>
+        </div>
+        <!--Multilingual Fields-->
+        <div fxLayout="row wrap">
+          <!--English-->
+          <div [fxHide]="triage_node['field_lang_status'][0]['value'] === 'es'" fxFlex="100" fxFlex.gt-xs="50">
+            <!--Display Title-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>English Display Title</mat-label>
+                <input matInput [(ngModel)]="triage_node['field_display_title'][0]['value']" name="dtitle_en"
+                       placeholder="English Display Title">
+              </mat-form-field>
+            </div>
+            <!--Body-->
+            <div class="pad">
+              <div class="margin-bottom">
+                <mat-label>English Body</mat-label>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="triage_node['body'][0]['value']" elname="segbody_en"></app-admin-text-editor>
+              </div>
+            </div>
+          </div>
+          <!--Spanish-->
+          <div [fxHide]="triage_node['field_lang_status'][0]['value'] === 'en'" fxFlex="100" fxFlex.gt-xs="50">
+            <!--Display Title-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>Spanish Display Title</mat-label>
+                <input matInput [(ngModel)]="triage_node_es['field_display_title'][0]['value']" name="dtitle_es"
+                       placeholder="Spanish Display Title">
+              </mat-form-field>
+            </div>
+            <!--Body-->
+            <div class="pad">
+              <div class="margin-bottom">
+                <mat-label>Spanish Body</mat-label>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="triage_node_es['body'][0]['value']" elname="segbody_es"></app-admin-text-editor>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Controls-->
+        <div fxLayout="row wrap" fxLayoutAlign="end center" class="pad backg3 bg margin-top-lg border-radius">
+          <div class="margin-right-lg"><a routerLink="/admin/content/browse/triage_entry"
+                                          class="mat-raised-button button no-history">Cancel</a></div>
+          <div><button mat-raised-button color="primary" type="submit"
+                       [disabled]="!triageForm.form.valid" (click)="saveNode()">Save</button></div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

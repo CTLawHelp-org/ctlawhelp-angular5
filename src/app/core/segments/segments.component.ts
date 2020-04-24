@@ -1,6 +1,15 @@
-import { Component, Inject, Input, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  Input, OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  ViewEncapsulation
+} from '@angular/core';
 import { VariableService } from '../../services/variable.service';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, Location } from '@angular/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ActivatedRoute } from '@angular/router';
 
@@ -8,25 +17,35 @@ import { ActivatedRoute } from '@angular/router';
   selector: 'app-segments',
   templateUrl: './segments.component.html',
   styleUrls: ['./segments.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class SegmentsComponent implements OnInit {
+export class SegmentsComponent implements OnInit, OnDestroy {
   @Input() src;
+  @Input() settings;
   @Input() type;
+  @Input() dialog = false;
+  private langsub: any;
+  private authsub: any;
   public variables: any;
   public curitem: any;
   public curIndex = 0;
   public isBrowser: any;
   public media: any;
+  public loc: any;
+  public adminUrl = '/admin/content/edit/';
 
   constructor(
     private variableService: VariableService,
     @Inject(PLATFORM_ID) private platformId,
     private breakpointObserver: BreakpointObserver,
     private route: ActivatedRoute,
+    private location: Location,
+    private cdr: ChangeDetectorRef,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
     this.media = breakpointObserver;
+    this.loc = location;
   }
 
   ngOnInit() {
@@ -39,6 +58,39 @@ export class SegmentsComponent implements OnInit {
         this.curitem = this.src[0];
       }
     }
+    if (this.settings.length > 0) {
+      if (typeof this.settings[0]['value'] === 'string') {
+        this.settings[0]['value'] = JSON.parse(this.settings[0]['value']);
+      }
+    } else {
+      this.settings = [{value: {}}];
+    }
+    this.doneLoading();
+
+    this.langsub = this.variableService.langSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+
+    this.authsub = this.variableService.authSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.langsub) {
+      this.langsub.unsubscribe();
+    }
+    if (this.authsub) {
+      this.authsub.unsubscribe();
+    }
+  }
+
+  doneLoading() {
+    this.cdr.detectChanges();
+  }
+
+  showTitle(target: string): boolean {
+    return this.settings.length > 0 && this.settings[0]['value'][target] ? !this.settings[0]['value'][target]['hidetitle'] : true;
   }
 
   scroll() {

@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
   ElementRef,
   Inject,
@@ -14,16 +15,17 @@ import { VariableService } from '../../services/variable.service';
 import { environment } from './../../../environments/environment';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ApiService } from '../../services/api.service';
-import { DOCUMENT } from '@angular/platform-browser';
-import { isPlatformBrowser, Location } from '@angular/common';
+
+import { isPlatformBrowser, Location, DOCUMENT } from '@angular/common';
 import { animate, query, style, transition, trigger } from '@angular/animations';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-node',
   templateUrl: './node.component.html',
   styleUrls: ['./node.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   animations: [
     trigger('contentAnimation', [
@@ -38,8 +40,11 @@ import { Subscription } from 'rxjs/Subscription';
 })
 export class NodeComponent implements OnInit, OnDestroy {
   @Input() curNode;
-  @ViewChild('body_en') body_en: ElementRef;
-  @ViewChild('body_es') body_es: ElementRef;
+  @Input() dialog = false;
+  @ViewChild('body_en', { static: true }) body_en: ElementRef;
+  @ViewChild('body_es', { static: true }) body_es: ElementRef;
+  private langsub: any;
+  private authsub: any;
   public variables: any;
   public adminUrl: string;
   public media: any;
@@ -60,6 +65,7 @@ export class NodeComponent implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private location: Location,
+    private cdr: ChangeDetectorRef,
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
     this.media = breakpointObserver;
@@ -78,16 +84,29 @@ export class NodeComponent implements OnInit, OnDestroy {
       });
       this.subscription = this.router.events.subscribe(e => {
         if (e instanceof NavigationEnd) {
-          this.renderer2.removeChild(this.body_en.nativeElement, this.body_en.nativeElement.children[0]);
-          this.renderer2.removeChild(this.body_es.nativeElement, this.body_es.nativeElement.children[0]);
-          setTimeout (() => {
-            this.processBody();
-          });
+          const path = '/' + this.variables.lang + '/' + this.currentPath;
+          if (e.url.indexOf(path) === -1) {
+            this.renderer2.removeChild(this.body_en.nativeElement, this.body_en.nativeElement.children[0]);
+            this.renderer2.removeChild(this.body_es.nativeElement, this.body_es.nativeElement.children[0]);
+            setTimeout (() => {
+              this.processBody();
+              this.cdr.detectChanges();
+            });
+          }
         }
       });
     }
     this.processBody();
     this.working = false;
+    this.cdr.detectChanges();
+
+    this.langsub = this.variableService.langSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+
+    this.authsub = this.variableService.authSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
   }
 
   public ngOnDestroy(): void {
@@ -97,11 +116,19 @@ export class NodeComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+    if (this.langsub) {
+      this.langsub.unsubscribe();
+    }
+    if (this.authsub) {
+      this.authsub.unsubscribe();
+    }
   }
 
   processBody() {
     // process page body
     const self = this;
+    const regex_func = /^.+?[^\/:](?=[?\/]|$)/g;
+    const curr_url = this.document.location.href.match(regex_func);
     if (this.curNode[0].node_export.type[0].target_id === 'page') {
       const p_array = [];
       if (this.route.parent) {
@@ -113,18 +140,18 @@ export class NodeComponent implements OnInit, OnDestroy {
         this.currentPath = '';
       }
       // english
-      if (this.curNode[0].node_export.body.length > 0) {
+      if (this.curNode[0].node_export.body.length > 0 && this.curNode[0].node_export.body[0].value !== '') {
         const b_en = this.renderer2.createElement('div');
         b_en.innerHTML = this.curNode[0].node_export.body[0].value;
         const link_array = b_en.getElementsByTagName('a');
         Array.from(link_array).forEach(function (i) {
-          if (i['hash'] !== '') {
+          if (i['hash'] !== '' && curr_url[0] === i['href'].match(regex_func)[0]) {
             i['href'] = '/en/' + self.currentPath + i['hash'];
             self.renderer2.listen(i, 'click', (evt) => {
               evt.preventDefault();
-              self.scrollToFragment(evt.srcElement.hash.substr(1));
-              if (self.currentPath !== '') {
-                self.location.go('/en/' + self.currentPath + evt.srcElement.hash);
+              self.scrollToFragment(evt.target.hash.substr(1));
+              if (self.currentPath !== '' && !self.dialog) {
+                self.location.go('/en/' + self.currentPath + evt.target.hash);
               }
             });
           }
@@ -132,18 +159,18 @@ export class NodeComponent implements OnInit, OnDestroy {
         this.renderer2.appendChild(this.body_en.nativeElement, b_en);
       }
       // spanish
-      if (this.curNode[0].node_export.i18n.es.body.length > 0) {
+      if (this.curNode[0].node_export.i18n.es.body.length > 0 && this.curNode[0].node_export.i18n.es.body[0].value !== '') {
         const b_es = this.renderer2.createElement('div');
         b_es.innerHTML = this.curNode[0].node_export.i18n.es.body[0].value;
         const link_array = b_es.getElementsByTagName('a');
         Array.from(link_array).forEach(function (i) {
-          if (i['hash'] !== '') {
+          if (i['hash'] !== '' && curr_url[0] === i['href'].match(regex_func)[0]) {
             i['href'] = '/es/' + self.currentPath + i['hash'];
             self.renderer2.listen(i, 'click', (evt) => {
               evt.preventDefault();
-              self.scrollToFragment(evt.srcElement.hash.substr(1));
-              if (self.currentPath !== '') {
-                self.location.go('/es/' + self.currentPath + evt.srcElement.hash);
+              self.scrollToFragment(evt.target.hash.substr(1));
+              if (self.currentPath !== '' && !self.dialog) {
+                self.location.go('/es/' + self.currentPath + evt.target.hash);
               }
             });
           }

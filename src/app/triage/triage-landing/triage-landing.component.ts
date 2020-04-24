@@ -1,14 +1,14 @@
 import { Component, Inject, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
-
 import { VariableService } from '../../services/variable.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs/observable/forkJoin';
-import { MatIconRegistry } from '@angular/material';
-import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
+import { forkJoin } from 'rxjs';
+import { DomSanitizer, makeStateKey, Meta, TransferState } from '@angular/platform-browser';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { Angulartics2 } from 'angulartics2';
-import { MetaService } from '@ngx-meta/core';
+import { ApiService } from '../../services/api.service';
+
+const TRIAGE_BLOCKS = makeStateKey('triage_landing_blocks');
 
 @Component({
   selector: 'app-triage-landing',
@@ -25,6 +25,7 @@ export class TriageLandingComponent implements OnInit {
   public state = '';
   public media: any;
   public id: string;
+  public block_setup = [];
 
   constructor(
     private variableService: VariableService,
@@ -33,26 +34,45 @@ export class TriageLandingComponent implements OnInit {
     private breakpointObserver: BreakpointObserver,
     @Inject(PLATFORM_ID) private platformId,
     private angulartics2: Angulartics2,
-    private meta: MetaService,
-    @Inject(DOCUMENT) private document: any
+    private meta: Meta,
+    @Inject(DOCUMENT) private document: any,
+    private statecache: TransferState,
+    private apiService: ApiService,
   ) {
-    this.variableService.setPageTitle('Legal Help Finder');
     this.media = breakpointObserver;
   }
 
   ngOnInit() {
     this.variables = this.variableService;
-    this.meta.setTag('og:title', 'Legal Help Finder');
-    this.meta.setTag('og:url', this.document.location.href);
+    this.meta.updateTag({ name: 'og:title', content: 'Legal Help Finder'});
+    this.meta.updateTag({ name: 'og:url', content: this.document.location.href});
+    this.variableService.setPageTitle('Legal Help Finder');
     this.id = this.route.snapshot.paramMap.get('id');
     // grab info
-    const issues_obs = this.variableService.getIssues();
-    const state_obs = this.variableService.getState();
-    this.connection = forkJoin([issues_obs, state_obs]).subscribe(results => {
-      this.issues = results[0];
-      this.in_state = results[1];
-      this.doneLoading();
-    });
+    const _blocks = this.statecache.get(TRIAGE_BLOCKS, null as any);
+    if (_blocks !== null) {
+      this.variables.currentBlockSetup = _blocks;
+      this.block_setup = this.variables.processBlock(_blocks);
+      const issues_obs = this.variableService.getIssues();
+      const state_obs = this.variableService.getState();
+      this.connection = forkJoin([issues_obs, state_obs]).subscribe(results => {
+        this.issues = results[0];
+        this.in_state = results[1];
+        this.doneLoading();
+      });
+    } else {
+      const issues_obs = this.variableService.getIssues();
+      const state_obs = this.variableService.getState();
+      const block_obs = this.apiService.getBlocks('all', 'triage_landing', 'all');
+      this.connection = forkJoin([issues_obs, state_obs, block_obs]).subscribe(results => {
+        this.issues = results[0];
+        this.in_state = results[1];
+        this.statecache.set(TRIAGE_BLOCKS, results[2] as any);
+        this.variables.currentBlockSetup = results[2];
+        this.block_setup = this.variables.processBlock(results[2]);
+        this.doneLoading();
+      });
+    }
   }
 
   doneLoading() {

@@ -1,9 +1,9 @@
-import { Component, Inject, Input, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import { Component, Inject, Input, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
 import { VariableService } from '../../services/variable.service';
-import { forkJoin } from 'rxjs/observable/forkJoin';
+import { forkJoin } from 'rxjs';
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { MatIconRegistry } from '@angular/material';
+import { MatIconRegistry } from '@angular/material/icon';
 import { isPlatformBrowser, Location } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Angulartics2 } from 'angulartics2';
@@ -28,9 +28,13 @@ import { ApiService } from '../../services/api.service';
     ])
   ]
 })
-export class TriageSummaryComponent implements OnInit {
+export class TriageSummaryComponent implements OnInit, OnDestroy {
   @Input() idx;
   private connection: any;
+  private statsub: any;
+  private locsub: any;
+  private getlocsub: any;
+  private issuesub: any;
   public user_status: any;
   private user_loc: any;
   public working = true;
@@ -43,6 +47,15 @@ export class TriageSummaryComponent implements OnInit {
   public media: any;
   private set_idx: any;
   public currentIdx = 0;
+  public show_loc = false;
+  public block_setup = [];
+  public hasBlocks = false;
+  public blocks = {
+    content_top: [],
+    left: [],
+    right: [],
+    content_bottom: [],
+  };
 
   constructor(
     private variableService: VariableService,
@@ -62,12 +75,12 @@ export class TriageSummaryComponent implements OnInit {
     this.set_idx = this.idx;
     this.loadAll();
 
-    this.variableService.issuesSubject.subscribe(result => {
+    this.issuesub = this.variableService.issuesSubject.subscribe(result => {
       this.working = true;
       this.doneUpdating(result);
     });
 
-    this.variableService.locationSubject.subscribe(result => {
+    this.locsub = this.variableService.locationSubject.subscribe(result => {
       this.working = true;
       this.user_loc = result;
       this.issues = [];
@@ -75,23 +88,46 @@ export class TriageSummaryComponent implements OnInit {
       this.sendStats();
     });
 
-    this.variableService.statusSubject.subscribe(result => {
+    this.statsub = this.variableService.statusSubject.subscribe(result => {
       this.user_status = result;
     });
+
+    this.getlocsub = this.variableService.getlocSubject.subscribe(result => {
+      this.show_loc = !!result;
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.issuesub) {
+      this.issuesub.unsubscribe();
+    }
+    if (this.locsub) {
+      this.locsub.unsubscribe();
+    }
+    if (this.statsub) {
+      this.statsub.unsubscribe();
+    }
+    if (this.getlocsub) {
+      this.getlocsub.unsubscribe();
+    }
   }
 
   loadAll() {
     const status_obs = this.variableService.getStatus();
     const issues_obs = this.variableService.getIssues();
     const loc_obs = this.variableService.getLocation();
+    const blocks = this.apiService.getBlocks('all', 'triage_entries', 'all');
 
-    this.connection = forkJoin([status_obs, issues_obs, loc_obs]).subscribe(results => {
+    this.connection = forkJoin([status_obs, issues_obs, loc_obs, blocks]).subscribe(results => {
       this.user_status = results[0];
       this.issues = results[1];
       this.saved_issues = results[1];
       this.user_loc = results[2];
-      this.connection.unsubscribe();
+      if (results[3].length > 0) {
+        this.block_setup = this.variables.processBlock(results[3]);
+      }
       this.doneLoading();
+      this.connection.unsubscribe();
     });
   }
 
@@ -117,11 +153,14 @@ export class TriageSummaryComponent implements OnInit {
           self.currentIdx = index;
         }
       });
-      this.apiService.getNode(nodes.join('+')).subscribe( result => {
-        this.setupNodes(result);
-      });
+      if (nodes.length > 0) {
+        this.apiService.getNode(nodes.join('+')).subscribe( result => {
+          this.setupNodes(result);
+        });
+      }
     } else {
       this.working = false;
+      this.variables.scrollSubject.next();
     }
   }
 
@@ -137,9 +176,11 @@ export class TriageSummaryComponent implements OnInit {
           }
         });
       });
+      self.processEntry(i);
     });
     this.sendStats();
     this.working = false;
+    this.variables.scrollSubject.next();
   }
 
   doneUpdating(update: any) {
@@ -150,7 +191,12 @@ export class TriageSummaryComponent implements OnInit {
       this.doneLoading();
     } else {
       this.issues = this.saved_issues;
+      const self = this;
+      this.issues.forEach(function (i) {
+        self.processEntry(i);
+      });
       this.working = false;
+      this.variables.scrollSubject.next();
     }
   }
 
@@ -158,7 +204,6 @@ export class TriageSummaryComponent implements OnInit {
     if (this.issues.length > 0) {
       const last = this.issues[this.currentIdx].issues.length - 1;
       const content_dem = [];
-      this.showEntry(this.issues[this.currentIdx]);
       // issue
       const issue_dem = [];
       this.issues[this.currentIdx].issues.forEach(function (i, index) {
@@ -254,19 +299,12 @@ export class TriageSummaryComponent implements OnInit {
     });
   }
 
-  sortByKey(array, key, reverse): any {
-    if (typeof array === 'undefined') {
-      return false;
+  hasStatus(tid: string): boolean {
+    let output = false;
+    if (typeof tid !== 'undefined' && this.user_status.indexOf(tid) !== -1) {
+      output = true;
     }
-    return array.sort(function(a, b) {
-      const x = a[key];
-      const y = b[key];
-      if (reverse) {
-        return ((x > y) ? -1 : ((x < y) ? 1 : 0));
-      } else {
-        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-      }
-    });
+    return output;
   }
 
   hasMatch(cond): boolean {
@@ -306,22 +344,25 @@ export class TriageSummaryComponent implements OnInit {
     return output;
   }
 
-  showEntry(entry: any): boolean {
+  processEntry(entry: any): boolean {
     const self = this;
     if (typeof entry === 'undefined') {
       return false;
     }
-    let output = entry.show ? true : false;
-    if (entry.issues.length > 0) {
+    let output = !!entry.show;
+    if (entry.issues.length > 0 && entry.issues[entry.issues.length - 1].term_export.field_entry_settings.length > 0) {
       entry.issues[entry.issues.length - 1].term_export.field_entry_settings.forEach(function(e) {
-        if (e.node_export.field_lang_status[0].value !== 'both' && e.node_export.field_lang_status[0].value !== self.variables.lang) {
+        if (typeof e.node_export === 'undefined') {
+          e.hide = true;
+        } else if (e.node_export.field_lang_status[0].value !== 'both'
+          && e.node_export.field_lang_status[0].value !== self.variables.lang) {
           e.hide = true;
         }
         if (e.value !== '' && typeof e.value === 'string') {
           e.value = JSON.parse(e.value);
         }
         if (e.value !== '' && e.value.length > 0) {
-          self.sortByKey(e.value, 'cond', true);
+          self.variables.sortByKey(e.value, 'cond', true);
           e.hide = false;
           e.value.forEach(function(c) {
             if (c.cond === 'show') {
@@ -337,13 +378,42 @@ export class TriageSummaryComponent implements OnInit {
             }
           });
         }
-        if (!e.hide) {
+        if (!e.hide || typeof e.hide === 'undefined') {
+          e.hide = false;
           output = true;
         }
       });
     }
 
     return output;
+  }
+
+  showEntry(entry: any): boolean {
+    if (typeof entry === 'undefined') {
+      return false;
+    }
+    let idx = 1;
+    let output = !!entry.show;
+    if (entry.issues.length > 0 && entry.issues[entry.issues.length - 1].term_export.field_entry_settings.length > 0) {
+      entry.issues[entry.issues.length - 1].term_export.field_entry_settings.forEach(function(e) {
+        if (!e.hide || typeof e.hide === 'undefined') {
+          output = true;
+          e.class_id = idx;
+          idx++;
+        }
+      });
+    }
+    return output;
+  }
+
+  getClassID(entry: any): string {
+    if (typeof entry === 'undefined' || typeof entry.class_id === 'undefined') {
+      return '';
+    }
+    if (/^-?\d*[13579]$/.test(entry.class_id)) {
+      return 'odd';
+    }
+    return '';
   }
 
   setLoc() {

@@ -5,113 +5,138 @@
   <div *ngIf="!working">
     <div class="pad-r border-bottom">
       <div>
-        <h1 fxHide fxShow.gt-sm class="no-margin"><app-label src="search_title"></app-label></h1>
-        <h2 fxHide.gt-sm class="no-margin"><app-label src="search_title"></app-label></h2>
+        <h1 class="no-margin"><app-label src="search_title"></app-label></h1>
       </div>
       <div fxFlex></div>
     </div>
-    <div fxLayout="row wrap">
-      <!--Search Results-->
-      <div fxFlex="100" fxFlex.gt-sm="70" class="results-wrapper pad" fxLayout="column">
-        <mat-tab-group class="triage-summary-tabs" [selectedIndex]="currentIdx" (selectedTabChange)="tabChange($event)">
-          <mat-tab *ngFor="let item of searches; let last = last; let index = index;">
-            <ng-template mat-tab-label>
-              <div fxLayout="row" fxLayoutAlign="start center">
-                <h4 class="no-margin"><em>{{item.key}}</em></h4>
-                <div *ngIf="searches.length > 1" fxLayout="column" fxLayoutAlign="center center">
-                  <button aria-label="Close" (click)="remove(index)" class="primary icon item" mat-icon-button>
-                    <mat-icon>close</mat-icon>
-                  </button>
-                </div>
+    <div *ngIf="block_setup.length > 0">
+      <div [fxHide]="setup.status === '0'" *ngFor="let setup of block_setup">
+        <div fxLayout="row wrap" fxLayoutAlign="center stretch" class="{{setup['class']}}">
+          <div *ngFor="let config of setup.columns; let index = index" fxLayout="row wrap" fxLayoutAlign="start start"
+               fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="config.value" class="{{config['class']}}">
+            <div [fxHide.xs]="node.desktop" [fxHide.sm]="node.desktop" [fxHide.gt-sm]="node.mobile"
+                 *ngFor="let node of config.nodes" fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="node.value[0]['flex']">
+              <!--Dynamic Blocks-->
+              <div *ngIf="node.value[0]['msrc'] !== 'content'" class="{{node.value[0]['class']}}">
+                <app-block [nid]="node.target_id"></app-block>
               </div>
-            </ng-template>
-            <!--Title / Toggle / Remove-->
-            <div fxLayout="row" fxLayoutAlign="start center" class="pad">
-              <div>Showing <strong>{{item.search.pages.length}}
-                <span *ngIf="item.search.overflow.length > 0">of {{item.search.pages.length + item.search.overflow.length}}</span></strong>
-                <span>results for <em>{{item.key}}</em></span></div>
-              <div fxFlex></div>
-              <div class="search-actions" fxLayout="column" fxLayoutAlign="center center">
-                <div fxLayout="row">
-                  <div fxLayout="column" fxLayoutAlign="center center" class="margin-right">
-                    <button *ngIf="media.isMatched('(min-width: 960px)')" aria-label="Print" class="primary icon item"
-                            mat-icon-button mat-raised-button (click)="print()">
-                      <app-icon svgClass="svg sm" svgIcon="tid717"></app-icon>
-                    </button>
-                  </div>
+              <!--Search Results-->
+              <div *ngIf="node.value[0]['msrc'] === 'content'" class="results-wrapper" fxLayout="column">
+                <div *ngIf="searches.length < 1" class="backg bg pad-r margin-top border-radius">
+                  <app-search-bar></app-search-bar>
                 </div>
-              </div>
-            </div>
-            <!--Spelling Suggestions-->
-            <div *ngIf="item.spelling.length > 0" class="pad">
-              <strong>Did you mean: </strong>
-              <span><a [routerLink]="[ '/' + variables.lang + '/search', item.new_key ]"
-                       (click)="remove(index)">{{item.new_key}}</a></span>
-            </div>
-            <!--Triage Search Results-->
-            <div *ngIf="item.search.triage.length > 0" class="pad">
-              <div fxLayout="column" class="highlight border pad border-radius">
-                <div fxLayout="row" fxLayoutAlign="start center">
-                  <app-icon svgClass="svg sm primary icon margin-right" svgIcon="tid631"></app-icon>
-                  <h3 class="no-margin"><app-label src="search_triage_label"></app-label></h3>
-                </div>
-                <div>
-                  <div class="margin-bottom margin-top">
-                    <app-label src="search_triage"></app-label>
-                  </div>
-                  <div>
-                    <ul>
-                      <li *ngFor="let item of item.search.triage; let last = last;">
-                        <a [routerLink]="[ '/' + variables.lang + '/legal-help/view', item.tid]">
-                          <strong [innerHTML]="item.name"></strong>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!--Search Results-->
-            <div class="">
-              <!--Segment Display-->
-              <div *ngIf="item.search.segments.length > 0 && showSeg(item.search.segments[0])" class="pad margin-bottom">
-                <app-segment-display [src]="item.search.segments[0]"></app-segment-display>
-              </div>
-              <!--Normal Results-->
-              <div *ngIf="item.search.pages.length > 0" class="pad">
-                <div *ngFor="let entry of item.search.pages; let last = last; let odd = odd; let index = index;">
-                  <div *ngIf="show(entry)" class="pad" [ngClass]="{'margin-bottom': !last, 'backg1 bg': odd}">
-                    <app-content-list [search]="[entry]" preview="true"></app-content-list>
-                  </div>
-                </div>
-              </div>
-              <div *ngIf="item.search.overflow.length > 0" class="pad">
-                <div *ngIf="!item.show_overflow">
-                  <button mat-raised-button class="primary button pad"
-                          (click)="processOverflow(item)">
-                    <div fxLayout="row" fxLayoutAlign="start center" *ngIf="!item.overflow_loading">
-                      View More <mat-icon>expand_more</mat-icon>
+                <mat-tab-group *ngIf="searches.length > 0" class="triage-summary-tabs padding-top" [selectedIndex]="currentIdx"
+                               (selectedTabChange)="tabChange($event)">
+                  <mat-tab *ngFor="let item of searches; let last = last; let index = index;">
+                    <ng-template mat-tab-label>
+                      <div fxLayout="row" fxLayoutAlign="start center">
+                        <h4 class="no-margin"><em>{{item.key}}</em></h4>
+                        <div *ngIf="searches.length > 1" fxLayout="column" fxLayoutAlign="center center">
+                          <button aria-label="Close" (click)="remove(index)" class="primary icon item" mat-icon-button>
+                            <mat-icon>close</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+                    </ng-template>
+                    <!--Title / Toggle / Remove-->
+                    <div fxLayout="row" fxLayoutAlign="start center" class="pad">
+                      <div fxLayout="row wrap">
+                        <app-label src="search_results_1"></app-label>
+                        <div>
+                          <strong>
+                            <span>&nbsp;{{item.search.pages.length}}</span>
+                            <span *ngIf="item.search.overflow.length > 0">&nbsp;of {{item.search.pages.length + item.search.overflow.length}}&nbsp;</span>
+                            <span *ngIf="item.search.overflow.length < 1">&nbsp;</span>
+                          </strong>
+                        </div>
+                        <app-label src="search_results_2"></app-label>
+                        <div>&nbsp;<em>{{item.key}}</em></div>
+                      </div>
+                      <div fxFlex></div>
+                      <div class="search-actions" fxLayout="column" fxLayoutAlign="center center">
+                        <div fxLayout="row">
+                          <div fxLayout="column" fxLayoutAlign="center center" class="margin-right">
+                            <button fxShow.gt-sm aria-label="Print" class="primary icon item"
+                                    mat-icon-button mat-raised-button (click)="print()">
+                              <app-icon svgClass="svg sm" svgIcon="tid717"></app-icon>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div *ngIf="item.overflow_loading">Loading...</div>
-                  </button>
-                </div>
-                <div *ngIf="item.show_overflow">
-                  <div *ngFor="let entry of item.search.overflow; let last = last; let odd = odd; let index = index;">
-                    <div *ngIf="show(entry)" class="pad" [ngClass]="{'margin-bottom': !last, 'backg1 bg': odd}">
-                      <app-content-list [search]="[entry]" preview="true"></app-content-list>
+                    <!--Spelling Suggestions-->
+                    <div *ngIf="variables.lang === 'en' && item.spelling.length > 0" class="pad">
+                      <strong>Did you mean: </strong>
+                      <span><a [routerLink]="[ '/' + variables.lang + '/search', item.new_key ]"
+                               (click)="remove(index)">{{item.new_key}}</a></span>
                     </div>
-                  </div>
-                </div>
+                    <!--Triage Search Results-->
+                    <div *ngIf="item.search.triage.length > 0" class="pad">
+                      <div fxLayout="column" class="highlight border pad-r border-radius">
+                        <div fxLayout="row" fxLayoutAlign="start center">
+                          <app-icon svgClass="svg sm primary icon margin-right" svgIcon="tid631"></app-icon>
+                          <h3 class="no-margin"><app-label src="search_triage_label"></app-label></h3>
+                        </div>
+                        <div>
+                          <div class="margin-bottom margin-top">
+                            <app-label src="search_triage"></app-label>
+                          </div>
+                          <div>
+                            <ul>
+                              <li *ngFor="let item of item.search.triage; let last = last;">
+                                <a [routerLink]="[ '/' + variables.lang + '/legal-help/view', item.tid]">
+                                  <strong [innerHTML]="item.name"></strong>
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--Search Results-->
+                    <div class="">
+                      <!--Segment Display-->
+                      <div *ngIf="item.search.segments.length > 0 && showSeg(item.search.segments[0])" class="pad margin-bottom-lg">
+                        <app-segment-display [src]="item.search.segments[0]"></app-segment-display>
+                      </div>
+                      <!--Normal Results-->
+                      <div *ngIf="item.search.pages.length > 0" class="pad">
+                        <div *ngFor="let entry of item.search.pages; let last = last; let odd = odd; let index = index;"
+                             class="content-list-item-stripes">
+                          <div *ngIf="show(entry)" class="pad" [ngClass]="{'margin-bottom-lg': !last}">
+                            <app-content-list [search]="[entry]" preview="true"></app-content-list>
+                          </div>
+                        </div>
+                      </div>
+                      <div *ngIf="item.search.overflow.length > 0" class="pad">
+                        <div *ngIf="item.show_overflow">
+                          <div *ngFor="let entry of item.search.overflow; let last = last; let odd = odd; let index = index;"
+                               class="content-list-item-stripes">
+                            <div *ngIf="show(entry)" class="pad" [ngClass]="{'margin-bottom-lg': !last}">
+                              <app-content-list [search]="[entry]" preview="true"></app-content-list>
+                            </div>
+                          </div>
+                        </div>
+                        <!--More Button-->
+                        <div *ngIf="item.show_overflow_btn">
+                          <button mat-raised-button class="primary button pad"
+                                  (click)="processOverflow(item)">
+                            <div fxLayout="row" fxLayoutAlign="start center" *ngIf="!item.overflow_loading">
+                              <div fxLayout="row" fxLayoutAlign="start center">
+                                <app-label src="view_more"></app-label>
+                                <mat-icon>expand_more</mat-icon>
+                              </div>
+                            </div>
+                            <div *ngIf="item.overflow_loading">Loading...</div>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-tab>
+                </mat-tab-group>
               </div>
             </div>
-          </mat-tab>
-        </mat-tab-group>
-      </div>
-      <!--Right Block System-->
-      <div *ngIf="hasBlocks && blocks['right'].length > 0" fxFlex="100" fxFlex.gt-sm="30" class="blocks side-pad-r"
-           [ngClass]="{'backg1 bg': !media.isMatched('(min-width: 960px)'), 'border-left': media.isMatched('(min-width: 960px)')}">
-        <div *ngFor="let item of blocks['right']">
-          <app-block [nid]="item"></app-block>
+          </div>
         </div>
       </div>
     </div>

@@ -3,9 +3,8 @@
     <app-loader></app-loader>
   </div>
   <div *ngIf="!working" fxLayout="row wrap" fxLayoutAlign="start stretch" class="pad">
-    <div fxFlex="100" fxFlex.gt-xs="50" fxLayout="column" *ngFor="let item of nsmi"
-         class="item-wrapper margin-bottom-lg-lt-xs">
-      <a fxFlex [routerLink]="[ '/' + variables.lang + '/self-help', item.tid ]" class="backg1 bg border-radius-lg">
+    <div fxFlex="100" fxFlex.gt-xs="50" *ngFor="let item of nsmi; trackBy: variables.trackByTid;" fxLayout="column" class="item-wrapper margin-bottom-lg-lt-xs">
+      <a [routerLink]="[ '/' + variables.lang + '/self-help', item.tid ]" class="backg1 bg border-radius-lg entry">
         <div fxLayout="row" class="pad entry">
           <div fxLayout="column" fxLayoutAlign="start center">
             <app-icon *ngIf="item.term_export.field_public_term_file.length > 0"
@@ -21,7 +20,7 @@
                   <span [innerHTML]="item.i18n['es'].name[0].value"></span>
                 </div>
               </h3>
-              <h2 fxHide fxShow.gt-xs class="no-margin">
+              <h2 fxHide.lt-sm class="no-margin">
                 <div *ngIf="variables.lang === 'en'">
                   <span [innerHTML]="item.name"></span>
                 </div>

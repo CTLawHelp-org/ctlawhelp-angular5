@@ -1,0 +1,63 @@
+<div class="admin-term-triage-wrapper" fxLayout="column">
+  <div class="pad backg bg white-text" fxLayout="row" fxLayoutAlign="start center">
+    <h4 class="no-margin">Move Term</h4>
+    <div fxFlex></div>
+  </div>
+  <div *ngIf="!working">
+    <form name="triageForm" #triageForm="ngForm">
+      <div fxLayout="row" fxLayoutAlign="end center" class="pad-r margin-top">
+        <div fxFlex></div>
+        <div class="margin-right" fxLayout="column" fxLayoutAlign="center center">
+          <button mat-raised-button (click)="cancelEdit()">Cancel</button>
+        </div>
+        <div>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!triageForm.form.valid"
+                  (click)="saveTerm()">Save</button>
+        </div>
+      </div>
+      <div class="pad">
+        <!--Parent-->
+        <div class="pad tree" fxLayout="column">
+          <div class="margin-bottom">
+            <mat-label>Choose New Parent</mat-label>
+          </div>
+          <div class="margin-bottom">
+            <button mat-raised-button color="primary" (click)="parentTerm = []" [disabled]="parentTerm.length < 1">No Parent</button>
+          </div>
+          <tree-root #tree [nodes]="triage" [options]="triage_options">
+            <ng-template #treeNodeWrapperTemplate let-node let-index="index">
+              <div fxLayout="row nowrap" fxLayoutAlign="start center">
+                <div fxLayout="column" fxLayoutAlign="center center">
+                  <tree-node-expander [node]="node"></tree-node-expander>
+                </div>
+                <div class="node-content-wrapper"
+                     [class.node-content-wrapper-active]="node.isActive"
+                     [class.node-content-wrapper-focused]="node.isFocused"
+                     (click)="node.mouseAction('click', $event)"
+                     (dblclick)="node.mouseAction('dblClick', $event)"
+                     (treeDrop)="node.onDrop($event)"
+                     [treeAllowDrop]="node.allowDrop"
+                     [treeDrag]="node"
+                     [treeDragEnabled]="node.allowDrag()"
+                     fxLayout="row" fxLayoutAlign="start center">
+                  <tree-node-content [node]="node" [index]="index"></tree-node-content>
+                </div>
+                <div>
+                  <div *ngIf="isParent(node.data.tid)"
+                       fxLayout="column" fxLayoutAlign="center center">
+                    <mat-icon>radio_button_checked</mat-icon>
+                  </div>
+                  <div *ngIf="node.isActive && !isParent(node.data.tid)"
+                       (click)="setParent(node.data)" style="cursor: pointer"
+                       fxLayout="column" fxLayoutAlign="center center">
+                    <mat-icon>radio_button_unchecked</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </tree-root>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

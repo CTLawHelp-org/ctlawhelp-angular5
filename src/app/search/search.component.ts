@@ -1,39 +1,43 @@
-import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy, ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  ViewEncapsulation
+} from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { VariableService } from '../services/variable.service';
 import { ApiService } from '../services/api.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { forkJoin } from 'rxjs/observable/forkJoin';
-import { isPlatformBrowser, Location } from '@angular/common';
+import { forkJoin } from 'rxjs';
+import { isPlatformBrowser, Location, DOCUMENT } from '@angular/common';
 import { Model } from './search.model';
 import { Angulartics2 } from 'angulartics2';
-import { MetaService } from '@ngx-meta/core';
-import { DOCUMENT, DomSanitizer } from '@angular/platform-browser';
-import { MatIconRegistry } from '@angular/material';
+import { DomSanitizer, Meta } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
 export class SearchComponent implements OnInit, OnDestroy {
+  private subscription: any;
+  private connection: any;
+  private varsub: any;
+  private langsub: any;
   public working = true;
   public variables: any;
   public media: any;
-  private subscription: any;
-  private connection: any;
-  private id: string;
+  public id: string;
   public searches = [];
   public currentIdx = 0;
-  public hasBlocks = false;
-  public blocks = {
-    content_top: [],
-    left: [],
-    right: [],
-    content_bottom: [],
-  };
-  private minScore = 13;
+  private minScore = 12;
+  private triage_num = 5;
+  public block_setup = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -44,8 +48,9 @@ export class SearchComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId,
     private location: Location,
     private angulartics2: Angulartics2,
-    private meta: MetaService,
+    private meta: Meta,
     @Inject(DOCUMENT) private document: any,
+    private cdr: ChangeDetectorRef,
   ) {
     this.media = breakpointObserver;
   }
@@ -53,23 +58,16 @@ export class SearchComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.variables = this.variableService;
     this.variableService.setPageTitle('Search Results');
-    this.meta.setTag('og:title', 'Search Results');
-    this.meta.setTag('og:url', this.document.location.href);
+    this.meta.updateTag({ name: 'og:title', content: 'Search Results'});
+    this.meta.updateTag({ name: 'og:url', content: this.document.location.href});
 
-    const block_page = this.apiService.getBlocks('all', 'search', 'all');
-    const search_obs = this.variableService.getSearch();
-    this.connection = forkJoin([search_obs, block_page]).subscribe(results => {
-      this.connection.unsubscribe();
-      this.searches = results[0];
-      if (results[1].length > 0) {
-        this.setupBlocks(results[1][0], results[1][0].term_export.field_block_setup);
-      }
-      if (this.route.snapshot.paramMap.get('id')) {
-        this.loadResults(this.route.snapshot.paramMap.get('id'));
-      } else if (typeof this.route.snapshot.queryParams.keyword !== 'undefined') {
-        this.loadResults(this.route.snapshot.queryParams.keyword.split('+').join(' '));
-      }
-    });
+    if (this.variableService.varDone) {
+      this.firstLoad();
+    } else {
+      this.varsub = this.variableService.varSubject.subscribe( () => {
+        this.firstLoad();
+      });
+    }
 
     this.subscription = this.router.events.subscribe(e => {
       if (e instanceof NavigationEnd) {
@@ -81,26 +79,56 @@ export class SearchComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    // Language change
+    this.langsub = this.variables.langSubject.subscribe( result => {
+      const url = '/' + this.variables.lang + '/search';
+      this.router.navigateByUrl(url);
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+    if (this.varsub) {
+      this.varsub.unsubscribe();
+    }
+    if (this.langsub) {
+      this.langsub.unsubscribe();
+    }
+    if (this.connection) {
+      this.connection.unsubscribe();
+    }
   }
 
-  setupBlocks(src: any, items: any) {
-    this.hasBlocks = true;
-    const self = this;
-    items.forEach(function (item) {
-      if (!item.processed) {
-        item.value = item.value.split(',');
-        item.processed = true;
+  firstLoad() {
+    const block_page = this.apiService.getBlocks('all', 'search', 'all');
+    const search_obs = this.variableService.lang === 'en' ? this.variableService.getSearch() : this.variableService.getSearchES();
+    this.connection = forkJoin([search_obs, block_page]).subscribe(results => {
+      // minScore
+      const ms = this.variables.returnNumber(this.variables.site_vars['search_min_score']['description__value']);
+      this.minScore = parseInt(ms[0], 10);
+      // triage_num
+      const tn = this.variables.returnNumber(this.variables.site_vars['search_page_triage_num']['description__value']);
+      this.triage_num = parseInt(tn[0], 10);
+      this.searches = results[0];
+      if (results[1].length > 0) {
+        this.variables.currentBlockSetup = results[1];
+        this.block_setup = this.variables.processBlock(results[1]);
       }
-      self.blocks[item.value[0]][item.value[1]] = item.target_id;
+      if (this.route.snapshot.paramMap.get('id')) {
+        this.loadResults(this.route.snapshot.paramMap.get('id'));
+      } else if (typeof this.route.snapshot.queryParams.keyword !== 'undefined') {
+        this.loadResults(this.route.snapshot.queryParams.keyword.split('+').join(' '));
+      } else if (this.searches.length > 0) {
+        this.loadResults(this.searches[0].key);
+      } else {
+        this.working = false;
+        this.cdr.detectChanges();
+      }
     });
-    this.variableService.currentBlocksSrc = src;
-    this.variableService.currentBlocks = items;
   }
 
   print() {
@@ -128,9 +156,9 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   grabResults(key: string, prev_index: number) {
-    const search_obs = this.apiService.getSearch(key);
+    const search_obs = this.variables.lang === 'en' ? this.apiService.getSearch(key) : this.apiService.getSearchES(key);
     const spell_obs = this.apiService.getSpelling(key);
-    const triage_search_obs = this.apiService.getTriageSearch(key);
+    const triage_search_obs = this.variables.lang === 'en' ? this.apiService.getTriageSearch(key) : this.apiService.getTriageSearchES(key);
     const conn = forkJoin([search_obs, spell_obs, triage_search_obs]).subscribe(results => {
       const obj = new Model();
       obj.key = key;
@@ -145,14 +173,17 @@ export class SearchComponent implements OnInit, OnDestroy {
         obj.new_key = new_key.join(' ');
       }
       // Search Results
+      const s_array = [];
       results[0].forEach(function(i) {
         if (i.type === 'page') {
-          if (obj.search.pages.length < 10) {
+          if (obj.search.pages.length < 10 && s_array.indexOf(i.nid) === -1) {
             obj.search.pages.push(i);
-          } else {
+            s_array.push(i.nid);
+          } else if (s_array.indexOf(i.nid) === -1) {
             obj.search.overflow.push(i);
+            s_array.push(i.nid);
           }
-        } else if (i.type === 'segment') {
+        } else if (i.type === 'segment' && obj.search.segments.length < 2) {
           obj.search.segments.push(i);
         }
       });
@@ -161,7 +192,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         const self = this;
         results[2].forEach(function (i) {
           const score = parseFloat(i.relevance);
-          if (obj.search.triage.length < 3 && score > self.minScore) {
+          if (obj.search.triage.length < self.triage_num && score > self.minScore) {
             obj.search.triage.push(i);
           }
         });
@@ -179,6 +210,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       }
       // set page view
       this.angulartics2.pageTrack.next({ path: this.router.url });
+      this.cdr.detectChanges();
     });
   }
 
@@ -189,16 +221,25 @@ export class SearchComponent implements OnInit, OnDestroy {
       n_obj.key = i.key;
       prev.push(n_obj);
     });
-    this.variableService.setSearch(prev).subscribe(() => {});
+    if (this.variables.lang === 'en') {
+      this.variableService.setSearch(prev).subscribe(() => {});
+    } else {
+      this.variableService.setSearchES(prev).subscribe(() => {});
+    }
   }
 
   processSearch(obj: any) {
     const array = [];
     obj.search.pages.forEach(function(i) {
-      array.push(i.nid);
+      if (array.indexOf(i.nid) === -1) {
+        array.push(i.nid);
+      }
     });
     if (obj.search.segments.length > 0) {
       array.push(obj.search.segments[0].nid);
+    }
+    if (obj.search.overflow.length > 0) {
+      obj.show_overflow_btn = true;
     }
     if (array.length > 0) {
       const con = this.apiService.getNode(array.join('+')).subscribe(result => {
@@ -220,10 +261,12 @@ export class SearchComponent implements OnInit, OnDestroy {
         con.unsubscribe();
         obj.processed = true;
         this.working = false;
+        this.cdr.detectChanges();
       });
     } else {
       obj.processed = true;
       this.working = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -231,8 +274,13 @@ export class SearchComponent implements OnInit, OnDestroy {
     if (obj.search.overflow) {
       obj.overflow_loading = true;
       const array = [];
+      let count = 0;
       obj.search.overflow.forEach(function(i) {
-        array.push(i.nid);
+        if (obj.search.proc_overflow.indexOf(i.nid) === -1 && count <= 10) {
+          obj.search.proc_overflow.push(i.nid);
+          array.push(i.nid);
+          count++;
+        }
       });
       if (array.length > 0) {
         const con = this.apiService.getNode(array.join('+')).subscribe(result => {
@@ -251,6 +299,10 @@ export class SearchComponent implements OnInit, OnDestroy {
           con.unsubscribe();
           obj.show_overflow = true;
           obj.overflow_loading = false;
+          if (obj.search.overflow.length === obj.search.proc_overflow.length) {
+            obj.show_overflow_btn = false;
+          }
+          this.cdr.detectChanges();
         });
       }
     }
@@ -277,8 +329,11 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   show(item: any): boolean {
+    if (typeof item === 'undefined' || typeof item.node_export === 'undefined') {
+      return false;
+    }
     let output = false;
-    const lang_status = item.node_export.field_lang_status[0].value;
+    const lang_status = item.node_export.field_lang_status.length > 0 ? item.node_export.field_lang_status[0].value : 'both';
     if ((this.variables.lang === lang_status || lang_status === 'both') && !item.hide) {
       output = true;
     } else {

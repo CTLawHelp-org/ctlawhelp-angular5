@@ -1,23 +1,35 @@
-@import url('https://cdnjs.cloudflare.com/ajax/libs/ag-grid/16.0.1/styles/ag-grid.css');
-@import url('https://cdnjs.cloudflare.com/ajax/libs/ag-grid/16.0.1/styles/ag-theme-material.css');
-
-.mat-dialog-title.dialog-header {
-  margin:0;
+.node-picker-wrapper {
+  .node-table {
+    tbody tr:nth-child(odd) {
+      background:#f2f2f2;
+    }
+    .mat-column-select {
+      width:30px;
+    }
+    .lang-wrapper {
+      &.en {
+        color:blue;
+      }
+      &.es {
+        color:orange;
+      }
+      &.both {
+        color:#f44336;
+      }
+    }
+  }
 }
 
-.grid-wrapper {
-  width:100%;
-  height:100%;
-  .ag-layout-normal {
-    height:600px;
-  }
-  .ag-header-container {
-    background:#eee;
-  }
-  .ag-row-odd {
-    background:#f7f7f7;
-  }
-  .ag-header-cell {
-    line-height:50px;
+.node-ref-wrapper {
+  .item {
+    position:relative;
+    .drag-handle {
+      position:absolute;
+      top:14px;
+      cursor: pointer;
+    }
+    .info-wrapper {
+      padding-left:20px;
+    }
   }
 }

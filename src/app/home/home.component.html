@@ -3,27 +3,21 @@
   <div *ngIf="working">
     <app-loader></app-loader>
   </div>
-  <div *ngIf="!working" class="backg1 bg">
-    <!--Content Top Block System-->
-    <div *ngIf="hasBlocks && blocks['content_top'].length > 0"
-         fxLayout="row wrap" fxLayoutAlign="start center" class="pad-r whitebg bg">
-      <div fxFlex="100" fxFlex.gt-sm="50" *ngFor="let item of blocks['content_top']">
-        <app-block [nid]="item"></app-block>
-      </div>
-    </div>
-    <!--Content Bottom Block System-->
-    <div *ngIf="hasBlocks && blocks['content_bottom'].length > 0" class="pad-r margin-top-r"
-         fxLayout="row wrap" fxLayoutAlign="space-between stretch">
-      <div *ngFor="let item of blocks['content_bottom']; let index = index;"
-           fxFlex="100" [fxFlex.gt-sm]="setFlex(index)" class="margin-bottom-lg" fxLayout="column">
-        <div fxFlex class="mat-elevation-z1 pad border-radius whitebg bg" fxLayout="column">
-          <app-block [nid]="item"></app-block>
+  <div *ngIf="!working">
+    <div *ngIf="block_setup.length > 0">
+      <div [fxHide]="setup.status === '0'" *ngFor="let setup of block_setup">
+        <div fxLayout="row wrap" fxLayoutAlign="center stretch" class="{{setup['class']}}">
+          <div *ngFor="let config of setup.columns" fxLayout="row wrap" fxLayoutAlign="start start"
+               fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="config.value" class="{{config['class']}}">
+            <div [fxHide.xs]="node.desktop" [fxHide.sm]="node.desktop" [fxHide.gt-sm]="node.mobile"
+                 *ngFor="let node of config.nodes" fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="node.value[0]['flex']">
+              <div class="{{node.value[0]['class']}}">
+                <app-block [nid]="node.target_id"></app-block>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <!--Self-Help Categories-->
-    <div class="pad-r whitebg bg">
-      <app-self-help-landing-lg></app-self-help-landing-lg>
     </div>
   </div>
 </div>

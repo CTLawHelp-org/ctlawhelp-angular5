@@ -1,0 +1,55 @@
+.d3-wrapper {
+  .node {
+    cursor: pointer;
+  }
+
+  .overlay{
+    background-color:#eee;
+  }
+
+  .node circle {
+    fill: #fff;
+    stroke: blue;
+    stroke-width: 1.5px;
+  }
+
+  .node text {
+    font-size:15px;
+    fill: #fff;
+  }
+
+  .node .nodeBox {
+    fill: #333;
+  }
+
+  .node--internal text {
+    //text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
+    //fill: $primary;
+  }
+
+  .node--internal .nodeBox {
+    fill: darkblue;
+  }
+
+  .node--internal.active .nodeBox {
+    fill: blue;
+  }
+
+  .node--internal.entry .nodeBox {
+    fill: orange;
+  }
+
+  .node--leaf.entry .nodeBox {
+    fill: red;
+  }
+
+  .node--leaf.redirect .nodeBox {
+    fill: purple;
+  }
+
+  .link {
+    fill: none;
+    stroke: #bdbdbd;
+    stroke-width: 1.5px;
+  }
+}

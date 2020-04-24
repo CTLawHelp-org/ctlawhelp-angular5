@@ -1,0 +1,48 @@
+<div fxLayout="column" class="segment-ref-wrapper">
+  <div fxLayout="row wrap" fxLayoutAlign="start center">
+    <div>{{label}}</div>
+    <div fxFlex></div>
+    <div style="cursor: pointer" fxLayout="column" (click)="newSegment()">
+      <mat-icon class="primary icon">fiber_new</mat-icon>
+    </div>
+    <div class="padding-left"></div>
+    <app-admin-node-picker [src]="value" [altsrc]="altvalue" [type]="nodeTypes"></app-admin-node-picker>
+  </div>
+  <div *ngIf="value" fxLayout="column" class="margin-top-lg">
+    <div cdkDropList (cdkDropListDropped)="updateIndex($event, value)" fxLayout="column">
+      <div cdkDrag *ngFor="let item of value; let index = index;"
+           class="item margin-bottom mat-elevation-z1 whitebg bg flex-row-center">
+        <div cdkDragHandle class="drag-handle" fxLayout="column" [ngClass]="{'active': index === lastMoved}">
+          <mat-icon class="primary color">drag_handle</mat-icon>
+        </div>
+        <div fxFlex fxLayout="column">
+          <div class="info-wrapper flex-row-center">
+            <div class="pad mat-caption"><strong>{{index + 1}}</strong></div>
+            <div *ngIf="lang !== 'es'" [innerHTML]="item.src.title[0].value"></div>
+            <div *ngIf="lang === 'es'" [innerHTML]="item.src.i18n.es.title[0].value"></div>
+            <div fxFlex></div>
+            <div class="pad">
+              <mat-slide-toggle color="primary" [checked]="isHidden(item.target_id)" (change)="markHidden(item.target_id, $event)">
+                <span class="mat-caption">Hide Title</span>
+              </mat-slide-toggle>
+            </div>
+            <div class="pad" style="cursor: pointer"
+                 fxLayout="column" (click)="editSegment(item, index)">
+              <mat-icon class="primary color">edit</mat-icon>
+            </div>
+            <div class="pad" (click)="value.splice(index, 1)" style="cursor: pointer" fxLayout="column">
+              <mat-icon class="alert icon">remove_circle</mat-icon>
+            </div>
+          </div>
+          <div class="backg3 bg pad-sm mat-caption" fxLayout="row" fxLayoutAlign="start center">
+            <div class="margin-right"><strong>Language:</strong> {{item.src.field_lang_status[0].value}}</div>
+            <div class="margin-right"><strong>NID:</strong> {{item.src.nid[0].value}}</div>
+            <div><strong>Status:</strong>&nbsp;<span *ngIf="item.src.status[0].value === '1'">Published</span>
+              <span *ngIf="item.src.status[0].value === '0'">Unpublished</span></div>
+            <div fxFlex></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

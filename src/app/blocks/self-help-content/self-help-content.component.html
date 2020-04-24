@@ -1,39 +1,46 @@
 <div class="self-help-content" fxLayout="column">
-  <!--More Info-->
-  <div *ngIf="variables.lang === 'en' && term.term_export.field_more_info.length > 0" class="pad">
-    <div [innerHTML]="term.term_export.field_more_info[0].value | safeHtml"></div>
+  <div *ngIf="working">
+    <app-loader></app-loader>
   </div>
-  <div *ngIf="variables.lang === 'es' && term.i18n.es.field_more_info.length > 0" class="pad">
-    <div [innerHTML]="term.i18n.es.field_more_info[0].value | safeHtml"></div>
-  </div>
-  <!--Manual List-->
-  <div *ngIf="ordered.length > 0" class="margin-bottom-lg padding-bottom-lg border-bottom-lg pad" fxLayout="column">
-    <div>
-      <div *ngFor="let item of ordered; let last = last; let odd = odd;">
-        <div *ngIf="show(item)" class="item pad" [ngClass]="{'margin-bottom-r': !last, 'backg1 bg border-radius': odd}">
+  <div *ngIf="!working">
+    <!--More Info-->
+    <div *ngIf="variables.lang === 'en' && term.term_export.field_more_info.length > 0" class="pad">
+      <div [innerHTML]="term.term_export.field_more_info[0].value | safeHtml"></div>
+    </div>
+    <div *ngIf="variables.lang === 'es' && term.i18n.es.field_more_info.length > 0" class="pad">
+      <div [innerHTML]="term.i18n.es.field_more_info[0].value | safeHtml"></div>
+    </div>
+    <!--Manual List-->
+    <div *ngIf="ordered.length > 0" class="padding-top-lg padding-bottom-lg" fxLayout="column"
+         [ngClass]="{'border-bottom-lg-dark': content_en.length > 0 || content_es.length > 0}">
+      <div *ngFor="let item of ordered; trackBy: variables.trackByNid; let last = last;" class="content-list-item-stripes padding-bottom"
+           [ngClass]="{'margin-bottom-lg': !last}">
+        <div *ngIf="show(item)" class="item pad">
           <div fxLayout="row" fxLayoutAlign="start start">
             <app-content-list fxFlex [node]="[item]" preview="true"></app-content-list>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <!--Automated List-->
-  <div class="main-list">
-    <div *ngIf="variables.lang === 'en'">
-      <div *ngFor="let item of content_en; let index = index; let last = last; let odd = odd;" class="main-list-item">
-        <div class="item pad" [ngClass]="{'margin-bottom-r': !last, 'backg1 bg border-radius': odd}">
-          <div fxLayout="row" fxLayoutAlign="start start">
-            <app-content-list fxFlex [node]="[item]" preview="true"></app-content-list>
+    <!--Automated List-->
+    <div class="main-list margin-top-lg">
+      <div *ngIf="variables.lang === 'en'">
+        <div *ngFor="let item of content_en; trackBy: variables.trackByNid; let index = index; let last = last;"
+             class="main-list-item content-list-item-stripes padding-bottom" [ngClass]="{'margin-bottom-lg': !last}">
+          <div class="item pad">
+            <div fxLayout="row" fxLayoutAlign="start start">
+              <app-content-list fxFlex [node]="[item]" preview="true"></app-content-list>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div *ngIf="variables.lang === 'es'">
-      <div *ngFor="let item of content_es; let index = index; let last = last; let odd = odd;" class="main-list-item">
-        <div class="item pad" [ngClass]="{'margin-bottom-r': !last, 'backg1 bg border-radius': odd}">
-          <div fxLayout="row" fxLayoutAlign="start start">
-            <app-content-list fxFlex [node]="[item]" preview="true"></app-content-list>
+      <div *ngIf="variables.lang === 'es'">
+        <div *ngFor="let item of content_es; trackBy: variables.trackByNid; let index = index; let last = last;"
+             class="main-list-item content-list-item-stripes padding-bottom" [ngClass]="{'margin-bottom-lg': !last}">
+          <div class="item pad">
+            <div fxLayout="row" fxLayoutAlign="start start">
+              <app-content-list fxFlex [node]="[item]" preview="true"></app-content-list>
+            </div>
           </div>
         </div>
       </div>

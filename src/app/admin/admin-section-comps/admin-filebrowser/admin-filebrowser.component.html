@@ -1,0 +1,85 @@
+<div class="admin-filebrowser-wrapper">
+  <div class="toolbar backg3 bg padding-left padding-right" fxLayout="row wrap" fxLayoutAlign="start center">
+    <div class="pad">
+      <div class="margin-left"><h3 class="no-margin">Filebrowser</h3></div>
+    </div>
+    <div class="padding-left"></div>
+    <div>
+      <mat-form-field>
+        <input matInput (keyup)="filterContent()" placeholder="Search" [(ngModel)]="search">
+        <button mat-button *ngIf="search" matSuffix mat-icon-button aria-label="Clear" (click)="search='';filterContent()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+    <div class="padding-left"></div>
+    <div fxLayout="row wrap" fxLayoutAlign="start center">
+      <button mat-raised-button color="primary" [disabled]="type === 'all'" (click)="type = 'all';filterContent()">All Files</button>
+      <div class="padding-left"></div>
+      <button mat-raised-button color="primary" [disabled]="type === 'images'" (click)="type = 'images';filterContent()">Images</button>
+      <div class="padding-left"></div>
+      <button mat-raised-button color="primary" [disabled]="type === 'documents'" (click)="type = 'documents';filterContent()">Documents</button>
+    </div>
+    <div class="padding-left">
+      <mat-paginator [length]="total_count" [pageSize]="50" (page)="loadingPage($event)" [showFirstLastButtons]="true" [hidePageSize]="true"></mat-paginator>
+    </div>
+    <div class="padding-left"></div>
+    <button mat-raised-button color="primary" (click)="addNewFiles()">Add File(s)</button>
+    <div *ngIf="working" class="padding-left">
+      <app-admin-loader [small]="true"></app-admin-loader>
+    </div>
+  </div>
+  <div class="table-wrapper" fxLayout="column">
+    <table mat-table [dataSource]="dataSource" class="files-table" matSort>
+      <!-- Select Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let row">
+          <div>
+            <button mat-icon-button [matMenuTriggerFor]="adminMenu">
+              <mat-icon>check_circle_outline</mat-icon>
+            </button>
+            <mat-menu #adminMenu="matMenu">
+              <button *ngIf="!row.file_export.thumbnail" mat-menu-item
+                      (click)="chooseFile(row.file_export.url, row)">Use File</button>
+              <button *ngIf="row.file_export.thumbnail" mat-menu-item
+                      (click)="chooseFile(row.file_export.url, row)">Use Original Image</button>
+              <button *ngIf="row.file_export.desktop" mat-menu-item
+                      (click)="chooseFile(row.file_export.desktop, row)">Use Desktop Image</button>
+              <button *ngIf="row.file_export.mobile" mat-menu-item
+                      (click)="chooseFile(row.file_export.mobile, row)">Use Mobile Image</button>
+              <button *ngIf="row.file_export.thumbnail" mat-menu-item
+                      (click)="chooseFile(row.file_export.thumbnail, row)">Use Thumbnail Image</button>
+            </mat-menu>
+          </div>
+        </td>
+      </ng-container>
+      <!-- Thumbnail Column -->
+      <ng-container matColumnDef="thumbnail">
+        <th mat-header-cell *matHeaderCellDef>Thumbnail</th>
+        <td mat-cell *matCellDef="let row">
+          <div class="flex-row-center-center">
+            <img *ngIf="row.file_export.filemime[0].value !== 'image/svg+xml' && row.file_export.thumbnail"
+                 [src]="row.file_export.thumbnail" style="max-width:48px;max-height:48px;" />
+            <img *ngIf="row.file_export.filemime[0].value === 'image/svg+xml'"
+                 [src]="row.file_export.url" style="max-width:48px;max-height:48px;" />
+            <mat-icon *ngIf="!row.file_export.thumbnail" class="backg icon svg sm">insert_drive_file</mat-icon>
+          </div>
+        </td>
+      </ng-container>
+      <!-- Filename Column -->
+      <ng-container matColumnDef="filename">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Filename</th>
+        <td mat-cell *matCellDef="let element"><strong>{{element.filename}}</strong></td>
+      </ng-container>
+      <!-- Type Column -->
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef>Type</th>
+        <td mat-cell *matCellDef="let element">{{element.file_export.filemime[0].value}}</td>
+      </ng-container>
+      <!--Standard Elements-->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky:true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,126 @@
+<div fxLayout="column">
+  <div *ngIf="type === 'photos' || type === 'slider'" fxLayout="column">
+    <div id="fine-uploader-photos"></div>
+  </div>
+  <div *ngIf="type === 'files'" fxLayout="column">
+    <div id="fine-uploader-files"></div>
+  </div>
+  <div *ngIf="value" class="backg1 light pad-sm">
+    <div *ngIf="working">
+      <app-loader></app-loader>
+    </div>
+    <!--File Listing-->
+    <div *ngIf="type === 'files' && value.length > 0" class="files-wrapper padding-top" fxLayout="column">
+      <div cdkDropList (cdkDropListDropped)="updateIndex($event, value)" fxLayout="column">
+        <div cdkDrag *ngFor="let item of value; let index = index;" class="item pad-sm" [ngClass]="{'active': index === lastMoved}">
+          <div class="mat-elevation-z1 whitebg bg">
+            <div fxLayout="row wrap" fxLayoutAlign="start center">
+              <div class="drag-handle" fxLayout="column">
+                <mat-icon cdkDragHandle class="primary color">drag_handle</mat-icon>
+              </div>
+              <div class="pad mat-caption"><strong>{{index + 1}}</strong></div>
+              <div [innerHTML]="item.filename"></div>
+              <div fxFlex></div>
+              <div class="pad" (click)="value.splice(index, 1);" style="cursor: pointer">
+                <mat-icon class="alert icon">remove_circle</mat-icon>
+              </div>
+            </div>
+            <div fxLayout="row wrap" fxLayoutAlign="start center" class="backg3 bg">
+              <div>
+                <mat-slide-toggle labelPosition="before" [checked]="item.display === '1'"
+                                  (change)="setDisplay($event, index)" color="primary">
+                  <div class="mat-caption pad-sm">
+                    <span *ngIf="item.display === '1'">Displayed</span>
+                    <span *ngIf="item.display === '0'">Hidden</span>
+                  </div>
+                </mat-slide-toggle>
+              </div>
+              <div fxFlex fxLayout="column" class="pad-sm">
+                <input #fileDesc [value]="item.description" (keyup)="updateFileDesc(index, fileDesc.value)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--Photo Listing-->
+    <div *ngIf="type === 'photos' && value.length > 0" fxLayout="row wrap" fxLayoutAlign="start start">
+      <div *ngFor="let item of value; let index = index;" fxFlex="100" fxFlex.sm="50" fxFlex.gt-sm="25" class="pad backg2 bg">
+        <div fxLayout="row wrap">
+          <div *ngIf="value.length > 1" fxHide.gt-sm fxLayout="column" fxLayoutAlign="center center" class="whitebg">
+            <div class="pad-sm">
+              <button mat-icon-button mat-raised-button color="primary"
+                      [disabled]="index === 0" (click)="moveUp(index)">
+                <mat-icon>expand_less</mat-icon>
+              </button>
+            </div>
+            <div class="pad-sm">
+              <button mat-icon-button mat-raised-button color="primary"
+                      [disabled]="index + 1 === value.length" (click)="moveDown(index)">
+                <mat-icon>expand_more</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div fxFlex fxFlex.gt-sm="100" fxLayout="column">
+            <img [src]="item.thumbnail2x" />
+          </div>
+          <div fxFlex="none" fxFlex.gt-sm="100" fxLayout="row wrap" fxLayoutAlign="start center" class="whitebg">
+            <div *ngIf="value.length > 1" fxHide fxShow.gt-sm class="pad-sm">
+              <button mat-icon-button mat-raised-button color="primary"
+                      [disabled]="index === 0" (click)="moveUp(index)">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+            </div>
+            <div *ngIf="value.length > 1" fxHide fxShow.gt-sm class="pad-sm">
+              <button mat-icon-button mat-raised-button color="primary"
+                      [disabled]="index + 1 === value.length" (click)="moveDown(index)">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+            <div fxFlex class="pad-sm" fxLayout="row" fxLayoutAlign="end center">
+              <button mat-icon-button mat-raised-button color="primary" (click)="remove(index)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <div fxFlex="100" fxLayout="row" fxLayoutAlign="center center" class="pad-sm">
+              <input [(ngModel)]="item.alt" name="alt" placeholder="Alt" required>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--Slider Listing-->
+    <div *ngIf="type === 'slider' && value.length > 0">
+      <div *ngFor="let item of value; let index = index;" class="pad">
+        <div fxLayout="row">
+          <div *ngIf="value.length > 1" fxLayout="column" fxLayoutAlign="center center" class="whitebg">
+            <div class="mat-caption">{{index + 1}}</div>
+            <div class="pad-sm">
+              <button mat-icon-button mat-raised-button color="primary"
+                      [disabled]="index === 0" (click)="moveUp(index)">
+                <mat-icon>expand_less</mat-icon>
+              </button>
+            </div>
+            <div class="pad-sm">
+              <button mat-icon-button mat-raised-button color="primary"
+                      [disabled]="index + 1 === value.length" (click)="moveDown(index)">
+                <mat-icon>expand_more</mat-icon>
+              </button>
+            </div>
+            <div class="pad-sm">
+              <button mat-icon-button mat-raised-button color="primary" (click)="remove(index)">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div fxFlex="150px" fxLayout="column" class="pad-sm">
+            <img [src]="item.thumbnail2x" />
+          </div>
+          <div fxFlex class="whitebg pad-sm" fxLayout="column">
+            <textarea class="editor" [(value)]="item['alt']" id="bc{{item['target_id']}}"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

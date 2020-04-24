@@ -1,6 +1,13 @@
-<div *ngIf="variables.lang === 'en'">
-  <div class="site-label" [innerHTML]="variables.site_vars[src]?.desc"></div>
-</div>
-<div *ngIf="variables.lang === 'es'">
-  <div class="site-label" [innerHTML]="variables.site_vars[src]?.es.desc"></div>
+<div class="label-wrapper">
+  <div *ngIf="variables.auth && variables.labelEdit" class="admin-wrapper">
+    <button mat-icon-button (click)="editLabels(variables.site_vars[src])">
+      <mat-icon style="color: darkred">edit</mat-icon>
+    </button>
+  </div>
+  <div *ngIf="variables.lang === 'en'">
+    <div class="site-label" [innerHTML]="variables.site_vars[src]?.desc"></div>
+  </div>
+  <div *ngIf="variables.lang === 'es'">
+    <div class="site-label" [innerHTML]="variables.site_vars[src]?.es.desc"></div>
+  </div>
 </div>

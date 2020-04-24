@@ -1,25 +1,10 @@
+import {throwError as observableThrowError,  Observable ,  Subject } from 'rxjs';
 import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import * as ApiWorker from 'worker-loader!../../web-workers/api.worker.bundle.js';
-import * as ApiAuthWorker from 'worker-loader!../../web-workers/api.auth.worker.bundle.js';
 import { environment } from './../../environments/environment';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { TransferState, makeStateKey } from '@angular/platform-browser';
-
-// Observable class extensions
-import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/throw';
-import { Observable } from 'rxjs/Observable';
-import { Subject } from 'rxjs/Subject';
-
-// Observable operators
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/switchMap';
+import { catchError, map } from 'rxjs/operators';
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
@@ -27,40 +12,17 @@ const httpOptions = {
 
 const STATE_KEY = makeStateKey;
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ApiService {
-  private workerSubjects: any = {};
-  private apiWorker;
-  private apiAuthWorker;
   public auth: boolean;
 
   constructor(
     private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object,
     private state: TransferState,
-  ) {
-    const self = this;
-    if (isPlatformBrowser(this.platformId)) {
-      this.apiWorker = new ApiWorker();
-      this.apiAuthWorker = new ApiAuthWorker();
-      // listener for web worker
-      this.apiWorker.onmessage = function (event) {
-        const data = event.data;
-        if (self.workerSubjects[data.url]) {
-          self.workerSubjects[data.url].next(data.value);
-          self.workerSubjects[data.url].value = data.value;
-          self.workerSubjects[data.url].complete();
-        }
-      };
-      this.apiAuthWorker.onmessage = function (event) {
-        const data = event.data;
-        if (self.workerSubjects[data.url]) {
-          self.workerSubjects[data.url].next(data.value);
-          self.workerSubjects[data.url].complete();
-        }
-      };
-    }
-  }
+  ) {}
 
   getUser(): Observable<any> {
     const url = environment.apiUrl + '/rest/session/token';
@@ -70,6 +32,11 @@ export class ApiService {
   getUser2(): Observable<any> {
     const url = environment.apiUrl + '/rest/session/token?=2';
     return this.getAuthTextService(url); // fix for parsing issue
+  }
+
+  getLoginStatus(): Observable<any> {
+    const url = environment.apiUrl + '/user/login_status?_format=json';
+    return this.getAuthService(url);
   }
 
   getAccount(): Observable<any> {
@@ -139,6 +106,15 @@ export class ApiService {
     }
   }
 
+  getNSMIContentNew(id: string): Observable<any> {
+    const url = environment.apiUrl + '/api/v1/nsmic/' + id + '?_format=json';
+    if (this.auth) {
+      return this.getAuthService(url);
+    } else {
+      return this.getService(url);
+    }
+  }
+
   getAdminOrphans(): Observable<any> {
     const url = environment.apiUrl + '/api/v1/admin/orphans?_format=json';
     return this.getAuthService(url);
@@ -146,11 +122,7 @@ export class ApiService {
 
   getVars(): Observable<any> {
     const url = environment.apiUrl + '/api/v1/getvars?_format=json';
-    if (this.auth) {
-      return this.getAuthService(url);
-    } else {
-      return this.getService(url);
-    }
+    return this.getService(url);
   }
 
   getPaths(): Observable<any> {
@@ -178,6 +150,11 @@ export class ApiService {
     } else {
       return this.getService(url);
     }
+  }
+
+  getAdminPaths(): Observable<any> {
+    const url = environment.apiUrl + '/api/v1/admin/paths?_format=json';
+    return this.getAuthService(url);
   }
 
   getPopArticles(): Observable<any> {
@@ -214,6 +191,15 @@ export class ApiService {
     }
   }
 
+  getBlockSetup(id: string): Observable<any> {
+    const url = environment.apiUrl + '/api/v1/getblocks/' + id + '?_format=json';
+    if (this.auth) {
+      return this.getAuthService(url);
+    } else {
+      return this.getService(url);
+    }
+  }
+
   getBlocksAdmin(id: string, src: string, tid: string): Observable<any> {
     const url = environment.apiUrl + '/api/v1/admin/blocks/' + id + '/' + src + '/' + tid + '?_format=json';
     return this.getAuthService(url);
@@ -221,6 +207,21 @@ export class ApiService {
 
   getFilesAdmin(): Observable<any> {
     const url = environment.apiUrl + '/api/v1/admin/files?_format=json';
+    return this.getAuthService(url);
+  }
+
+  getTriageExport(): Observable<any> {
+    const url = environment.apiUrl + '/api/v1/admin/triageexport?_format=json';
+    return this.getAuthService(url);
+  }
+
+  getTriageStatsExport(): Observable<any> {
+    const url = environment.apiUrl + '/api/v1/admin/triagestatsexport?_format=json';
+    return this.getAuthService(url);
+  }
+
+  getNSMIExport(): Observable<any> {
+    const url = environment.apiUrl + '/api/v1/admin/nsmiexport?_format=json';
     return this.getAuthService(url);
   }
 
@@ -251,8 +252,26 @@ export class ApiService {
     }
   }
 
+  getSearchES(id: string): Observable<any> {
+    const url = environment.apiUrl + '/api/v1/search_es/' + encodeURIComponent(id) + '?_format=json';
+    if (this.auth) {
+      return this.getAuthService(url);
+    } else {
+      return this.getService(url);
+    }
+  }
+
   getTriageSearch(id: string): Observable<any> {
     const url = environment.apiUrl + '/api/v1/triagesearch/' + encodeURIComponent(id) + '?_format=json';
+    if (this.auth) {
+      return this.getAuthService(url);
+    } else {
+      return this.getService(url);
+    }
+  }
+
+  getTriageSearchES(id: string): Observable<any> {
+    const url = environment.apiUrl + '/api/v1/triagesearch_es/' + encodeURIComponent(id) + '?_format=json';
     if (this.auth) {
       return this.getAuthService(url);
     } else {
@@ -290,6 +309,11 @@ export class ApiService {
     return this.getAuthService(url);
   }
 
+  getContentAdminNew(id: string, page = '0'): Observable<any> {
+    const url = environment.apiUrl + '/api/v1/admin/getcontent/' + id + '?_format=json&page=' + page;
+    return this.getAuthService(url);
+  }
+
   createNode(param: any, token: string): Observable<any> {
     const url = environment.apiUrl + '/node?_format=hal_json';
     return this.postService(url, param, token);
@@ -315,6 +339,11 @@ export class ApiService {
     return this.postService(url, param, token);
   }
 
+  createMedia(param: any, token: string): Observable<any> {
+    const url = environment.apiUrl + '/entity/media?_format=hal_json';
+    return this.postService(url, param, token);
+  }
+
   updateTerm(id: string, param: any, token: string): Observable<any> {
     const url = environment.apiUrl + '/taxonomy/term/' + id + '?_format=hal_json';
     return this.patchService(url, param, token);
@@ -327,6 +356,11 @@ export class ApiService {
 
   deleteTerm(id: string, token: string): Observable<any> {
     const url = environment.apiUrl + '/taxonomy/term/' + id + '?_format=hal_json';
+    return this.deleteService(url, token);
+  }
+
+  deleteFile(id: string, token: string): Observable<any> {
+    const url = environment.apiUrl + '/entity/file/' + id + '?_format=hal_json';
     return this.deleteService(url, token);
   }
 
@@ -346,9 +380,9 @@ export class ApiService {
           'X-CSRF-Token': token
         },
         withCredentials: true
-      })
-      .map(this.extractData)
-      .catch(this.handleError);
+      }).pipe(
+      map(this.extractData),
+      catchError(this.handleError));
   }
 
   getService(url: string): Observable<any> {
@@ -358,31 +392,20 @@ export class ApiService {
         const val = serverState;
         const sub = new Subject();
         this.returnService(sub, val);
-        this.state.remove(STATE_KEY(url)); // maybe?
         return sub.asObservable();
-      } else if (typeof this.workerSubjects[url] !== 'undefined') {
-        if (typeof this.workerSubjects[url].value !== 'undefined') {
-          const val = this.workerSubjects[url].value;
-          const sub = new Subject();
-          this.returnService(sub, val);
-          return sub.asObservable();
-        } else {
-          return this.workerSubjects[url].asObservable();
-        }
       } else {
-        if (this.detectIE()) {
-          return this.http
-            .get(url, {
-              params: {'k': ''} // new Date().getTime().toString()
-            })
-            .map(this.extractData)
-            .catch(this.handleError);
-        } else {
-          this.apiWorker.postMessage(url);
-          const sub = new Subject();
-          this.workerSubjects[url] = sub;
-          return sub.asObservable();
-        }
+        const sub = new Subject();
+        this.http
+          .get(url, {})
+          .toPromise()
+          .then((res: any) => {
+            const val = res;
+            this.state.set(STATE_KEY(url), val as any);
+            this.returnService(sub, val);
+          }, error => {
+            this.returnService(sub, error);
+          });
+        return sub.asObservable();
       }
     } else {
       const sub = new Subject();
@@ -393,6 +416,8 @@ export class ApiService {
           const val = res;
           this.state.set(STATE_KEY(url), val as any);
           this.returnService(sub, val);
+        }, error => {
+          this.returnService(sub, error);
         });
       return sub.asObservable();
     }
@@ -403,9 +428,9 @@ export class ApiService {
     return this.http
       .get(url, {
         withCredentials: true
-      })
-      .map(this.extractData)
-      .catch(this.handleError);
+      }).pipe(
+        map(this.extractData),
+        catchError(this.handleError));
   }
 
   getAuthTextService(url: string): Observable<any> {
@@ -413,9 +438,9 @@ export class ApiService {
       .get(url, {
         responseType: 'text',
         withCredentials: true
-      })
-      .map(this.extractText)
-      .catch(this.handleError);
+      }).pipe(
+      map(this.extractText),
+      catchError(this.handleError));
   }
 
   patchService(url: string, param: any, token: string): Observable<any> {
@@ -427,9 +452,9 @@ export class ApiService {
           'X-CSRF-Token': token
         },
         withCredentials: true
-      })
-      .map(this.extractData)
-      .catch(this.handleError);
+      }).pipe(
+      map(this.extractData),
+      catchError(this.handleError));
   }
 
   postService(url: string, param: any, token: string): Observable<any> {
@@ -441,9 +466,9 @@ export class ApiService {
           'X-CSRF-Token': token
         },
         withCredentials: true
-      })
-      .map(this.extractData)
-      .catch(this.handleError);
+      }).pipe(
+      map(this.extractData),
+      catchError(this.handleError));
   }
 
   deleteService(url: string, token: string): Observable<any> {
@@ -454,9 +479,31 @@ export class ApiService {
           'X-CSRF-Token': token
         },
         withCredentials: true
-      })
-      .map(this.extractData)
-      .catch(this.handleError);
+      }).pipe(
+      map(this.extractData),
+      catchError(this.handleError));
+  }
+
+  loginService(param: any): Observable<any> {
+    return this.http
+      .post(environment.apiUrl + '/user/login?_format=json', param, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true,
+      }).pipe(
+        map(this.extractData),
+        catchError(this.handleError));
+  }
+
+  logoutService(): Observable<any> {
+    return this.http
+      .get(environment.apiUrl + '/user/logout', {
+        withCredentials: true,
+        responseType: 'text'
+      }).pipe(
+        map(this.extractText),
+        catchError(this.handleError));
   }
 
   returnService(subject: Subject<any>, value: any) {
@@ -480,28 +527,6 @@ export class ApiService {
     const errMsg = (error.message) ? error.message :
       error.status ? `${error.status} - ${error.statusText}` : 'Server error';
     console.error(errMsg);
-    return Observable.throw(errMsg);
-  }
-
-  private detectIE(): boolean {
-    const ua = window.navigator.userAgent;
-    const msie = ua.indexOf('MSIE ');
-    if (msie > 0) {
-      return true;
-    }
-    const trident = ua.indexOf('Trident/');
-    if (trident > 0) {
-      return true;
-    }
-    const safari = ua.indexOf('Safari/');
-    const chrome = ua.indexOf('Chrome/');
-    if (safari > 0 && chrome === -1) {
-      return true;
-    }
-    /*const edge = ua.indexOf('Edge/');
-    if (edge > 0) {
-      return true;
-    }*/
-    return false;
+    return observableThrowError(errMsg);
   }
 }

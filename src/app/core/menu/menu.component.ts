@@ -1,10 +1,20 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  ViewEncapsulation
+} from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { VariableService } from '../../services/variable.service';
 import { animate, query, style, transition, trigger } from '@angular/animations';
 import { environment } from '../../../environments/environment';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { makeStateKey, TransferState } from '@angular/platform-browser';
+import { isPlatformBrowser } from '@angular/common';
 
 const MENU = makeStateKey('menu');
 
@@ -12,6 +22,7 @@ const MENU = makeStateKey('menu');
   selector: 'app-menu',
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   animations: [
     trigger('fadeInOut', [
@@ -25,24 +36,35 @@ const MENU = makeStateKey('menu');
     ])
   ]
 })
-export class MenuComponent implements OnInit {
-  public connection: any;
+export class MenuComponent implements OnInit, OnDestroy {
+  private connection: any;
+  private subscription: any;
+  private langsub: any;
+  private authsub: any;
   public menu: any;
   public admin = false;
   public variables: any;
   public adminUrl: string;
+  public isBrowser: any;
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId,
     private apiService: ApiService,
     private variableService: VariableService,
     private router: Router,
     private state: TransferState,
-  ) { }
+    private cdr: ChangeDetectorRef,
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit() {
+    this.variables = this.variableService;
+    this.adminUrl = environment.adminUrl;
     const _menu = this.state.get(MENU, null as any);
     if (_menu !== null) {
       this.menu = _menu;
+      this.doneLoading();
     } else {
       this.connection = this.apiService.getMenu().subscribe(data => {
         this.menu = data['main_menu'];
@@ -50,14 +72,42 @@ export class MenuComponent implements OnInit {
         this.doneLoading();
       });
     }
-    this.variables = this.variableService;
-    this.adminUrl = environment.adminUrl;
+
+    this.subscription = this.router.events.subscribe(e => {
+      if (e instanceof NavigationEnd) {
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.langsub = this.variableService.langSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+
+    this.authsub = this.variableService.authSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.connection) {
+      this.connection.unsubscribe();
+    }
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+    if (this.langsub) {
+      this.langsub.unsubscribe();
+    }
+    if (this.authsub) {
+      this.authsub.unsubscribe();
+    }
   }
 
   doneLoading() {
     if (this.connection) {
       this.connection.unsubscribe();
     }
+    this.cdr.detectChanges();
   }
 
   over(item: any) {
@@ -74,6 +124,14 @@ export class MenuComponent implements OnInit {
     } else {
       return false;
     }
+  }
+
+  logout() {
+    this.apiService.logoutService().subscribe( result => {
+      if (this.isBrowser) {
+        window.location.reload();
+      }
+    });
   }
 
 }

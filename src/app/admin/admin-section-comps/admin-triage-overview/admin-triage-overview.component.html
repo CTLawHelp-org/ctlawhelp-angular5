@@ -1,0 +1,20 @@
+<div class="admin-triage-overview" fxLayout="column">
+  <div fxLayout="row wrap">
+    <div fxFlex="100" class="pad backg1 bg">
+      <!--<div fxLayout="row" fxLayoutAlign="start center" class="margin-bottom">
+        <div>
+          <button mat-raised-button (click)="collpaseAll()">Collapse</button>
+        </div>
+        <div class="margin-left margin-right">
+          <button mat-raised-button (click)="expandAll()">Expand</button>
+        </div>
+      </div>-->
+      <div *ngIf="working">
+        <app-admin-loader></app-admin-loader>
+      </div>
+      <div class="d3-wrapper" #wrapper>
+        <div id="tree-container"></div>
+      </div>
+    </div>
+  </div>
+</div>

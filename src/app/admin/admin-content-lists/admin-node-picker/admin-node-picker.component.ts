@@ -1,20 +1,41 @@
-import { Component, EventEmitter, Inject, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Inject,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+  ViewEncapsulation
+} from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { VariableService } from '../../../services/variable.service';
-import { GridOptions } from 'ag-grid';
 import { ApiService } from '../../../services/api.service';
-import { TitleRenderListComponent } from '../../admin-utils/title-render-list/title-render-list.component';
-import { SelectFilterComponent } from '../../admin-utils/select-filter/select-filter.component';
+import { SelectionModel } from '@angular/cdk/collections';
+
+export interface NodeObj {
+  title: string;
+  type: string;
+  lang: string;
+  nid: string;
+  status: string;
+}
 
 @Component({
   selector: 'app-admin-node-picker',
   templateUrl: './admin-node-picker.component.html',
-  styleUrls: ['./admin-node-picker.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class AdminNodePickerComponent implements OnInit {
   @Input() src;
+  @Input() altsrc;
   @Input() type;
+  @Input() push = true;
   @Output() output = new EventEmitter();
 
   constructor(
@@ -25,24 +46,36 @@ export class AdminNodePickerComponent implements OnInit {
   }
 
   addContent(type: string): void {
-    const width = '95vw';
-    const height = '80vh';
+    const width = '95%';
+    const height = '80%';
     const dialogRef = this.dialog.open(AdminNodePickerDialogComponent, {
       width: width,
       height: height,
-      maxWidth: '95vw',
-      maxHeight: '95vh',
-      data: { type: type }
+      maxWidth: '95%',
+      maxHeight: '95%',
+      data: { type: type, altsrc: this.altsrc }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if (result.length > 0) {
+      if (result && result['value'].length > 0) {
         const self = this;
-        result.forEach(function (item) {
-          item.data.src = item.data.node_export;
-          self.src.push(item.data);
-        });
-        this.output.next();
+        if (this.push) {
+          result['value'].forEach(function (item) {
+            item.src = item.node_export;
+            item.value = '';
+            self.src.push(item);
+            if (result['both'] && typeof self.altsrc !== 'undefined') {
+              self.altsrc.push(item);
+            }
+          });
+          this.output.next();
+        } else {
+          const output = {
+            src: this.src,
+            result: result['value']
+          };
+          this.output.next(output);
+        }
       }
     });
   }
@@ -52,138 +85,124 @@ export class AdminNodePickerComponent implements OnInit {
 @Component({
   selector: 'app-admin-node-picker-dialog',
   templateUrl: './admin-node-picker.dialog.html',
+  styleUrls: ['./admin-node-picker.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
-export class AdminNodePickerDialogComponent implements OnInit {
-  public gridOptions: GridOptions;
-  public columns = [];
-  public nodes = [];
-  public selection = [];
-  public working = true;
+export class AdminNodePickerDialogComponent implements OnInit, AfterViewInit, OnDestroy {
+  private connection: any;
+  public nodes: NodeObj[] = [];
+  public displayedColumns: string[] = ['select', 'title', 'lang', 'type', 'nid', 'status'];
+  public dataSource: any;
+  public selection = new SelectionModel<NodeObj>(true, []);
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  public search = '';
+  public types: string;
+  public types_array = [];
+  public types_filter = [];
+  public lang_filter = '';
+  public status_filter = '';
+  public loading = true;
   public variables: any;
-  @ViewChild('agGrid') agGrid;
+  public total_count = 0;
+  public showBoth = false;
+  public both = false;
 
   constructor(
     public dialogRef: MatDialogRef<AdminNodePickerDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private variableService: VariableService,
     private apiService: ApiService,
-  ) {
-    this.gridOptions = <GridOptions>{
-      floatingFilter: true,
-      enableFilter: true,
-      enableSorting: true,
-      rowSelection: 'multiple',
-      rowHeight: 50,
-      headerHeight: 50,
-      floatingFiltersHeight: 50,
-      enableColResize: true,
-      frameworkComponents: {
-        'titleRenderer': TitleRenderListComponent,
-        'selectFilter': SelectFilterComponent
-      }
-    };
-  }
+  ) {}
 
   ngOnInit() {
     this.variables = this.variableService;
-    this.load();
+    this.showBoth = typeof this.data.altsrc !== 'undefined';
+    this.types = this.data.type;
+    this.types_array = this.types.split('+');
+    this.dataSource = new MatTableDataSource<NodeObj>();
+    this.dataSource.filterPredicate = (item, filter) => this.contentFilter(item, filter);
+    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
   }
 
-  onNoClick(): void {
-    this.dialogRef.close([]);
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.loadNodes(0);
   }
 
-  addNodes(): void {
-    this.dialogRef.close(this.selection);
-  }
-
-  load() {
-    const conn = this.apiService.getContentAdmin(this.data.type).subscribe( result => {
-      this.nodes = result;
-      const types = [{value: ''}];
-      const types_tmp = [];
-      this.nodes.forEach(function (item) {
-        if (item.node_export.field_type && item.node_export.field_type.length > 0
-          && types_tmp.indexOf(item.node_export.field_type[0].name.toLowerCase()) === -1) {
-          types_tmp.push(item.node_export.field_type[0].name.toLowerCase());
-        } else if (types_tmp.indexOf(item.node_export.type[0].target_id) === -1) {
-          types_tmp.push(item.node_export.type[0].target_id);
-        }
-      });
-      types_tmp.forEach(function (item) {
-        types.push({
-          value: item
-        });
-      });
-      this.columns = [
-        {
-          headerName: 'Title',
-          field: 'title',
-          width: 450,
-          minWidth: 350,
-          filter: 'agTextColumnFilter',
-          suppressMenu: true,
-          checkboxSelection: true,
-          floatingFilterComponentParams: { suppressFilterButton: true },
-          cellRenderer: 'titleRenderer',
-        },
-        {
-          headerName: 'Type',
-          width: 125,
-          maxWidth: 125,
-          minWidth: 125,
-          valueGetter: this.getType,
-          suppressMenu: true,
-          floatingFilterComponent: 'selectFilter',
-          floatingFilterComponentParams: {
-            suppressFilterButton: true,
-            opts: types
-          },
-        },
-        {
-          headerName: 'Language',
-          width: 125,
-          maxWidth: 125,
-          minWidth: 125,
-          valueGetter: this.getLang,
-          suppressMenu: true,
-          floatingFilterComponentParams: { suppressFilterButton: true },
-        },
-        {
-          headerName: 'NID',
-          width: 90,
-          maxWidth: 90,
-          minWidth: 90,
-          valueGetter: this.getNid,
-          suppressMenu: true,
-          floatingFilterComponentParams: { suppressFilterButton: true },
-        },
-      ];
-      this.working = false;
-      this.agGrid.api.sizeColumnsToFit();
-      this.agGrid.api.doLayout();
-      conn.unsubscribe();
-    });
-  }
-
-  getNid(params: any): any {
-    return params.data.node_export.nid[0].value;
-  }
-
-  getType(params: any): any {
-    if (params.data.node_export.field_type && params.data.node_export.field_type.length > 0) {
-      return params.data.node_export.field_type[0].name.toLowerCase();
-    } else {
-      return params.data.node_export.type[0].target_id;
+  ngOnDestroy() {
+    if (this.connection) {
+      this.connection.unsubscribe();
     }
   }
 
-  getLang(params: any): any {
-    return params.data.node_export.field_lang_status[0].value;
+  loadNodes(page: number) {
+    this.connection = this.apiService.getContentAdminNew(this.types, '' + page).subscribe( result => {
+      this.total_count = this.total_count + result.length;
+      let array = this.dataSource.data;
+      array = array.concat(result);
+      this.dataSource.data = array;
+      if (result.length > 99) {
+        const new_page = page + 1;
+        this.loadNodes(new_page);
+      } else {
+        this.loading = false;
+        this.filterContent();
+      }
+    });
   }
 
-  onSelectionChanged(event) {
-    this.selection = event.api.getSelectedNodes();
+  loadingPage(event: any) {
+    document.querySelector('.mat-dialog-content').scroll(0, 0);
+  }
+
+  contentFilter(data: any, filter: string) {
+    const filterArray = filter.split(';');
+    const text_search = [data.title, data.nid].join('');
+    return (!filterArray[0] || text_search.toLowerCase().indexOf(filterArray[0].trim().toLowerCase()) > -1)
+      && (!filterArray[1] || this.hasMatch(data, filterArray[1]))
+      && (!filterArray[2] || data.node_export.field_lang_status[0].value.indexOf(filterArray[2].trim().toLowerCase()) > -1)
+      && (!filterArray[3] || data.status.indexOf(filterArray[3].trim().toLowerCase()) > -1);
+  }
+
+  filterContent() {
+    this.dataSource.filter = [this.search, this.types_filter, this.lang_filter, this.status_filter].join(';');
+  }
+
+  hasMatch(data: any, filter: any): boolean {
+    let found = false;
+    const array = filter.split(',');
+    array.forEach(function (i) {
+      if (data.type === i) {
+        found = true;
+      }
+    });
+    return found;
+  }
+
+  clearSelection() {
+    this.selection.clear();
+  }
+
+  clearFilter() {
+    this.search = '';
+    this.types_filter = [];
+    this.lang_filter = '';
+    this.status_filter = '';
+    this.filterContent();
+  }
+
+  emptyFilter(): boolean {
+    return this.search.length + this.types_filter.length + this.lang_filter.length + this.status_filter.length === 0;
+  }
+
+  onNoClick(): void {
+    this.dialogRef.close({ both: false, value: []});
+  }
+
+  addNodes(): void {
+    this.dialogRef.close({ both: this.both, value: this.selection.selected});
   }
 
 }

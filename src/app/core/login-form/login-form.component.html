@@ -1,0 +1,17 @@
+<div class="pad-r login-wrapper">
+  <form [fxHide]="working" name="loginForm" #loginForm="ngForm" fxLayout="column">
+    <mat-form-field class="username">
+      <input matInput placeholder="Username" required type="text" [(ngModel)]="username" name="username">
+    </mat-form-field>
+    <mat-form-field class="password">
+      <input matInput placeholder="Password" required type="password" [(ngModel)]="password" name="password">
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit" (click)="login()">Login</button>
+  </form>
+  <div *ngIf="!success" class="mat-body-2 centertext pad-r">
+    There was an issue, please check your login information and try again
+  </div>
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+</div>

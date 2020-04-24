@@ -22,6 +22,11 @@
   .lvl-item {
     cursor: pointer;
     min-height:100%;
+    background-color:#fff;
+    border:none;
+    color:inherit;
+    text-align:left;
+    font-size:inherit;
     &:hover {
       .blur {
         display:none;
@@ -46,11 +51,5 @@
   .submit {
     padding:4px 16px !important;
     font-size:1.4em;
-  }
-}
-
-@media only screen and (min-width: 960px) {
-  .triage-status {
-    //font-size:0.9em;
   }
 }

@@ -1,0 +1,312 @@
+<div class="admin-page-node-wrapper">
+  <div *ngIf="!working && variables.auth">
+    <form name="pageForm" #pageForm="ngForm">
+      <div fxLayout="column">
+        <!--Controls-->
+        <div fxLayout="row wrap" fxLayoutAlign="start center" class="pad backg3 bg margin-bottom-lg border-radius">
+          <div>
+            <button mat-raised-button mat-icon-button (click)="previewNode()" [disabled]="!pageForm.form.valid">
+              <mat-icon>remove_red_eye</mat-icon>
+            </button>
+          </div>
+          <div fxFlex></div>
+          <div class="margin-right-lg">
+            <mat-slide-toggle labelPosition="before" [checked]="variables.isPublished(page_node)"
+                              (change)="variables.setPubStatus($event, page_node)">
+              <div class="mat-caption">
+                <span *ngIf="variables.isPublished(page_node)">Published</span>
+                <span *ngIf="!variables.isPublished(page_node)">Unpublished</span>
+              </div>
+            </mat-slide-toggle>
+          </div>
+          <div class="margin-right-lg"><a routerLink="/admin/content/browse/page"
+                                          class="mat-raised-button button no-history">Cancel</a></div>
+          <div><button mat-raised-button color="primary" type="submit"
+                       [disabled]="!pageForm.form.valid" (click)="saveNode()">Save</button></div>
+        </div>
+        <!--Top-->
+        <div fxLayout="row wrap">
+          <!--Language-->
+          <div class="pad">
+            <mat-form-field appearance="outline">
+              <mat-label>Language *</mat-label>
+              <mat-select placeholder="Language" [(ngModel)]="page_node['field_lang_status'][0]['value']" name="language">
+                <mat-option value="en">English</mat-option>
+                <mat-option value="es">Spanish</mat-option>
+                <mat-option value="both">Both</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <!--Type-->
+          <div class="pad">
+            <mat-form-field appearance="outline">
+              <mat-label>Type</mat-label>
+              <mat-select placeholder="Type" [(ngModel)]="selected_type" name="page_type"
+                          (selectionChange)="variables.setField($event, page_node, 'field_type')" required>
+                <mat-option *ngFor="let item of page_type" [value]="item.value">
+                  <div>{{item.label}}</div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <!--Reporting-->
+          <div class="pad">
+            <mat-form-field appearance="outline">
+              <mat-label>Reporting</mat-label>
+              <mat-select placeholder="Reporting" [(ngModel)]="selected_reports" name="reporting"
+                          (selectionChange)="variables.setMutltiField($event, page_node, 'field_reporting')" multiple>
+                <mat-option *ngFor="let item of reporting" [value]="item.value">
+                  <div>{{item.label}}</div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <!--Icon-->
+          <div class="pad" fxLayout="row wrap" fxLayoutAlign="start start">
+            <mat-form-field appearance="outline">
+              <mat-label>Icon</mat-label>
+              <mat-select placeholder="Icon" [(ngModel)]="selected_icon" name="icon"
+                          (selectionChange)="variables.setField($event, page_node, 'field_icon')">
+                <mat-select-trigger>{{variables.returnIconLabel(icons, selected_icon)}}</mat-select-trigger>
+                <mat-option *ngFor="let item of icons" [value]="item.value">
+                  <div fxLayout="row" fxLayoutAlign="start center">
+                    <div *ngIf="item.value !== ''" class="margin-right">
+                      <mat-icon svgIcon="tid{{item.value}}" class="svg sm primary icon"></mat-icon>
+                    </div>
+                    <div>{{item.label}}</div>
+                  </div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <div class="padding-left"></div>
+            <div *ngIf="selected_icon" class="pad backg3 bg border-radius margin-top-sm" fxLayout="column">
+              <mat-icon svgIcon="tid{{selected_icon}}" class="svg md primary icon"></mat-icon>
+            </div>
+          </div>
+        </div>
+        <!--Multilingual Fields-->
+        <div fxLayout="row wrap">
+          <!--English-->
+          <div [fxHide]="page_node['field_lang_status'][0]['value'] === 'es'" fxFlex="100" fxFlex.gt-xs="50">
+            <!--Title-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>English Title</mat-label>
+                <input matInput [(ngModel)]="page_node['title'][0]['value']" name="title_en"
+                       placeholder="Page Title" [required]="page_node['field_lang_status'][0]['value'] !== 'es'">
+              </mat-form-field>
+            </div>
+            <!--Copy-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>English Copyright</mat-label>
+                <input matInput [(ngModel)]="page_node['field_copyright'][0]['value']" name="copy_en"
+                       placeholder="English Copyright">
+              </mat-form-field>
+            </div>
+            <!--Summary-->
+            <div [fxHide]="!showSummaryEN" class="pad">
+              <div class="margin-bottom">
+                <mat-label>English Summary</mat-label>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="page_node['body'][0]['summary']" type="summary" elname="pagesum_en"></app-admin-text-editor>
+              </div>
+            </div>
+            <!--Body-->
+            <div class="pad">
+              <div class="margin-bottom" fxLayout="row wrap" fxLayoutAlign="start center">
+                <mat-label>English Body</mat-label>
+                <div fxFlex></div>
+                <div><mat-slide-toggle [(ngModel)]="showSummaryEN" name="summ-en"
+                                       [ngModelOptions]="{standalone: true}">Show Summary</mat-slide-toggle></div>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="page_node['body'][0]['value']" elname="pagebody_en"></app-admin-text-editor>
+              </div>
+            </div>
+            <!--Segments-->
+            <div class="pad">
+              <app-admin-segment-ref [value]="page_node['field_segments']" [altvalue]="page_node_es['field_segments']" [nodeTypes]="'segment'"
+                                     [settings]="page_node['field_segment_settings']" label="English Segments"></app-admin-segment-ref>
+            </div>
+            <!--Path / Meta Info-->
+            <div class="pad" fxLayout="column">
+              <mat-accordion>
+                <mat-expansion-panel #enPanel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      English Path / Meta Information
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div fxLayout="column">
+                    <mat-form-field appearance="outline">
+                      <mat-label>English Path</mat-label>
+                      <input matInput [(ngModel)]="page_node['field_path'][0]['value']" name="path_en"
+                             placeholder="English Path">
+                      <mat-error *ngIf="path_error_en">
+                        Path is already in use
+                      </mat-error>
+                    </mat-form-field>
+                    <div class="margin-bottom padding-bottom">
+                      <app-admin-multi-input [value]="page_node['field_old_path']" label="Alternative English Path(s)"></app-admin-multi-input>
+                    </div>
+                    <mat-form-field appearance="outline">
+                      <mat-label>English Meta Text (Search Index)</mat-label>
+                      <textarea matInput [(ngModel)]="page_node['field_meta_text'][0]['value']" name="meta_text_en"
+                                placeholder="English Meta Text"></textarea>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>English Meta Title</mat-label>
+                      <input matInput [(ngModel)]="page_node['field_meta_title'][0]['value']" name="meta_title_en"
+                             placeholder="English Meta Title">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>English Meta Description</mat-label>
+                      <textarea matInput [(ngModel)]="page_node['field_meta_desc'][0]['value']" name="meta_desc_en"
+                                placeholder="English Meta Description"></textarea>
+                    </mat-form-field>
+                  </div>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </div>
+          </div>
+          <!--Spanish-->
+          <div [fxHide]="page_node['field_lang_status'][0]['value'] === 'en'" fxFlex="100" fxFlex.gt-xs="50">
+            <!--Title-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>Spanish Title</mat-label>
+                <input matInput [(ngModel)]="page_node_es['title'][0]['value']" name="title_es"
+                       placeholder="Page Title" [required]="page_node['field_lang_status'][0]['value'] !== 'en'">
+              </mat-form-field>
+            </div>
+            <!--Copy-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>Spanish Copyright</mat-label>
+                <input matInput [(ngModel)]="page_node_es['field_copyright'][0]['value']" name="copy_es"
+                       placeholder="Spanish Copyright">
+              </mat-form-field>
+            </div>
+            <!--Summary-->
+            <div [fxHide]="!showSummaryES" class="pad">
+              <div class="margin-bottom">
+                <mat-label>Spanish Summary</mat-label>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="page_node_es['body'][0]['summary']" type="summary" elname="pagesum_es"></app-admin-text-editor>
+              </div>
+            </div>
+            <!--Body-->
+            <div class="pad">
+              <div class="margin-bottom" fxLayout="row wrap" fxLayoutAlign="start center">
+                <mat-label>Spanish Body</mat-label>
+                <div fxFlex></div>
+                <div><mat-slide-toggle [(ngModel)]="showSummaryES" name="summ-es"
+                                       [ngModelOptions]="{standalone: true}">Show Summary</mat-slide-toggle></div>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="page_node_es['body'][0]['value']" elname="pagebody_es"></app-admin-text-editor>
+              </div>
+            </div>
+            <!--Segments-->
+            <div class="pad">
+              <app-admin-segment-ref [value]="page_node_es['field_segments']" [altvalue]="page_node['field_segments']" [nodeTypes]="'segment'"
+                                     [settings]="page_node_es['field_segment_settings']" label="Spanish Segments" lang="es"></app-admin-segment-ref>
+            </div>
+            <!--Path / Meta Info-->
+            <div class="pad" fxLayout="column">
+              <mat-accordion>
+                <mat-expansion-panel #esPanel>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Spanish Path / Meta Information
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div fxLayout="column">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Spanish Path</mat-label>
+                      <input matInput [(ngModel)]="page_node_es['field_path'][0]['value']" name="path_es"
+                             placeholder="Spanish Path">
+                      <mat-error *ngIf="path_error_es">
+                        Path is already in use
+                      </mat-error>
+                    </mat-form-field>
+                    <div class="margin-bottom padding-bottom">
+                      <app-admin-multi-input [value]="page_node_es['field_old_path']" label="Alternative Spanish Path(s)"></app-admin-multi-input>
+                    </div>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Spanish Meta Text (Search Index)</mat-label>
+                      <textarea matInput [(ngModel)]="page_node_es['field_meta_text'][0]['value']" name="meta_text_es"
+                                placeholder="Spanish Meta Text"></textarea>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Spanish Meta Title</mat-label>
+                      <input matInput [(ngModel)]="page_node_es['field_meta_title'][0]['value']" name="meta_title_es"
+                             placeholder="Spanish Meta Title">
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Spanish Meta Description</mat-label>
+                      <textarea matInput [(ngModel)]="page_node_es['field_meta_desc'][0]['value']" name="meta_desc_es"
+                                placeholder="Spanish Meta Description"></textarea>
+                    </mat-form-field>
+                  </div>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </div>
+          </div>
+        </div>
+        <!--NSMI-->
+        <div class="tree pad" fxLayout="column">
+          <div class="margin-bottom">
+            <mat-label>Self-Help Category</mat-label>
+          </div>
+          <tree-root #tree [nodes]="nsmi" [options]="nsmi_options">
+            <ng-template #treeNodeWrapperTemplate let-node let-index="index">
+              <div fxLayout="row nowrap" fxLayoutAlign="start center">
+                <div fxLayout="column" fxLayoutAlign="center center">
+                  <tree-node-expander [node]="node"></tree-node-expander>
+                </div>
+                <div fxLayout="column" fxLayoutAlign="center center">
+                  <tree-node-checkbox *ngIf="node.children.length < 1" [node]="node"></tree-node-checkbox>
+                  <mat-icon *ngIf="node.hasChildren" class="svg icon">indeterminate_check_box</mat-icon>
+                </div>
+                <div class="node-content-wrapper"
+                     [class.node-content-wrapper-active]="node.isActive"
+                     [class.node-content-wrapper-focused]="node.isFocused"
+                     (click)="node.mouseAction('click', $event)"
+                     (dblclick)="node.mouseAction('dblClick', $event)"
+                     (treeDrop)="node.onDrop($event)"
+                     [treeAllowDrop]="node.allowDrop"
+                     [treeDrag]="node"
+                     [treeDragEnabled]="node.allowDrag()"
+                     fxLayout="row" fxLayoutAlign="start center">
+                  <tree-node-content [node]="node" [index]="index"></tree-node-content>
+                </div>
+                <div>
+                  <div *ngIf="node.children.length < 1 && node.isSelected && isMain(node.data.tid)"
+                       fxLayout="column" fxLayoutAlign="center center">
+                    <mat-icon>radio_button_checked</mat-icon>
+                  </div>
+                  <div *ngIf="node.children.length < 1 && node.isSelected && node.isActive && !isMain(node.data.tid)"
+                       (click)="setMain(node.data)" style="cursor: pointer"
+                       fxLayout="column" fxLayoutAlign="center center">
+                    <mat-icon>radio_button_unchecked</mat-icon>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </tree-root>
+        </div>
+        <!--Controls-->
+        <div fxLayout="row wrap" fxLayoutAlign="end center" class="pad backg3 bg margin-top-lg border-radius">
+          <div class="margin-right-lg"><a routerLink="/admin/content/browse/page"
+                                          class="mat-raised-button button no-history">Cancel</a></div>
+          <div><button mat-raised-button color="primary" type="submit"
+                       [disabled]="!pageForm.form.valid" (click)="saveNode()">Save</button></div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,202 @@
+<div class="admin-content-browse-wrapper" fxLayout="column">
+  <!--Toolbar-->
+  <div class="backg3 bg padding-left padding-right" fxLayout="row wrap" fxLayoutAlign="start center">
+    <div fxLayout="row" fxLayoutAlign="start center">
+      <div>
+        <mat-form-field>
+          <input matInput (keyup)="filterContent()" placeholder="Search" [(ngModel)]="search">
+          <button mat-button *ngIf="search" matSuffix mat-icon-button aria-label="Clear" (click)="search = '';filterContent()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+      <div class="padding-left"></div>
+      <div>
+        <mat-form-field>
+          <mat-select placeholder="Status" [(ngModel)]="status_filter" name="status-filter" (selectionChange)="filterContent()">
+            <mat-option value="">Any</mat-option>
+            <mat-option value="1">Enabled</mat-option>
+            <mat-option value="0">Disabled</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="padding-left"></div>
+      <div>
+        <mat-form-field>
+          <mat-select placeholder="Language" [(ngModel)]="lang_filter" name="lang-filter" (selectionChange)="filterContent()">
+            <mat-option value="">All</mat-option>
+            <mat-option value="en">English</mat-option>
+            <mat-option value="es">Spanish</mat-option>
+            <mat-option value="both">Both</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="padding-left"></div>
+      <div *ngIf="!working && type === 'page' && page_types.length > 0">
+        <mat-form-field>
+          <mat-select placeholder="Filter by Page Type" multiple [(ngModel)]="page_types_filter" name="page-type-filter" (selectionChange)="filterContent()">
+            <mat-option *ngFor="let item of page_types" [value]="item.tid"><span [innerHTML]="item.name"></span></mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div *ngIf="!working && type === 'segment' && orphans.length > 0">
+        <mat-checkbox [(ngModel)]="orphan_filter" name="orphan-filter" (change)="filterContent()" color="primary">
+          Orphans
+        </mat-checkbox>
+      </div>
+      <div class="padding-left"></div>
+      <div><button mat-raised-button color="primary" (click)="clearFilter()" [disabled]="emptyFilter()">Reset</button></div>
+      <div *ngIf="loading" class="padding-left">
+        <app-admin-loader [small]="true"></app-admin-loader>
+      </div>
+    </div>
+    <div fxFlex class="padding-left">
+      <mat-paginator [length]="total_count" [pageSize]="50" (page)="loadingPage($event)" [showFirstLastButtons]="true" [hidePageSize]="true"></mat-paginator>
+    </div>
+    <div class="padding-left"></div>
+    <div fxLayout="column" fxLayoutAlign="center center">
+      <button mat-raised-button (click)="clearSelection()" [disabled]="selection.selected.length < 1">
+        Clear Selection
+      </button>
+    </div>
+    <div class="padding-left"></div>
+    <div fxLayout="column" fxLayoutAlign="center center">
+      <button mat-raised-button color="primary" [matMenuTriggerFor]="actionMenu" [disabled]="selection.selected.length < 1">
+        Actions
+      </button>
+      <mat-menu #actionMenu="matMenu">
+        <button mat-menu-item class="button" (click)="pubSelection()">Publish</button>
+        <button mat-menu-item class="button" (click)="confirmUnpub()">Unpublish</button>
+        <button *ngIf="variables.adminAuth" mat-menu-item class="button" (click)="confirmDelete()">Delete</button>
+      </mat-menu>
+    </div>
+  </div>
+  <!--Table-->
+  <div fxLayout="column" class="content-table-wrapper">
+    <table *ngIf="!working" mat-table [dataSource]="dataSource" class="content-table" matSort>
+      <!-- Checkbox Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <mat-checkbox (change)="$event ? masterToggle() : null"
+                        [checked]="selection.hasValue() && isAllSelected()"
+                        [indeterminate]="selection.hasValue() && !isAllSelected()" color="primary">
+          </mat-checkbox>
+        </th>
+        <td mat-cell *matCellDef="let row">
+          <div class="padding-right">
+            <mat-checkbox (click)="$event.stopPropagation()"
+                          (change)="$event ? selection.toggle(row) : null"
+                          [checked]="selection.isSelected(row)" color="primary">
+            </mat-checkbox>
+          </div>
+        </td>
+      </ng-container>
+      <!-- Title Column -->
+      <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+        <td mat-cell *matCellDef="let element">
+          <div class="flex-row-center">
+            <a *ngIf="variables.editorAuth" class="button no-history margin-left margin-right"
+               routerLink="/admin/content/edit/{{element.nid}}">
+              <mat-icon class="svg admin-xs">edit</mat-icon>
+            </a>
+            <div><strong [innerHTML]="element.title"></strong></div>
+          </div>
+        </td>
+      </ng-container>
+      <!-- Display Title Column -->
+      <ng-container matColumnDef="display_title">
+        <th mat-header-cell *matHeaderCellDef>Display Title</th>
+        <td mat-cell *matCellDef="let element">
+          <div *ngIf="element.node_export.field_display_title && element.node_export.field_display_title.length > 0">
+            <span [innerHTML]="element.node_export.field_display_title[0].value"></span>
+          </div>
+        </td>
+      </ng-container>
+      <!-- Path Column -->
+      <ng-container matColumnDef="path">
+        <th mat-header-cell *matHeaderCellDef>Path</th>
+        <td mat-cell *matCellDef="let element">
+          <div *ngIf="getPath(element) !== ''" class="flex-row-center">
+            <a class="button no-history margin-right"
+               routerLink="/{{getPath(element)}}">
+              <mat-icon class="svg admin-xs">remove_red_eye</mat-icon>
+            </a>
+            <div class="mat-caption">{{getPath(element)}}</div>
+          </div>
+          <div *ngIf="getPath(element) === ''">
+            <a class="button no-history margin-right"
+               routerLink="/node/{{element.nid}}">
+              <mat-icon class="svg admin-xs">remove_red_eye</mat-icon>
+            </a>
+          </div>
+        </td>
+      </ng-container>
+      <!-- Type Column -->
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef>Type</th>
+        <td mat-cell *matCellDef="let element">
+          <div *ngIf="element.node_export.field_type && element.node_export.field_type.length > 0" style="font-size:0.8em;">
+            {{element.node_export.field_type[0].name}}
+          </div>
+        </td>
+      </ng-container>
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let element">
+          <div class="color" style="font-size:0.8em;"
+               [ngClass]="{'alert': element.status === '0', 'enabled': element.status === '1'}">{{element.status_label}}</div>
+        </td>
+      </ng-container>
+      <!-- NID Column -->
+      <ng-container matColumnDef="nid">
+        <th mat-header-cell *matHeaderCellDef>NID</th>
+        <td mat-cell *matCellDef="let element">
+          <div style="font-size:0.8em;">{{element.nid}}</div>
+        </td>
+      </ng-container>
+      <!-- Lang Column -->
+      <ng-container matColumnDef="lang">
+        <th mat-header-cell *matHeaderCellDef>Language</th>
+        <td mat-cell *matCellDef="let element">
+          <div *ngIf="element.node_export.field_lang_status && element.node_export.field_lang_status.length > 0"
+               class="lang-wrapper" ngClass="{{element.node_export.field_lang_status[0].value}}" style="font-size:0.8em;">
+            {{element.node_export.field_lang_status[0].value}}
+          </div>
+        </td>
+      </ng-container>
+      <!-- Core Column -->
+      <ng-container matColumnDef="core">
+        <th mat-header-cell *matHeaderCellDef>Core</th>
+        <td mat-cell *matCellDef="let element">
+          <div *ngIf="element.node_export.field_managed && element.node_export.field_managed.length > 0 && element.node_export.field_managed[0].value === '1'">
+            <mat-icon class="svg admin-xs">lock</mat-icon>
+          </div>
+        </td>
+      </ng-container>
+      <!-- Orphan Column -->
+      <ng-container matColumnDef="orphan">
+        <th mat-header-cell *matHeaderCellDef>Orphan</th>
+        <td mat-cell *matCellDef="let element">
+          <div *ngIf="element.orphan" style="font-size:0.8em;">
+            <div *ngIf="element.orphan.length > 0">Yes</div>
+            <div *ngIf="element.orphan.length < 1">No</div>
+          </div>
+        </td>
+      </ng-container>
+      <!-- Edit Column -->
+      <ng-container matColumnDef="edit">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <div>
+            <a class="mat-raised-button primary button" routerLink="/admin/content/edit/{{element.nid}}">Edit</a>
+          </div>
+        </td>
+      </ng-container>
+      <!--Standard Elements-->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky:true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+</div>

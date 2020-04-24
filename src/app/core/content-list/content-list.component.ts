@@ -1,7 +1,17 @@
-import { Component, Inject, Input, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  Input, OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  ViewEncapsulation
+} from '@angular/core';
 import { VariableService } from '../../services/variable.service';
 import { environment } from '../../../environments/environment';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatIconRegistry } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer, makeStateKey, TransferState } from '@angular/platform-browser';
 import { Angulartics2 } from 'angulartics2';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -14,14 +24,16 @@ const NSMI_CL = makeStateKey('nsmi_cl');
   selector: 'app-content-list',
   templateUrl: './content-list.component.html',
   styleUrls: ['./content-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class ContentListComponent implements OnInit {
+export class ContentListComponent implements OnInit, OnDestroy {
   @Input() src;
   @Input() node;
   @Input() search;
   @Input() triage;
   @Input() preview;
+  private authsub: any;
   public variables: any;
   public adminUrl: string;
   public item: any;
@@ -39,6 +51,7 @@ export class ContentListComponent implements OnInit {
     private angulartics2: Angulartics2,
     private apiService: ApiService,
     private state: TransferState,
+    private cdr: ChangeDetectorRef,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     this.media = breakpointObserver;
@@ -69,6 +82,16 @@ export class ContentListComponent implements OnInit {
     if (this.triage && this.triage.length > 0) {
       this.setupTriage();
     }
+
+    this.authsub = this.variableService.authSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.authsub) {
+      this.authsub.unsubscribe();
+    }
   }
 
   setupNode() {
@@ -81,7 +104,7 @@ export class ContentListComponent implements OnInit {
         } else if (i.node_export.field_old_path.length > 0 && self.useOld(i.node_export.field_old_path[0].value)) {
           i.link = link + i.node_export.field_old_path[0].value;
         } else {
-          i.link = link + '/node/' + i.nid;
+          i.link = link + '/node/' + i.node_export.nid[0].value;
         }
         i.item_title = i.node_export.title[0].value;
         i.summary = i.node_export.body.length > 0 ? i.node_export.body[0].summary : '';
@@ -91,7 +114,7 @@ export class ContentListComponent implements OnInit {
         } else if (i.node_export.i18n.es.field_old_path.length > 0 && self.useOld(i.node_export.i18n.es.field_old_path[0].value)) {
           i.link_es = link_es + i.node_export.i18n.es.field_old_path[0].value;
         } else {
-          i.link_es = link_es + '/node/' + i.nid;
+          i.link_es = link_es + '/node/' + i.node_export.nid[0].value;
         }
         i.item_title_es = i.node_export.i18n.es.title[0].value;
         i.summary_es = i.node_export.i18n.es.body.length > 0 ? i.node_export.i18n.es.body[0].summary : '';
@@ -104,6 +127,7 @@ export class ContentListComponent implements OnInit {
         i.id = i.nid;
       });
       this.item = this.node[0];
+      this.cdr.detectChanges();
     }
   }
 
@@ -120,7 +144,7 @@ export class ContentListComponent implements OnInit {
           i.link = link + '/node/' + i.src.nid[0].value;
         }
         i.item_title = i.src.title[0].value;
-        i.summary = i.src.body[0].summary;
+        i.summary = i.src.body.length > 0 ? i.src.body[0].summary : '';
         const link_es = '/es/';
         if (i.src.i18n.es.field_path.length > 0) {
           i.link_es = link_es + i.src.i18n.es.field_path[0].value;
@@ -142,6 +166,7 @@ export class ContentListComponent implements OnInit {
         i.id = i.src.nid[0].value;
       });
       this.item = this.src[0];
+      this.cdr.detectChanges();
     }
   }
 
@@ -155,7 +180,7 @@ export class ContentListComponent implements OnInit {
         } else if (i.node_export.field_old_path.length > 0 && self.useOld(i.node_export.field_old_path[0].value)) {
           i.link = link + i.node_export.field_old_path[0].value;
         } else {
-          i.link = link + '/node/' + i.nid;
+          i.link = link + '/node/' + i.node_export.nid[0].value;
         }
         i.item_title = i.node_export.title[0].value;
         i.summary = i.excerpt;
@@ -165,7 +190,7 @@ export class ContentListComponent implements OnInit {
         } else if (i.node_export.i18n.es.field_old_path.length > 0 && self.useOld(i.node_export.i18n.es.field_old_path[0].value)) {
           i.link_es = link_es + i.node_export.i18n.es.field_old_path[0].value;
         } else {
-          i.link_es = link_es + '/node/' + i.nid;
+          i.link_es = link_es + '/node/' + i.node_export.nid[0].value;
         }
         i.item_title_es = i.node_export.i18n.es.title[0].value;
         i.summary_es = i.excerpt;
@@ -178,6 +203,7 @@ export class ContentListComponent implements OnInit {
         i.id = i.nid;
       });
       this.item = this.search[0];
+      this.cdr.detectChanges();
     }
   }
 
@@ -197,7 +223,7 @@ export class ContentListComponent implements OnInit {
           } else if (i.node_export.field_old_path.length > 0 && self.useOld(i.node_export.field_old_path[0].value)) {
             i.link = link + i.node_export.field_old_path[0].value;
           } else {
-            i.link = link + '/node/' + i.nid;
+            i.link = link + '/node/' + i.node_export.nid[0].value;
           }
           i.item_title = i.node_export.title[0].value;
           i.summary = i.node_export.body.length > 0 ? i.node_export.body[0].summary : '';
@@ -212,7 +238,7 @@ export class ContentListComponent implements OnInit {
           } else if (i.node_export.i18n.es.field_old_path.length > 0 && self.useOld(i.node_export.i18n.es.field_old_path[0].value)) {
             i.link_es = link_es + i.node_export.i18n.es.field_old_path[0].value;
           } else {
-            i.link_es = link_es + '/node/' + i.nid;
+            i.link_es = link_es + '/node/' + i.node_export.nid[0].value;
           }
           i.item_title_es = i.node_export.i18n.es.title[0].value;
           i.summary_es = i.node_export.i18n.es.body.length > 0 ? i.node_export.i18n.es.body[0].summary : '';
@@ -226,6 +252,7 @@ export class ContentListComponent implements OnInit {
         i.id = i.node_export.nid[0].value;
       });
       this.item = this.triage[0];
+      this.cdr.detectChanges();
     }
   }
 
@@ -271,12 +298,12 @@ export class ContentListComponent implements OnInit {
   }
 
   viewArticle(item: any): void {
-    let width = '95vw';
-    let height = '80vh';
+    let width = '95%';
+    let height = '80%';
     if (this.isBrowser) {
       if (this.media.isMatched('(min-width: 960px)') && item.node_export.field_type[0].target_id !== '6') {
         width = '900px';
-        height = '95vh';
+        height = '95%';
       }
     }
     const props = {};
@@ -313,8 +340,8 @@ export class ContentListComponent implements OnInit {
     const dialogRef = this.dialog.open(ContentListDialogComponent, {
       width: width,
       height: height,
-      maxWidth: '95vw',
-      maxHeight: '95vh',
+      maxWidth: '95%',
+      maxHeight: '95%',
       data: { node: item }
     });
 
@@ -330,6 +357,7 @@ export class ContentListComponent implements OnInit {
 @Component({
   selector: 'app-content-list-dialog',
   templateUrl: './content-list.dialog.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContentListDialogComponent {
   public node = [];

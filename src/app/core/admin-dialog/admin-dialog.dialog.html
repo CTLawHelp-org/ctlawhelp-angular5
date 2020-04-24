@@ -1,0 +1,39 @@
+<div class="custom-typography" fxLayout="column">
+  <mat-toolbar mat-dialog-title fxLayout="row" class="dialog-header">
+    <div class="padding-right mat-body-2 dark-text">Current Block Setup</div>
+    <div fxFlex></div>
+    <div>
+      <button mat-icon-button mat-raised-button (click)="onNoClick()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div>
+    <mat-dialog-content class="dialog-node" fxLayout="column">
+      <div *ngIf="variables.currentBlockSetup.length > 0" class="pad-r">
+        <!--Main Setup-->
+        <div fxLayout="row wrap" fxLayoutAlign="start center">
+          <div><strong>Active Block Setup:&nbsp;</strong></div>
+          <div [innerHTML]="variables.currentBlockSetup[0].name"></div>
+          <div class="pad">
+            <button mat-icon-button routerLink="/admin/blocks/{{variables.currentBlockSetup[0].tid}}" (click)="onNoClick()">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+        </div>
+        <!--Other Setups-->
+        <div *ngFor="let item of variables.currentBlockSetup; let first = first;" [fxHide]="first">
+          <div fxLayout="row wrap" fxLayoutAlign="start center">
+            <div><strong>Other Block Setup:&nbsp;</strong></div>
+            <div [innerHTML]="item['name']"></div>
+            <div class="pad">
+              <button mat-icon-button routerLink="/admin/blocks/{{item['tid']}}" (click)="onNoClick()">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+  </div>
+</div>

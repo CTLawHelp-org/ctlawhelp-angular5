@@ -20,8 +20,10 @@
   <div>
     <mat-dialog-content class="dialog-node" fxLayout="column">
       <div class="pad">
-        <app-node-top [curNode]="node"></app-node-top>
-        <app-node [curNode]="node"></app-node>
+        <div class="margin-bottom-lg">
+          <app-node-top [curNode]="node"></app-node-top>
+        </div>
+        <app-node [curNode]="node" [dialog]="true"></app-node>
       </div>
     </mat-dialog-content>
   </div>

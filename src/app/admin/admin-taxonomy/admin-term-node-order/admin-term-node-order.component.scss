@@ -1,1 +1,14 @@
-@import "../../../../../node_modules/ng2-dnd/bundles/style.css";
+.order-wrapper {
+  .item {
+    position:relative;
+    .active {
+      background-color:lightgreen;
+    }
+    .drag-handle {
+      cursor: pointer;
+    }
+    .info-wrapper {
+      background:#fff;
+    }
+  }
+}

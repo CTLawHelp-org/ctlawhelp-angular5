@@ -1,1 +1,11 @@
-@import "../../../../../node_modules/ng2-dnd/bundles/style.css";
+.entries-wrapper {
+  .item {
+    position:relative;
+    .active {
+      background-color:lightgreen;
+    }
+    .drag-handle {
+      cursor: pointer;
+    }
+  }
+}

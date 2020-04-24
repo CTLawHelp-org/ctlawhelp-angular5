@@ -14,7 +14,7 @@
          class="dropdown backg bg mat-elevation-z2 tid-{{item.tid}}">
       <div *ngFor="let child of item.term_export.field_pages_plus; let first = first; let last = last;">
         <div *ngIf="!first" fxLayout="column" class="drop-item" [ngClass]="{'margin-bottom-sm': !last}">
-          <a [routerLink]="variables.lang + '/' + child.link" routerLinkActive="active"
+          <a [routerLink]="variables.lang + '/' + child.link" routerLinkActive="active" [ngClass]="{'inactive': isElder(item.tid)}"
              fxLayout="row" fxLayoutAlign="start center" appHighlight class="item border-radius">
             <app-icon *ngIf="child.term_export && child.term_export.field_public_term_file.length > 0"
                       svgClass="nsmi-icon margin-right svg sm" svgIcon="tid{{child.tid}}"></app-icon>
@@ -31,22 +31,54 @@
   </div>
   <!--Admin-->
   <div *ngIf="variables.auth" class="item-wrapper" (mouseenter)="admin = true" (mouseleave)="admin = false">
-    <a fxLayout="row" fxLayoutAlign="start center" appHighlight class="item border-radius">
+    <a fxLayout="row" fxLayoutAlign="start center" routerLink="/admin" appHighlight class="item border-radius">
       <div>Admin</div>
       <mat-icon class="icon">expand_more</mat-icon>
     </a>
     <div [@fadeInOut] [ngClass]="{'over': admin}"
          class="dropdown backg bg mat-elevation-z2">
-      <a [href]="adminUrl" target="_blank" appHighlight class="item border-radius"
-         fxLayout="row" fxLayoutAlign="start center">
-        <div>External Site</div>
-      </a>
       <a appHighlight class="item border-radius"
-         fxLayout="row" fxLayoutAlign="start center" routerLink="/admin">
-        <div>Dash</div>
+         fxLayout="row" fxLayoutAlign="start center" routerLink="/admin/content/pages">
+        <div>Content</div>
       </a>
-      <app-admin-dialog type="labels"></app-admin-dialog>
-      <app-admin-dialog type="blocks"></app-admin-dialog>
+      <a *ngIf="variables.adminAuth" appHighlight class="item border-radius"
+         fxLayout="row" fxLayoutAlign="start center" routerLink="/admin/files">
+        <div>Files</div>
+      </a>
+      <a *ngIf="variables.adminAuth" appHighlight class="item border-radius"
+         fxLayout="row" fxLayoutAlign="start center" routerLink="/admin/menu">
+        <div>Menu</div>
+      </a>
+      <a *ngIf="variables.adminAuth" appHighlight class="item border-radius"
+         fxLayout="row" fxLayoutAlign="start center" routerLink="/admin/blocks">
+        <div>Blocks</div>
+      </a>
+      <a *ngIf="variables.adminAuth" appHighlight class="item border-radius"
+         fxLayout="row" fxLayoutAlign="start center" routerLink="/admin/nsmi">
+        <div>NSMI</div>
+      </a>
+      <a *ngIf="variables.adminAuth" appHighlight class="item border-radius"
+         fxLayout="row" fxLayoutAlign="start center" routerLink="/admin/triage">
+        <div>Triage</div>
+      </a>
+      <a *ngIf="variables.adminAuth" appHighlight class="item border-radius"
+         fxLayout="row" fxLayoutAlign="start center" routerLink="/admin/labels">
+        <div>Labels</div>
+      </a>
+      <a *ngIf="variables.adminAuth" appHighlight class="item border-radius"
+         fxLayout="row" fxLayoutAlign="start center" routerLink="/admin/settings">
+        <div>Settings</div>
+      </a>
+      <a *ngIf="variables.adminAuth" appHighlight class="item border-radius" fxLayout="row" fxLayoutAlign="start center"
+         (click)="variables.labelEdit = !variables.labelEdit">
+        <div *ngIf="!variables.labelEdit">Toggle Label Editing</div>
+        <div *ngIf="variables.labelEdit">Stop Editing</div>
+      </a>
+      <app-admin-dialog *ngIf="variables.adminAuth"></app-admin-dialog>
+      <a appHighlight class="item border-radius"
+         fxLayout="row" fxLayoutAlign="start center" (click)="logout()">
+        <div>Logout</div>
+      </a>
     </div>
   </div>
 </div>

@@ -5,10 +5,8 @@ import { MaterialModule } from './app.material.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FragmentPolyfillModule } from '../directives/fragment-polyfill.module';
 import { RouterModule } from '@angular/router';
-import { FeaturedSliderModule } from '../blocks/featured-slider/featured-slider.module';
 import { NodeComponent } from '../core/node/node.component';
 import { SelfHelpMenuComponent } from '../blocks/self-help-menu/self-help-menu.component';
-import { FooterMenuComponent } from '../core/footer-menu/footer-menu.component';
 import { SideMenuComponent } from '../core/side-menu/side-menu.component';
 import { BlockComponent } from '../core/block/block.component';
 import { SegmentsComponent } from '../core/segments/segments.component';
@@ -22,8 +20,6 @@ import { MenuComponent } from '../core/menu/menu.component';
 import { FooterComponent } from '../core/footer/footer.component';
 import { SelfHelpLandingComponent } from '../blocks/self-help-landing/self-help-landing.component';
 import { SearchBarComponent } from '../core/search-bar/search-bar.component';
-import { PopularArticlesComponent } from '../blocks/popular-articles/popular-articles.component';
-import { ArticleCreditComponent } from '../blocks/article-credit/article-credit.component';
 import { TriageSaveComponent, TriageSaveDialogComponent } from '../triage/triage-save/triage-save.component';
 import { ShareComponent, ShareDialogComponent } from '../core/share/share.component';
 import { TriageLocationComponent } from '../triage/triage-location/triage-location.component';
@@ -35,10 +31,11 @@ import { LabelComponent } from '../core/label/label.component';
 import { NodeTopComponent } from '../core/node-top/node-top.component';
 import { LoaderComponent } from '../core/loader/loader.component';
 import { SegmentDisplayComponent } from '../core/segment-display/segment-display.component';
-import { AdminDialogComponent } from '../core/admin-dialog/admin-dialog.component';
+import { AdminDialogComponent, AdminDialogDialogComponent } from '../core/admin-dialog/admin-dialog.component';
 import { SelfHelpLandingLgComponent } from '../blocks/self-help-landing-lg/self-help-landing-lg.component';
 import { TriageSearchBarComponent } from '../core/triage-search-bar/triage-search-bar.component';
-import { TempTopComponent } from '../core/temp-top/temp-top.component';
+import { AdminLabelEditorDialogComponent } from '../admin/admin-utils/admin-label-editor/admin-label-editor.component';
+import { LoginFormComponent } from '../core/login-form/login-form.component';
 
 @NgModule({
   imports: [
@@ -48,7 +45,6 @@ import { TempTopComponent } from '../core/temp-top/temp-top.component';
     MaterialModule,
     FlexLayoutModule,
     FragmentPolyfillModule.forRoot({smooth: true}),
-    FeaturedSliderModule,
     RouterModule,
   ],
   declarations: [
@@ -64,14 +60,11 @@ import { TempTopComponent } from '../core/temp-top/temp-top.component';
     TriageSummaryComponent,
     BlockComponent,
     SelfHelpLandingComponent,
-    PopularArticlesComponent,
-    FooterMenuComponent,
     SelfHelpMenuComponent,
     SelfHelpContentComponent,
     SegmentsComponent,
     TriageLocationComponent,
     TriageDialogComponent,
-    ArticleCreditComponent,
     ShareComponent,
     ShareDialogComponent,
     TriageSaveComponent,
@@ -86,9 +79,10 @@ import { TempTopComponent } from '../core/temp-top/temp-top.component';
     LabelComponent,
     NodeTopComponent,
     AdminDialogComponent,
-    TempTopComponent,
+    AdminDialogDialogComponent,
     SelfHelpLandingLgComponent,
     TriageSearchBarComponent,
+    LoginFormComponent,
   ],
   exports: [
     CommonModule,
@@ -109,14 +103,11 @@ import { TempTopComponent } from '../core/temp-top/temp-top.component';
     TriageSummaryComponent,
     BlockComponent,
     SelfHelpLandingComponent,
-    PopularArticlesComponent,
-    FooterMenuComponent,
     SelfHelpMenuComponent,
     SelfHelpContentComponent,
     SegmentsComponent,
     TriageLocationComponent,
     TriageDialogComponent,
-    ArticleCreditComponent,
     ShareComponent,
     ShareDialogComponent,
     TriageSaveComponent,
@@ -131,9 +122,19 @@ import { TempTopComponent } from '../core/temp-top/temp-top.component';
     LabelComponent,
     NodeTopComponent,
     AdminDialogComponent,
-    TempTopComponent,
+    AdminDialogDialogComponent,
     SelfHelpLandingLgComponent,
     TriageSearchBarComponent,
+    LoginFormComponent,
+  ],
+  entryComponents: [
+    TriageDialogComponent,
+    ShareDialogComponent,
+    TriageSaveDialogComponent,
+    PdfDownloadDialogComponent,
+    ContentListDialogComponent,
+    AdminLabelEditorDialogComponent,
+    AdminDialogDialogComponent,
   ]
 })
 export class SharedModule {}

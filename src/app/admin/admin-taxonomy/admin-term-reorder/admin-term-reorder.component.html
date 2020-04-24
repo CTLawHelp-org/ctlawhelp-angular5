@@ -12,9 +12,13 @@
     </div>
     <div class="backg1 bg pad">
       <div class="whitebg bg pad">
-        <div dnd-sortable-container [sortableData]="terms">
-          <div *ngFor="let item of terms; let index = index" dnd-sortable [sortableIndex]="index" class="pad">
-            <div class="backg border pad" fxLayout="row" fxLayoutAlign="start center">
+        <div cdkDropList (cdkDropListDropped)="updateIndex($event, terms)" class="order-wrapper">
+          <div cdkDrag *ngFor="let item of terms; let index = index"
+               class="item margin-bottom backg border whitebg bg flex-row-center">
+            <div cdkDragHandle class="drag-handle" fxLayout="column" [ngClass]="{'active': index === lastMoved}">
+              <mat-icon class="primary color">drag_handle</mat-icon>
+            </div>
+            <div fxFlex fxLayout="row" fxLayoutAlign="start center" class="pad">
               <div class="mat-caption">{{index + 1}}</div>
               <div class="margin-left" [innerHTML]="item.name"></div>
             </div>

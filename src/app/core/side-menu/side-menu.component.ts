@@ -1,16 +1,28 @@
-import { Component, EventEmitter, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewEncapsulation
+} from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { VariableService } from '../../services/variable.service';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-side-menu',
   templateUrl: './side-menu.component.html',
   styleUrls: ['./side-menu.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class SideMenuComponent implements OnInit {
-  public connection: any;
+export class SideMenuComponent implements OnInit, OnDestroy {
+  private langsub: any;
+  private connection: any;
+  private subscription: any;
   public menu: any;
   public variables: any;
   public working = true;
@@ -21,6 +33,7 @@ export class SideMenuComponent implements OnInit {
     private apiService: ApiService,
     private variableService: VariableService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
@@ -31,6 +44,28 @@ export class SideMenuComponent implements OnInit {
     });
 
     this.variables = this.variableService;
+
+    this.subscription = this.router.events.subscribe(e => {
+      if (e instanceof NavigationEnd) {
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.langsub = this.variableService.langSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.connection) {
+      this.connection.unsubscribe();
+    }
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+    if (this.langsub) {
+      this.langsub.unsubscribe();
+    }
   }
 
   doneLoading() {
@@ -45,6 +80,7 @@ export class SideMenuComponent implements OnInit {
     });
     this.menu = this.menu.reverse();
     this.working = false;
+    this.cdr.detectChanges();
   }
 
   toggleMenu() {

@@ -1,4 +1,4 @@
-<div *ngIf="item" fxLayout="column">
+<div *ngIf="item" fxLayout="column" class="content-list-wrapper">
   <!--Default-->
   <div *ngIf="!triage" fxLayout="row" fxLayoutAlign="start center" class="margin-bottom-sm">
     <app-icon *ngIf="item.icon" svgClass="margin-right svg sm" svgIcon="tid{{item.icon}}"></app-icon>
@@ -16,16 +16,17 @@
     </div>
     <div fxLayout="row" fxLayoutAlign="end center" class="hide-print">
       <!--Node Admin-->
-      <div *ngIf="variables.auth">
+      <div *ngIf="variables.adminAuth">
         <button mat-button [matMenuTriggerFor]="menu" class="min" aria-label="Node Menu">
           <mat-icon>more_horiz</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-          <a mat-menu-item [href]="adminUrl + item.id" target="_blank">Edit</a>
+          <div *ngIf="item.relevance" class="padding-left padding-right mat-caption">Relevance: {{item.relevance}}</div>
+          <a mat-menu-item [href]="adminUrl + item.id">Edit</a>
         </mat-menu>
       </div>
       <div *ngIf="preview">
-        <button mat-icon-button mat-raised-button aria-label="Preview" (click)="viewArticle(item)">
+        <button mat-icon-button mat-raised-button aria-label="Preview" (click)="loadArticle(item)">
           <app-icon svgClass="svg xs" svgIcon="tid715"></app-icon>
         </button>
       </div>
@@ -39,7 +40,7 @@
         <h3 fxHide.gt-sm class="no-margin">
           <span [innerHTML]="item.item_title"></span>
         </h3>
-        <h2 fxHide fxShow.gt-sm class="no-margin">
+        <h2 fxHide.lt-md class="no-margin">
           <span [innerHTML]="item.item_title"></span>
         </h2>
       </a>
@@ -47,7 +48,7 @@
         <h3 fxHide.gt-sm class="no-margin">
           <span [innerHTML]="item.item_title_es"></span>
         </h3>
-        <h2 fxHide fxShow.gt-sm class="no-margin">
+        <h2 fxHide.lt-md class="no-margin">
           <span [innerHTML]="item.item_title_es"></span>
         </h2>
       </a>
@@ -57,7 +58,7 @@
         <h3 fxHide.gt-sm class="no-margin">
           <span [innerHTML]="item.item_title"></span>
         </h3>
-        <h2 fxHide fxShow.gt-sm class="no-margin">
+        <h2 fxHide.lt-md class="no-margin">
           <span [innerHTML]="item.item_title"></span>
         </h2>
       </div>
@@ -65,19 +66,19 @@
         <h3 fxHide.gt-sm class="no-margin">
           <span [innerHTML]="item.item_title_es"></span>
         </h3>
-        <h2 fxHide fxShow.gt-sm class="no-margin">
+        <h2 fxHide.lt-md class="no-margin">
           <span [innerHTML]="item.item_title_es"></span>
         </h2>
       </div>
     </div>
     <div fxLayout="row" fxLayoutAlign="end center" class="hide-print">
       <!--Node Admin-->
-      <div *ngIf="variables.auth">
+      <div *ngIf="variables.adminAuth">
         <button mat-button [matMenuTriggerFor]="menu" class="min" aria-label="Node Menu">
           <mat-icon>more_horiz</mat-icon>
         </button>
         <mat-menu #menu="matMenu">
-          <a mat-menu-item [href]="adminUrl + item.id" target="_blank">Edit</a>
+          <a mat-menu-item [href]="adminUrl + item.id">Edit</a>
         </mat-menu>
       </div>
       <div *ngIf="preview && (item.link || item.link_es)">

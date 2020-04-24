@@ -1,5 +1,8 @@
-<div *ngIf="!working" fxLayout="column" class="triage-summary">
-  <mat-tab-group class="triage-summary-tabs" [selectedIndex]="currentIdx" (selectedTabChange)="tabChange($event)">
+<div fxLayout="column" class="triage-summary">
+  <div *ngIf="working">
+    <app-loader></app-loader>
+  </div>
+  <mat-tab-group *ngIf="!working" class="triage-summary-tabs" [selectedIndex]="currentIdx" (selectedTabChange)="tabChange($event)">
     <mat-tab *ngFor="let item of issues; let last = last; let index = index;">
       <ng-template mat-tab-label>
         <div fxLayout="column">
@@ -29,7 +32,7 @@
         <div class="pad" [ngClass]="{'border-bottom': media.isMatched('(min-width: 960px)'), 'border-bottom-sm': !media.isMatched('(min-width: 960px)')}"
              fxLayout="row" fxLayoutAlign="start start">
           <div fxFlex>
-            <h4 class="no-margin">Viewing:</h4>
+            <h4 class="no-margin"><app-label src="triage_view_label"></app-label></h4>
             <div *ngFor="let label of item.issues; let first = first;">
               <div *ngIf="!first">
                 <div *ngIf="variables.lang === 'en'">
@@ -51,20 +54,48 @@
             <div fxLayout="column" fxLayoutAlign="center center" class="margin-right">
               <app-triage-save [issue]="item" [status]="user_status"></app-triage-save>
             </div>
+            <div *ngIf="variables.auth" class="node-admin">
+              <button mat-icon-button mat-raised-button [matMenuTriggerFor]="menu" aria-label="Node Menu">
+                <mat-icon>more_horiz</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <a mat-menu-item class="no-history"
+                   [routerLink]="['/admin/triage/', item.issues[item.issues.length - 1].tid]">Edit</a>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+        <!--Status Blocks-->
+        <div class="status-wrapper margin-top-lg">
+          <div *ngIf="block_setup.length > 0">
+            <div *ngFor="let setup of block_setup" fxLayout="row wrap"
+                 fxLayoutAlign="center stretch" class="{{setup['class']}}">
+              <div *ngFor="let config of setup.columns" fxLayout="row wrap" fxLayoutAlign="start start"
+                   fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="config.value" class="{{config['class']}}">
+                <div [fxHide.xs]="node.desktop" [fxHide.sm]="node.desktop" [fxHide.gt-sm]="node.mobile"
+                     *ngFor="let node of config.nodes; trackBy: variables.trackByTarget;" fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="node.value[0]['flex']">
+                  <div class="{{node.value[0]['class']}}">
+                    <app-block [nid]="node.target_id"></app-block>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="show_loc" class="triage-loc padding-bottom-lg">
+            <app-triage-location></app-triage-location>
           </div>
         </div>
         <!-- Entry Content -->
-        <div *ngIf="showEntry(item)" class="margin-top pad-r">
-          <div *ngFor="let entry of item.issues[item.issues.length - 1].term_export.field_entry_settings; let elast = last; let even = even; let odd = odd;"
-               [@entryAnimation]="entry.hide">
-            <div *ngIf="!entry.hide" [ngClass]="{'margin-bottom-r': !elast, 'backg1 bg border-radius': odd}"
-                 class="pad entry-wrapper">
-              <div *ngIf="entry.node_export.type[0].target_id === 'segment'" fxLayout="column" class="padding-bottom-lg">
+        <div *ngIf="!working && showEntry(item)" class="margin-top-lg content-list-item-triage">
+          <div *ngFor="let entry of item.issues[item.issues.length - 1].term_export.field_entry_settings; trackBy: variables.trackByTarget; let elast = last;"
+               [@entryAnimation]="entry.hide" class="content-list-item-stripes" [ngClass]="{'margin-bottom-lg': !entry.hide && !elast}">
+            <div *ngIf="!entry.hide" class="pad entry-wrapper">
+              <div *ngIf="entry.node_export.type[0].target_id === 'segment'" fxLayout="column">
                 <app-segment-display [src]="entry"></app-segment-display>
               </div>
-              <div *ngIf="entry.node_export.type[0].target_id !== 'segment'" class="margin-bottom" fxLayout="row" fxLayoutAlign="start start">
+              <div *ngIf="entry.node_export.type[0].target_id !== 'segment'" fxLayout="row" fxLayoutAlign="start start">
                 <app-content-list fxFlex [triage]="[entry]" preview="true"></app-content-list>
-                <div *ngIf="entry.show_type === 'locations'">
+                <div *ngIf="entry.show_type === 'locations'" class="padding-left">
                   <app-icon svgClass="primary icon svg sm" svgIcon="tid633"></app-icon>
                 </div>
               </div>

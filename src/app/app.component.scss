@@ -1,7 +1,6 @@
 .app-container {
   min-height:100%;
   position:relative;
-
   .search-fab {
     position:fixed;
     bottom:0;
@@ -10,21 +9,18 @@
     &.searching {
       left:0;
       .search-bar {
-        background:rgba(0,0,0,0.35);
+        background:rgba(0,0,0,0.55);
       }
     }
   }
-
   .headroom-main-wrapper {
     height:56px;
   }
-
   .headroom-wrapper {
     .headroom {
       z-index: 3 !important;
     }
   }
-
   .header {
     height:56px;
     a.home {
@@ -38,7 +34,6 @@
       color: #fff;
     }
   }
-
   .sidenav-container {
     .headroom-wrapper {
       .headroom.headroom--unfixed {
@@ -46,19 +41,16 @@
       }
     }
   }
-
   .mat-drawer-backdrop {
     position:fixed;
     top:56px;
   }
-
   .sidenav {
     width:350px;
     max-width:98%;
     position:fixed;
     top:56px;
   }
-
   .content {
     background:#fff;
     z-index: 1;
@@ -66,7 +58,25 @@
   }
 }
 
-// Desktop styles
+// XS
+@media only screen and (max-width: 599px) {
+  .app-container {
+    .search-fab-padding {
+      padding-bottom:40px;
+    }
+  }
+}
+
+// SM
+@media only screen and (min-width: 600px) and (max-width: 959px) {
+  .app-container {
+    .search-fab-padding {
+      padding-bottom:40px;
+    }
+  }
+}
+
+// GT-SM
 @media only screen and (min-width: 960px) {
   .app-container {
     .search-fab {

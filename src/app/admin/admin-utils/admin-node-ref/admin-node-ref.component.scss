@@ -1,0 +1,11 @@
+.node-ref-wrapper {
+  .item {
+    position:relative;
+    .active {
+      background-color:lightgreen;
+    }
+    .drag-handle {
+      cursor: pointer;
+    }
+  }
+}

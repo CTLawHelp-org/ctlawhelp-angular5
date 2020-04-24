@@ -1,0 +1,27 @@
+{
+  "name": "CTLawHelp",
+  "short_name": "CTLawHelp",
+  "theme_color": "#2e2e2e",
+  "background_color": "#fafafa",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "assets/icons/favicon_96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/favicon_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/favicon_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

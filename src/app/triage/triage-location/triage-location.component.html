@@ -1,24 +1,18 @@
-<div class="triage-location-wrapper" fxLayout="column">
-  <div *ngIf="working">
-    <app-loader></app-loader>
-  </div>
-  <div *ngIf="!working" class="triage-location">
-    <div *ngIf="!loc_set">
+<div class="triage-location-wrapper">
+  <div *ngIf="!working" class="triage-location" fxLayout="row">
+    <div *ngIf="!loc_set" fxFlex="100" class="mat-elevation-z2 border-radius whitebg bg pad">
       <form name="triage-loc" (ngSubmit)="setLoc()" #locForm="ngForm">
         <div fxLayout="row wrap" fxLayoutAlign="start center">
-          <div fxFlex="100" fxLayout="row" fxLayoutAlign="start center" class="backg1 bg pad border-radius"
-               [ngClass]="{'na': !media.isMatched('(min-width: 960px)')}">
-            <div [ngClass]="{'pad': !media.isMatched('(min-width: 960px)')}" fxLayout="column" fxLayoutAlign="center start">
+          <div fxFlex.xs="100" fxLayout="row" fxLayoutAlign="start center" class="backg1 bg pad border-radius">
+            <div fxLayout="column" fxLayoutAlign="center start">
               <app-icon svgClass="highlight icon svg sm" svgIcon="tid629"></app-icon>
             </div>
-            <div class="margin-left site-label" fxLayout="column">
-              <h3 class="no-margin">
-                <app-label src="triage_location_intro"></app-label>
-              </h3>
+            <div class="padding-left site-label mat-subheading-1 no-margin">
+              <app-label src="triage_location_intro"></app-label>
             </div>
           </div>
           <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutAlign.gt-sm="start center">
-            <div class="pad site-label" [ngClass]="{'margin-top': !media.isMatched('(min-width: 960px)')}">
+            <div class="pad site-label">
               <app-label src="triage_location_zip"></app-label>
             </div>
             <div>
@@ -27,13 +21,15 @@
                   <input class="zip_i mat-input-element backg border" type="tel" maxlength="5" minlength="5" aria-label="Zipcode Input"
                          [(ngModel)]="user_zip" name="user_zip" value="">
                 </div>
-                <div *ngIf="zip_error" class="zip-error alert bg"><span class="pad-sm">Invalid Zipcode</span></div>
+                <div *ngIf="zip_error" class="zip-error alert bg">
+                  <span class="pad-sm"><app-label src="triage_location_zip_error"></app-label></span>
+                </div>
               </div>
             </div>
-            <div fxFlex="100" fxFlex.gt-sm="none" class="pad margin-left text-center">
-              OR
+            <div fxFlex="100" fxFlex.gt-xs="none" class="pad margin-left text-center">
+              <app-label src="triage_location_or"></app-label>
             </div>
-            <div class="margin-left" [ngClass]="{'pad': !media.isMatched('(min-width: 960px)')}">
+            <div class="margin-left">
               <mat-form-field>
                 <mat-select placeholder="Select City" [(value)]="user_city">
                   <mat-option *ngFor="let loc of locations" [value]="loc">
@@ -44,15 +40,15 @@
             </div>
             <div class="margin-left">
               <button mat-raised-button mat-icon-button class="primary button min"
-                      appHighlight type="submit">
-                <span class="go-btn">GO</span>
+                      appHighlight type="submit" (click)="setLoc()" [disabled]="!user_city && !user_zip">
+                <app-label src="triage_location_go"></app-label>
               </button>
             </div>
           </div>
         </div>
       </form>
     </div>
-    <div *ngIf="loc_set" fxLayout="column" [ngClass]="{'pad': !media.isMatched('(min-width: 960px)')}">
+    <div *ngIf="loc_set" class="mat-elevation-z2 border-radius whitebg bg pad">
       <div fxLayout="row" fxLayoutAlign="start center">
         <app-icon svgClass="primary icon svg sm" svgIcon="tid633"></app-icon>
         <div class="margin-left">
@@ -60,7 +56,8 @@
           <div *ngIf="user_city !== ''">{{user_city | titlecase}}</div>
         </div>
         <div class="margin-left">
-          <button mat-raised-button class="primary button min" appHighlight (click)="resetLoc()" appHighlight><span class="go-btn">Change</span></button>
+          <button mat-raised-button class="primary button" appHighlight
+                  (click)="resetLoc()" appHighlight><app-label src="triage_location_change"></app-label></button>
         </div>
       </div>
     </div>

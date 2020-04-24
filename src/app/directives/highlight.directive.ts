@@ -18,4 +18,12 @@ export class HighlightDirective {
     this.renderer.removeClass(this.el.nativeElement, 'highlight');
   }
 
+  @HostListener('focus') onFocus() {
+    this.renderer.addClass(this.el.nativeElement, 'highlight');
+  }
+
+  @HostListener('blur') onBlur() {
+    this.renderer.removeClass(this.el.nativeElement, 'highlight');
+  }
+
 }

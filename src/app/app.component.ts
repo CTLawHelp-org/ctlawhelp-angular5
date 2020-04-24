@@ -1,11 +1,12 @@
-import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID, Renderer2, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
+import { Component, ElementRef, Inject, OnDestroy, OnInit, PLATFORM_ID, Renderer2, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router';
+import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { Angulartics2GoogleAnalytics } from 'angulartics2/ga';
 import { VariableService } from './services/variable.service';
-import { DOCUMENT, makeStateKey, TransferState } from '@angular/platform-browser';
+import { makeStateKey, Meta, TransferState } from '@angular/platform-browser';
 import { environment } from '../environments/environment';
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 const WORKING_KEY = makeStateKey('app_working');
 
@@ -22,15 +23,25 @@ const WORKING_KEY = makeStateKey('app_working');
           animate('0.3s', style({ opacity: 1 }))
         ], { optional: true })
       ])
+    ]),
+    trigger('routeAnimation', [
+      transition('true => false', [
+        style({ opacity: 0 }),
+        animate('0.5s', style({ opacity: 1 }))
+      ])
     ])
   ]
 })
 export class AppComponent implements OnInit, OnDestroy {
   private subscription: any;
+  private layoutSub: any;
   public searching = false;
   public variables: any;
   public working = true;
   public isBrowser: boolean;
+  public media: any;
+  @ViewChild('main', { static: true }) main: ElementRef;
+  public animate = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId,
@@ -41,9 +52,12 @@ export class AppComponent implements OnInit, OnDestroy {
     private angulartics2GoogleAnalytics: Angulartics2GoogleAnalytics,
     private variableService: VariableService,
     private state: TransferState,
+    private breakpointObserver: BreakpointObserver,
+    private meta: Meta,
   ) {
     this.variables = this.variableService;
     this.isBrowser = isPlatformBrowser(this.platformId);
+    this.media = breakpointObserver;
   }
 
   ngOnInit() {
@@ -51,15 +65,44 @@ export class AppComponent implements OnInit, OnDestroy {
     if (_working !== null) {
       this.working = false;
     } else {
-      this.variableService.varSubject.subscribe( () => {
+      if (this.variableService.varDone) {
         this.setLang();
         this.state.set(WORKING_KEY, this.working as any);
-      });
+      } else {
+        this.variableService.varSubject.subscribe( () => {
+          this.setLang();
+          this.state.set(WORKING_KEY, this.working as any);
+        });
+      }
     }
 
     this.subscription = this.router.events.subscribe(e => {
+      if (e instanceof NavigationStart && this.isBrowser) {
+        this.animate = true;
+      }
       if (e instanceof NavigationEnd) {
         this.scroll();
+        this.variables.previousUrl = this.variables.currentUrl;
+        this.variables.currentUrl = e.url;
+        this.animate = false;
+      }
+    });
+
+    this.variableService.scrollSubject.subscribe( () => {
+      this.scroll();
+    });
+
+    // Layout
+    const layoutChanges = this.breakpointObserver.observe([
+      '(orientation: portrait)',
+      '(orientation: landscape)',
+    ]);
+
+    this.layoutSub = layoutChanges.subscribe(result => {
+      if (result.breakpoints['(orientation: portrait)']) {
+        this.layoutChange();
+      } else {
+        this.resetLayout();
       }
     });
 
@@ -74,6 +117,7 @@ export class AppComponent implements OnInit, OnDestroy {
           '\n' +
           'ga(\'create\', \'UA-16262780-5\', \'auto\');';
         this.renderer2.appendChild(this.document.body, ga);
+        this.angulartics2GoogleAnalytics.startTracking();
       }
 
       // setup structured data
@@ -110,6 +154,8 @@ export class AppComponent implements OnInit, OnDestroy {
           }
         }
       });
+    } else {
+      this.working = false;
     }
   }
 
@@ -117,12 +163,26 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+    if (this.layoutSub) {
+      this.layoutSub.unsubscribe();
+    }
+  }
+
+  layoutChange() {
+    if (this.media.isMatched('(max-width: 399px)')) {
+      this.meta.updateTag({ name: 'viewport', content: 'width=400'}, 'name=viewport');
+    }
+  }
+
+  resetLayout() {
+    this.meta.updateTag({ name: 'viewport', content: 'width=device-width'}, 'name=viewport');
   }
 
   scroll() {
     if (isPlatformBrowser(this.platformId)) {
       setTimeout (() => {
-        window.scrollTo(0, 0);
+        // window.scrollTo(0, 0);
+        this.main.nativeElement.focus();
       });
     }
   }

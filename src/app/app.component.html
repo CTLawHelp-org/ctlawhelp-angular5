@@ -1,23 +1,23 @@
-<div class="app-container custom-typography" fxLayout="column">
-  <div class="search-fab" [ngClass]="{'searching': searching}">
+<div class="app-container custom-typography">
+  <div class="search-fab" [fxHide]="sidenav.opened" [ngClass]="{'searching': searching}">
     <div class="pad">
-      <div class="margin-bottom" fxLayout="row" fxLayoutAlign="end center">
-        <button mat-fab (click)="scroll()" class="backgt button">
+      <div class="pad-sm" fxLayout="row" fxLayoutAlign="end center">
+        <button mat-fab (click)="scroll()" class="backgt button mat-elevation-z2">
           <mat-icon aria-label="Back to top">expand_less</mat-icon>
         </button>
       </div>
-      <div fxHide.gt-xs *ngIf="!working" fxLayout="row" fxLayoutAlign="start center" class="search-bar">
+      <div fxHide.gt-xs *ngIf="!working" fxLayout="row" fxLayoutAlign="start center" class="search-bar pad-sm border-radius">
         <div *ngIf="searching" fxFlex class="pad backg bg margin-left-sm margin-right" fxLayout="column">
           <app-search-bar (success)="searchFab()"></app-search-bar>
         </div>
-        <button mat-fab (click)="searchFab()" class="button primary">
+        <button mat-fab (click)="searchFab()" class="button primary mat-elevation-z2">
           <mat-icon *ngIf="!searching" aria-label="Search">search</mat-icon>
           <mat-icon *ngIf="searching" aria-label="Close">close</mat-icon>
         </button>
       </div>
     </div>
   </div>
-  <mat-sidenav-container class="sidenav-container">
+  <mat-sidenav-container class="sidenav-container search-fab-padding">
     <mat-sidenav [fxHide]="!isBrowser" class="sidenav" #sidenav>
       <div *ngIf="!working" class="inner pad">
         <app-side-menu (nav)="sidenav.close()"></app-side-menu>
@@ -28,7 +28,7 @@
         <ngx-headroom duration="500" easing="ease-in-out" [disable]="sidenav.opened">
           <mat-toolbar class="header mat-elevation-z3">
             <div *ngIf="!working" class="max-width-layout" fxLayout="row" fxLayoutAlign="start center">
-              <mat-icon fxHide fxShow.xs fxShow.sm (click)="sidenav.toggle()" class="margin-right menu-icon">menu</mat-icon>
+              <mat-icon fxHide fxShow.xs fxShow.sm style="display:block" (click)="sidenav.toggle()" class="margin-right menu-icon">menu</mat-icon>
               <div>
                 <a [routerLink]="[ '/' + variables.lang + '/home' ]"
                    class="home" fxLayout="column" (click)="sidenav.close()">
@@ -50,8 +50,9 @@
           </mat-toolbar>
         </ngx-headroom>
       </div>
-      <div class="content max-width-layout">
-        <router-outlet *ngIf="!working" (deactivate)="scroll()"></router-outlet>
+      <div class="content max-width-layout" id="main-content" [@routeAnimation]="animate">
+        <h1 tabindex="-1" style="position:absolute;left:-10000px" #main>Main Content</h1>
+        <router-outlet (deactivate)="scroll()"></router-outlet>
       </div>
     </div>
     <app-footer *ngIf="!working" class="footer-wrapper"></app-footer>

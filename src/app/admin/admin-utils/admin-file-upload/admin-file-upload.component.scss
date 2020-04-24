@@ -1,0 +1,38 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/file-uploader/5.16.2/fine-uploader-new.min.css');
+
+.qq-uploader {
+  min-height:50px !important;
+  .buttons {
+    position:relative;
+  }
+  #trigger-files, #trigger-photos, #trigger-add {
+    min-height:40px !important;
+    font-size:15px;
+  }
+  #trigger-photos {
+    width:80px;
+  }
+  #trigger-add {
+    width:107px;
+  }
+  .qq-upload-button-selector {
+    font-size:15px;
+    width:80px;
+  }
+}
+
+.files-wrapper {
+  .files-table {
+    tbody tr:nth-child(odd) {
+      background:#f2f2f2;
+    }
+  }
+  .item {
+    &:active, &.active {
+      background-color:lightgreen;
+    }
+    .drag-handle {
+      cursor: pointer;
+    }
+  }
+}

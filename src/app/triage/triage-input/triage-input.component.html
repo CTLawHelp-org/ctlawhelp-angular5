@@ -4,17 +4,19 @@
   </div>
   <div *ngIf="!working" fxLayout="row wrap" fxLayoutAlign="center stretch" class="triage-items">
     <!-- Triage Status -->
-    <div [fxShow]="!status_set || media.isMatched('(min-width: 960px)')" fxFlex="100" fxFlex.gt-sm="28"
-         class="status-wrapper pad-r" [ngClass]="{'padding-right': media.isMatched('(min-width: 960px)')}">
-      <div class="pad site-label text-center">
-        <h2 class="headline no-margin">
+    <div [fxShow]="!status_set" fxFlex="100" fxFlex.gt-sm="28" class="status-wrapper pad-r">
+      <div class="pad site-label text-center backg1 bg border-radius">
+        <h3 fxHide.gt-xs class="headline no-margin">
+          <app-label src="triage_status"></app-label>
+        </h3>
+        <h2 fxHide.lt-sm class="headline no-margin">
           <app-label src="triage_status"></app-label>
         </h2>
       </div>
       <div class="margin-top pad">
         <div class="triage-status">
           <div *ngFor="let item of status; let last = last;" [ngClass]="{'margin-bottom': !last}">
-            <mat-checkbox [(ngModel)]="item.enabled">
+            <mat-checkbox [checked]="hasStatus(item)" (change)="setStatus(item)">
               <div *ngIf="variables.lang === 'en'">
                 <span [innerHTML]="item.name"></span>
               </div>
@@ -25,66 +27,88 @@
           </div>
         </div>
       </div>
-      <div class="pad">
-        <app-block [nid]="'796'"></app-block>
+      <!--Dynamic Blocks-->
+      <div *ngIf="block_setup.length > 0">
+        <div *ngFor="let setup of block_setup" fxLayout="row wrap"
+             fxLayoutAlign="center stretch" class="{{setup['class']}}">
+          <div *ngFor="let config of setup.columns" fxLayout="row wrap" fxLayoutAlign="start start"
+               fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="config.value" class="{{config['class']}}">
+            <div [fxHide.xs]="item.desktop" [fxHide.sm]="item.desktop" [fxHide.gt-sm]="item.mobile"
+                 *ngFor="let item of config.nodes" fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="item.value[0]['flex']">
+              <!--Standard Blocks-->
+              <div class="{{item.value[0]['class']}}">
+                <app-block [nid]="item.target_id"></app-block>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div *ngIf="!status_set && !media.isMatched('(min-width: 960px)')" class="pad backg1 bg" fxLayout="row" fxLayoutAlign="end center">
-        <button mat-raised-button class="primary button" appHighlight (click)="mnext()">Next</button>
+      <div *ngIf="!status_set" fxHide.gt-sm class="pad backg1 bg margin-top border-radius"
+           fxLayout="row wrap" fxLayoutAlign="start center">
+        <div>
+          <button mat-raised-button class="primary button" appHighlight (click)="mnext()">Next</button>
+        </div>
+        <div fxFlex></div>
+        <div>
+          <button mat-raised-button class="site-label primary button icon-min"
+                  disabled="true" appHighlight>
+            <div fxLayout="row" fxLayoutAlign="space-between center">
+              <mat-icon class="margin-right">checkmark</mat-icon>
+              <app-label src="triage_submit"></app-label>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
     <!-- Legal Issues -->
-    <div [fxShow]="status_set || media.isMatched('(min-width: 960px)')" id="issues" fxFlex="100" fxFlex.gt-sm
-         fxLayout="column" class="issue-wrapper pad-r" [ngClass]="{'border-left padding-left': media.isMatched('(min-width: 960px)')}">
-      <div class="pad site-label text-center">
-        <h2 class="headline no-margin">
+    <div [fxShow.xs]="status_set" [fxShow.sm]="status_set" fxShow.gt-sm id="issues" fxFlex="100" fxFlex.gt-sm
+         fxLayout="column" class="issue-wrapper pad-r" ngClass.gt-sm="border-left padding-left">
+      <div class="pad site-label text-center backg1 bg border-radius">
+        <h3 fxHide.gt-xs class="headline no-margin">
+          <app-label src="triage_issue"></app-label>
+        </h3>
+        <h2 fxHide.lt-sm class="headline no-margin">
           <app-label src="triage_issue"></app-label>
         </h2>
       </div>
       <!-- History Level -->
-      <div *ngIf="history.length > 0" fxLayout="column" class="history pad">
-        <div *ngFor="let item of history; let first = first; let index = index; let last = last;" class="pad" [ngClass]="{'border-bottom-sm': !last}">
-          <div fxLayout="row" [ngClass]="{'pad': media.isMatched('(min-width: 960px)')}">
-            <div fxFlex>
+      <div *ngIf="history.length > 0" fxLayout="column" class="history pad-r">
+        <div *ngFor="let item of history; let first = first; let index = index; let last = last;"
+             class="pad" [ngClass]="{'border-bottom-sm': !last}" fxLayout="column">
+          <div fxLayout="row" ngClass.gt-sm="pad">
+            <div fxFlex fxLayout="column">
               <div fxLayout="row" fxLayoutAlign="start center">
-                <app-icon *ngIf="item.term_export.field_public_term_file.length > 0"
+                <app-icon fxHide.gt-xs *ngIf="item.term_export.field_public_term_file.length > 0"
+                          svgClass="margin-right svg sm" svgIcon="tid{{item.id}}"></app-icon>
+                <app-icon fxHide.lt-sm *ngIf="item.term_export.field_public_term_file.length > 0"
                           svgClass="margin-right svg md" svgIcon="tid{{item.id}}"></app-icon>
                 <div fxFlex>
-                  <div *ngIf="first">
-                    <h3 fxHide.gt-sm class="no-margin">
-                      <div *ngIf="variables.lang === 'en'">
-                        <span [innerHTML]="item.name"></span>
-                      </div>
-                      <div *ngIf="variables.lang === 'es'">
-                        <span [innerHTML]="item.i18n['es'].name[0].value"></span>
-                      </div>
-                    </h3>
-                    <h2 fxHide fxShow.gt-sm class="no-margin">
-                      <div *ngIf="variables.lang === 'en'">
-                        <span [innerHTML]="item.name"></span>
-                      </div>
-                      <div *ngIf="variables.lang === 'es'">
-                        <span [innerHTML]="item.i18n['es'].name[0].value"></span>
-                      </div>
-                    </h2>
-                  </div>
-                  <h3 *ngIf="!first" class="no-margin">
+                  <h4 fxHide.gt-xs class="no-margin">
                     <div *ngIf="variables.lang === 'en'">
                       <span [innerHTML]="item.name"></span>
                     </div>
                     <div *ngIf="variables.lang === 'es'">
                       <span [innerHTML]="item.i18n['es'].name[0].value"></span>
                     </div>
-                  </h3>
+                  </h4>
+                  <h2 fxHide.lt-sm class="no-margin">
+                    <div *ngIf="variables.lang === 'en'">
+                      <span [innerHTML]="item.name"></span>
+                    </div>
+                    <div *ngIf="variables.lang === 'es'">
+                      <span [innerHTML]="item.i18n['es'].name[0].value"></span>
+                    </div>
+                  </h2>
                 </div>
               </div>
-              <div *ngIf="variables.lang === 'en' && item.term_export.description[0].value">
+              <div *ngIf="variables.lang === 'en' && item.term_export.description[0].value" ngClass.xs="mat-caption">
                 <div [innerHTML]="item.term_export.description[0].value"></div>
               </div>
-              <div *ngIf="variables.lang === 'es' && item.i18n['es'].description[0].value">
+              <div *ngIf="variables.lang === 'es' && item.i18n['es'].description[0].value" ngClass.xs="mat-caption">
                 <div [innerHTML]="item.i18n['es'].description[0].value"></div>
               </div>
             </div>
-            <div fxLayout="column" fxLayoutAlign="center center">
+            <div fxLayout="column" fxLayoutAlign="center center" class="pad-sm">
               <button (click)="back(item, index)" aria-label="Back"
                       class="primary icon item" mat-icon-button mat-raised-button>
                 <mat-icon>close</mat-icon>
@@ -94,15 +118,25 @@
         </div>
       </div>
       <!-- Top Level -->
-      <div *ngIf="history.length < 1" fxLayout="row wrap" fxLayoutAlign="space-around stretch" class="top pad">
-        <div fxFlex="100" fxFlex.gt-sm="50" *ngFor="let item of current" fxLayout="column" class="pad">
-          <div fxLayout="column" (click)="choose(item)" appHighlight
+      <div *ngIf="history.length < 1" fxLayout="row wrap" fxLayoutAlign="space-around stretch" class="top pad-r">
+        <div fxFlex="100" fxFlex.gt-sm="50" *ngFor="let item of current" fxLayout="column" class="pad-r">
+          <button (click)="choose(item)" appHighlight tabindex="0" fxLayout="column"
                class="mat-elevation-z1 border-radius pad lvl-item inner-shadow">
             <div fxLayout="row" fxLayoutAlign="start center">
-              <app-icon *ngIf="item.term_export.field_public_term_file.length > 0"
+              <app-icon fxHide.gt-xs *ngIf="item.term_export.field_public_term_file.length > 0"
+                        svgClass="margin-right svg sm" svgIcon="tid{{item.id}}"></app-icon>
+              <app-icon fxHide.lt-sm *ngIf="item.term_export.field_public_term_file.length > 0"
                         svgClass="margin-right svg md" svgIcon="tid{{item.id}}"></app-icon>
               <div fxFlex class="primary color">
-                <h2 class="no-margin">
+                <h3 fxHide.gt-xs class="no-margin">
+                  <div *ngIf="variables.lang === 'en'">
+                    <span [innerHTML]="item.name"></span>
+                  </div>
+                  <div *ngIf="variables.lang === 'es'">
+                    <span [innerHTML]="item.i18n['es'].name[0].value"></span>
+                  </div>
+                </h3>
+                <h2 fxHide.lt-sm class="no-margin">
                   <div *ngIf="variables.lang === 'en'">
                     <span [innerHTML]="item.name"></span>
                   </div>
@@ -112,43 +146,36 @@
                 </h2>
               </div>
             </div>
-            <div *ngIf="variables.lang === 'en' && item.term_export.description[0].value">
+            <div *ngIf="variables.lang === 'en' && item.term_export.description[0].value" ngClass.xs="mat-caption">
               <div [innerHTML]="item.term_export.description[0].value"></div>
             </div>
-            <div *ngIf="variables.lang === 'es' && item.i18n['es'].description[0].value">
+            <div *ngIf="variables.lang === 'es' && item.i18n['es'].description[0].value" ngClass.xs="mat-caption">
               <div [innerHTML]="item.i18n['es'].description[0].value"></div>
             </div>
-          </div>
+          </button>
         </div>
       </div>
       <!-- Current Level -->
-      <div *ngIf="current.length > 0" fxLayout="column" class="current pad">
-        <div *ngIf="history.length > 0" class="pad site-label level-label border-bottom">
-          <h2 *ngIf="media.isMatched('(min-width: 960px)')" class="no-margin">
-            <app-label src="triage_choose_next"></app-label>
-          </h2>
-          <h3 *ngIf="!media.isMatched('(min-width: 960px)')" class="no-margin">
+      <div *ngIf="current.length > 0" fxLayout="column" class="current pad-r">
+        <h6 #top style="position:absolute;left:-10000px" tabindex="-1">Top</h6>
+        <div *ngIf="history.length > 0" class="pad site-label level-label border-bottom backg1 bg border-radius">
+          <h3 fxHide.gt-xs class="no-margin">
             <app-label src="triage_choose_next"></app-label>
           </h3>
+          <h2 fxHide.lt-sm class="no-margin">
+            <app-label src="triage_choose_next"></app-label>
+          </h2>
         </div>
         <div [fxShow]="history.length > 0" [@listAnimation]="history.length">
-          <div *ngFor="let item of current" fxLayout="column" class="pad">
-            <div fxLayout="column" (click)="choose(item)" class="pad lvl-item" appHighlight>
+          <div *ngFor="let item of current" fxLayout="column">
+            <button fxLayout="column" (click)="choose(item)" class="pad lvl-item" appHighlight>
               <div fxLayout="row" fxLayoutAlign="start center">
                 <mat-icon class="margin-right blur">radio_button_unchecked</mat-icon>
                 <mat-icon class="margin-right focus highlight icon">radio_button_checked</mat-icon>
                 <div fxFlex fxLayout="column">
                   <div fxLayout="row" fxLayoutAlign="start center">
                     <div fxFlex>
-                      <h3 *ngIf="media.isMatched('(min-width: 960px)')" class="no-margin">
-                        <div *ngIf="variables.lang === 'en'">
-                          <span [innerHTML]="item.name"></span>
-                        </div>
-                        <div *ngIf="variables.lang === 'es'">
-                          <span [innerHTML]="item.i18n['es'].name[0].value"></span>
-                        </div>
-                      </h3>
-                      <h4 *ngIf="!media.isMatched('(min-width: 960px)')" class="no-margin">
+                      <h4 fxHide.gt-xs class="no-margin">
                         <div *ngIf="variables.lang === 'en'">
                           <span [innerHTML]="item.name"></span>
                         </div>
@@ -156,37 +183,39 @@
                           <span [innerHTML]="item.i18n['es'].name[0].value"></span>
                         </div>
                       </h4>
+                      <h3 fxHide.lt-sm class="no-margin">
+                        <div *ngIf="variables.lang === 'en'">
+                          <span [innerHTML]="item.name"></span>
+                        </div>
+                        <div *ngIf="variables.lang === 'es'">
+                          <span [innerHTML]="item.i18n['es'].name[0].value"></span>
+                        </div>
+                      </h3>
                     </div>
                   </div>
-                  <div *ngIf="variables.lang === 'en' && item.term_export.description[0].value">
+                  <div *ngIf="variables.lang === 'en' && item.term_export.description[0].value" ngClass.xs="mat-caption">
                     <div [innerHTML]="item.term_export.description[0].value"></div>
                   </div>
-                  <div *ngIf="variables.lang === 'es' && item.i18n['es'].description[0].value">
+                  <div *ngIf="variables.lang === 'es' && item.i18n['es'].description[0].value" ngClass.xs="mat-caption">
                     <div [innerHTML]="item.i18n['es'].description[0].value"></div>
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
       <!-- Submit / Back -->
-      <div *ngIf="status_set || current.length < 1" class="pad" [ngClass]="{'backg1 bg': !media.isMatched('(min-width: 960px)')}"
-           fxLayout="row" fxLayoutAlign="start center">
-        <div *ngIf="status_set && !media.isMatched('(min-width: 960px)')" [ngClass]="{'pad': media.isMatched('(min-width: 960px)')}">
+      <div class="pad margin-top backg1 bg border-radius" fxLayout="row" fxLayoutAlign="start center">
+        <div *ngIf="status_set" fxHide.gt-sm>
           <button mat-raised-button class="primary button" (click)="mback()" appHighlight>
-            <div *ngIf="variables.lang === 'en'">
-              Back
-            </div>
-            <div *ngIf="variables.lang === 'es'">
-              Back
-            </div>
+            <app-label src="back"></app-label>
           </button>
         </div>
-        <div *ngIf="!media.isMatched('(min-width: 960px)')" fxFlex></div>
-        <div *ngIf="current.length < 1" [ngClass]="{'pad': media.isMatched('(min-width: 960px)')}">
-          <button mat-raised-button class="site-label primary button" (click)="submit()"
-                  appHighlight [ngClass]="{'submit': media.isMatched('(min-width: 960px)')}">
+        <div fxHide.gt-sm fxFlex></div>
+        <div ngClass.gt-sm="pad">
+          <button mat-raised-button class="site-label primary button icon-min" (click)="submit()"
+                  [disabled]="current.length > 0" appHighlight ngClass.gt-sm="submit">
             <div fxLayout="row" fxLayoutAlign="space-between center">
               <mat-icon class="margin-right">checkmark</mat-icon>
               <app-label src="triage_submit"></app-label>

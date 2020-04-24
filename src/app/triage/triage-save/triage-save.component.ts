@@ -1,7 +1,7 @@
 import { Component, Inject, Input, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
 import { VariableService } from '../../services/variable.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { isPlatformBrowser, PlatformLocation } from '@angular/common';
 
 @Component({

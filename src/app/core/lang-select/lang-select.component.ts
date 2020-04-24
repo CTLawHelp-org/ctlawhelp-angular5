@@ -1,8 +1,5 @@
-import { Component, Inject, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
 import { isPlatformBrowser, Location } from '@angular/common';
-import { DomSanitizer } from '@angular/platform-browser';
-import { MatIconRegistry } from '@angular/material';
-
 import { VariableService } from '../../services/variable.service';
 import { Router } from '@angular/router';
 
@@ -10,9 +7,11 @@ import { Router } from '@angular/router';
   selector: 'app-lang-select',
   templateUrl: './lang-select.component.html',
   styleUrls: ['./lang-select.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
 export class LangSelectComponent implements OnInit {
+  private langsub: any;
   public variables: any;
   public working = false;
   public newUrl: string;
@@ -23,6 +22,7 @@ export class LangSelectComponent implements OnInit {
     private router: Router,
     private location: Location,
     @Inject(PLATFORM_ID) private platformId,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -33,6 +33,10 @@ export class LangSelectComponent implements OnInit {
     } else if (this.variables.lang === 'es') {
       this.newUrl = '/en/' + this.router.url.substring(4);
     }
+
+    this.langsub = this.variableService.langSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
   }
 
   changeLang(val: string) {
@@ -42,8 +46,10 @@ export class LangSelectComponent implements OnInit {
     this.location.go(new_url);
     this.variableService.setLanguage(this.variables.lang).subscribe(() => {
       this.working = false;
+      this.cdr.detectChanges();
     }, () => {
       this.working = false;
+      this.cdr.detectChanges();
     });
   }
 

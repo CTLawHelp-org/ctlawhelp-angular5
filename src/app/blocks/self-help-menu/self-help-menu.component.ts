@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { VariableService } from '../../services/variable.service';
 import { makeStateKey, TransferState } from '@angular/platform-browser';
@@ -9,10 +9,12 @@ const SELF_HELP_MENU = makeStateKey('self_help_menu');
   selector: 'app-self-help-menu',
   templateUrl: './self-help-menu.component.html',
   styleUrls: ['./self-help-menu.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
-export class SelfHelpMenuComponent implements OnInit {
+export class SelfHelpMenuComponent implements OnInit, OnDestroy {
   private connection: any;
+  private langsub: any;
   public working = true;
   public variables: any;
   public nsmi = [];
@@ -21,6 +23,7 @@ export class SelfHelpMenuComponent implements OnInit {
     private apiService: ApiService,
     private variableService: VariableService,
     private state: TransferState,
+    private cdr: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
@@ -36,6 +39,16 @@ export class SelfHelpMenuComponent implements OnInit {
         this.doneLoading();
       });
     }
+
+    this.langsub = this.variableService.langSubject.subscribe(result => {
+      this.cdr.detectChanges();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.langsub) {
+      this.langsub.unsubscribe();
+    }
   }
 
   doneLoading() {
@@ -43,6 +56,7 @@ export class SelfHelpMenuComponent implements OnInit {
     if (this.connection) {
       this.connection.unsubscribe();
     }
+    this.cdr.detectChanges();
   }
 
 }

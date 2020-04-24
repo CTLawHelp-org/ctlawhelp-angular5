@@ -1,0 +1,115 @@
+<div class="admin-segment-node-wrapper">
+  <div *ngIf="!working && variables.auth">
+    <form name="segmentForm" #segmentForm="ngForm">
+      <div fxLayout="column">
+        <!--Controls-->
+        <div fxLayout="row wrap" fxLayoutAlign="start center" class="pad backg3 bg margin-bottom-lg border-radius">
+          <div fxFlex></div>
+          <div class="margin-right-lg">
+            <mat-slide-toggle labelPosition="before" [checked]="variables.isPublished(segment_node)"
+                              (change)="variables.setPubStatus($event, segment_node)">
+              <div class="mat-caption">
+                <span *ngIf="variables.isPublished(segment_node)">Published</span>
+                <span *ngIf="!variables.isPublished(segment_node)">Unpublished</span>
+              </div>
+            </mat-slide-toggle>
+          </div>
+          <div *ngIf="!inDialog" class="margin-right-lg"><a routerLink="/admin/content/browse/segment"
+                                          class="mat-raised-button button no-history">Cancel</a></div>
+          <div><button mat-raised-button color="primary" type="submit"
+                       [disabled]="!segmentForm.form.valid" (click)="saveNode()">Save</button></div>
+        </div>
+        <!--Top-->
+        <div fxLayout="row wrap">
+          <!--Language-->
+          <div class="pad">
+            <mat-form-field appearance="outline">
+              <mat-label>Language *</mat-label>
+              <mat-select placeholder="Language" [(ngModel)]="segment_node['field_lang_status'][0]['value']" name="language">
+                <mat-option value="en">English</mat-option>
+                <mat-option value="es">Spanish</mat-option>
+                <mat-option value="both">Both</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!--Multilingual Fields-->
+        <div fxLayout="row wrap">
+          <!--English-->
+          <div [fxHide]="segment_node['field_lang_status'][0]['value'] === 'es'" fxFlex="100" fxFlex.gt-xs="50">
+            <!--Title-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>English Title</mat-label>
+                <input matInput [(ngModel)]="segment_node['title'][0]['value']" name="title_en"
+                       placeholder="Page Title" [required]="segment_node['field_lang_status'][0]['value'] !== 'es'">
+              </mat-form-field>
+            </div>
+            <!--Body-->
+            <div class="pad">
+              <div class="margin-bottom">
+                <mat-label>English Body</mat-label>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="segment_node['body'][0]['value']" elname="segbody_en"></app-admin-text-editor>
+              </div>
+            </div>
+            <!--Meta Info-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>English Meta Text (Search Index)</mat-label>
+                <textarea matInput [(ngModel)]="segment_node['field_meta_text'][0]['value']" name="meta_text_en"
+                          placeholder="English Meta Text"></textarea>
+              </mat-form-field>
+            </div>
+            <!--Node Refs-->
+            <div class="pad">
+              <app-admin-node-ref [value]="segment_node['field_node_reference']" [altvalue]="segment_node_es['field_node_reference']"
+                                  [nodeTypes]="'page+segment'" label="English Node References" lang="en"></app-admin-node-ref>
+            </div>
+          </div>
+          <!--Spanish-->
+          <div [fxHide]="segment_node['field_lang_status'][0]['value'] === 'en'" fxFlex="100" fxFlex.gt-xs="50">
+            <!--Title-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>Spanish Title</mat-label>
+                <input matInput [(ngModel)]="segment_node_es['title'][0]['value']" name="title_es"
+                       placeholder="Page Title" [required]="segment_node['field_lang_status'][0]['value'] !== 'en'">
+              </mat-form-field>
+            </div>
+            <!--Body-->
+            <div class="pad">
+              <div class="margin-bottom">
+                <mat-label>Spanish Body</mat-label>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="segment_node_es['body'][0]['value']" elname="segbody_es"></app-admin-text-editor>
+              </div>
+            </div>
+            <!--Path / Meta Info-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>Spanish Meta Text (Search Index)</mat-label>
+                <textarea matInput [(ngModel)]="segment_node_es['field_meta_text'][0]['value']" name="meta_text_es"
+                          placeholder="Spanish Meta Text"></textarea>
+              </mat-form-field>
+            </div>
+            <!--Node Refs-->
+            <div class="pad">
+              <app-admin-node-ref [value]="segment_node_es['field_node_reference']" [altvalue]="segment_node['field_node_reference']"
+                                  [nodeTypes]="'page+segment'" label="Spanish Node References" lang="es"></app-admin-node-ref>
+            </div>
+          </div>
+        </div>
+        <!--Controls-->
+        <div fxLayout="row wrap" fxLayoutAlign="end center" class="pad backg3 bg margin-top-lg border-radius">
+          <div *ngIf="!inDialog" class="margin-right-lg"><a routerLink="/admin/content/browse/segment"
+                                          class="mat-raised-button button no-history">Cancel</a></div>
+          <div><button mat-raised-button color="primary" type="submit"
+                       [disabled]="!segmentForm.form.valid" (click)="saveNode()">Save</button></div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

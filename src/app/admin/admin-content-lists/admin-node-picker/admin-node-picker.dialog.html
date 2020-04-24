@@ -1,29 +1,128 @@
-<div class="custom-typography" fxFill fxLayout="column">
-  <mat-toolbar mat-dialog-title fxLayout="row" class="dialog-header">
-    <div class="mat-body">
-      Choose Node(s)
-    </div>
-    <div fxFlex></div>
-    <div class="margin-right-lg">
-      <button mat-raised-button color="primary" [disabled]="selection.length < 1" (click)="addNodes()">
-        Add
-      </button>
-    </div>
-    <div>
-      <button mat-icon-button mat-raised-button (click)="onNoClick()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-  </mat-toolbar>
-  <div fxFlex>
-    <mat-dialog-content fxFill class="dialog-node" fxLayout="column">
-      <div *ngIf="working">
-        <app-admin-loader></app-admin-loader>
+<div class="custom-typography node-picker-wrapper" fxLayout="column">
+  <mat-toolbar mat-dialog-title class="dialog-header dark-text backg3 bg">
+    <mat-toolbar-row fxLayout="row wrap" fxLayoutAlign="start center">
+      <div>
+        <mat-form-field>
+          <input matInput (keyup)="filterContent()" placeholder="Search" [(ngModel)]="search">
+          <button mat-button *ngIf="search" matSuffix mat-icon-button aria-label="Clear" (click)="search='';filterContent()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-form-field>
       </div>
-      <div fxFlex [fxHide]="working" fxLayout="column">
-        <ag-grid-angular fxFlex #agGrid [columnDefs]="columns" [rowData]="nodes"
-                         [gridOptions]="gridOptions" class="ag-theme-material grid-wrapper"
-                         (selectionChanged)="onSelectionChanged($event)"></ag-grid-angular>
+      <div class="padding-left"></div>
+      <div>
+        <mat-form-field>
+          <mat-select placeholder="Language" [(ngModel)]="lang_filter" name="lang-filter" (selectionChange)="filterContent()">
+            <mat-option value="">All</mat-option>
+            <mat-option value="en">English</mat-option>
+            <mat-option value="es">Spanish</mat-option>
+            <mat-option value="both">Both</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="padding-left"></div>
+      <div *ngIf="types_array.length > 1">
+        <mat-form-field>
+          <mat-select placeholder="Filter by Type" multiple [(ngModel)]="types_filter" name="types-filter" (selectionChange)="filterContent()">
+            <mat-option *ngFor="let item of types_array" [value]="item">{{item}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="padding-left"></div>
+      <div>
+        <mat-form-field>
+          <mat-select placeholder="Status" [(ngModel)]="status_filter" name="status-filter" (selectionChange)="filterContent()">
+            <mat-option value="">Any</mat-option>
+            <mat-option value="1">Enabled</mat-option>
+            <mat-option value="0">Disabled</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="padding-left"></div>
+      <div><button mat-raised-button color="primary" (click)="clearFilter()" [disabled]="emptyFilter()">Reset</button></div>
+      <div *ngIf="loading" class="padding-left">
+        <app-admin-loader [small]="true"></app-admin-loader>
+      </div>
+      <div fxFlex class="padding-left padding-right">
+        <mat-paginator [length]="total_count" [pageSize]="50" (page)="loadingPage($event)" [showFirstLastButtons]="true" [hidePageSize]="true"></mat-paginator>
+      </div>
+      <div>
+        <button mat-icon-button mat-raised-button (click)="onNoClick()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar-row>
+    <mat-toolbar-row fxLayout="row" fxLayoutAlign="end center">
+      <div [fxHide]="!showBoth" class="margin-right padding-right">
+        <mat-slide-toggle labelPosition="before" [(ngModel)]="both" name="both">
+          <div class="mat-caption">
+            Add to Both Languages
+          </div>
+        </mat-slide-toggle>
+      </div>
+      <div class="margin-right">
+        <button mat-raised-button [disabled]="selection.selected.length < 1" (click)="clearSelection()">
+          Clear Selection
+        </button>
+      </div>
+      <div>
+        <button mat-raised-button color="primary" [disabled]="selection.selected.length < 1" (click)="addNodes()">
+          Add
+        </button>
+      </div>
+    </mat-toolbar-row>
+  </mat-toolbar>
+  <div>
+    <mat-dialog-content class="dialog-node" fxLayout="column">
+      <div fxFlex fxLayout="column">
+        <table mat-table [dataSource]="dataSource" class="node-table" matSort>
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                            (change)="$event ? selection.toggle(row) : null"
+                            [checked]="selection.isSelected(row)" color="primary">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+          <!-- Title Column -->
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
+            <td mat-cell *matCellDef="let element"><strong [innerHTML]="element.title"></strong></td>
+          </ng-container>
+          <!-- Lang Column -->
+          <ng-container matColumnDef="lang">
+            <th mat-header-cell *matHeaderCellDef>Language</th>
+            <td mat-cell *matCellDef="let element">
+              <div *ngIf="element.node_export.field_lang_status && element.node_export.field_lang_status.length > 0"
+                   class="lang-wrapper" ngClass="{{element.node_export.field_lang_status[0].value}}">
+                {{element.node_export.field_lang_status[0].value}}
+              </div>
+            </td>
+          </ng-container>
+          <!-- Type Column -->
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>Type</th>
+            <td mat-cell *matCellDef="let element">{{element.type}}</td>
+          </ng-container>
+          <!-- Nid Column -->
+          <ng-container matColumnDef="nid">
+            <th mat-header-cell *matHeaderCellDef>NID</th>
+            <td mat-cell *matCellDef="let element">{{element.nid}}</td>
+          </ng-container>
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">
+              <div class="color" style="font-size:0.8em;"
+                   [ngClass]="{'alert': element.status === '0', 'enabled': element.status === '1'}">{{element.status_label}}</div>
+            </td>
+          </ng-container>
+          <!--Standard Elements-->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky:true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)"></tr>
+        </table>
       </div>
     </mat-dialog-content>
   </div>

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } fro
 import { ApiService } from '../../../services/api.service';
 import { environment } from '../../../../environments/environment';
 import { VariableService } from '../../../services/variable.service';
-import { forkJoin } from 'rxjs/observable/forkJoin';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-admin-term-reorder',
@@ -14,6 +14,8 @@ export class AdminTermReorderComponent implements OnInit {
   @Input() terms;
   @Output() output = new EventEmitter();
   public saved_terms = [];
+  public variables: any;
+  public lastMoved: number;
 
   constructor(
     private apiService: ApiService,
@@ -21,7 +23,13 @@ export class AdminTermReorderComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.variables = this.variableService;
     this.saved_terms = JSON.parse(JSON.stringify(this.terms));
+  }
+
+  updateIndex(event: any, value: any) {
+    this.lastMoved = event.currentIndex;
+    this.variables.dropFnc(event, value);
   }
 
   resetOrder() {

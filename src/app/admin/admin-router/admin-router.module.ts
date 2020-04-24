@@ -1,133 +1,109 @@
 import { NgModule } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
-import { MaterialModule } from '../../modules/app.material.module';
 import { CommonModule } from '@angular/common';
-import { AdminDashComponent } from '../admin-dash/admin-dash.component';
+import { AdminDashComponent } from '../admin-section-comps/admin-dash/admin-dash.component';
 import { AdminRouterRouting } from './admin-router.routing';
-import { AdminLabelsComponent } from '../admin-labels/admin-labels.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AgGridModule } from 'ag-grid-angular';
-import { AdminBlocksComponent } from '../admin-content-lists/admin-blocks/admin-blocks.component';
-import { TitleRenderComponent } from '../admin-utils/title-render/title-render.component';
-import { AdminContentComponent } from '../admin-content/admin-content.component';
-import { DynamicFormsPrimeNGUIModule } from '@ng-dynamic-forms/ui-primeng';
-import { DynamicFormsCoreModule } from '@ng-dynamic-forms/core';
-import { AdminNodeBlockComponent } from '../admin-node/admin-node-block/admin-node-block.component';
-import { AdminLoaderComponent } from '../admin-loader/admin-loader.component';
-import { DndModule } from 'ng2-dnd';
-import { AdminFormNodeRefComponent } from '../admin-node/admin-form-node-ref/admin-form-node-ref.component';
+import { AdminLabelsComponent } from '../admin-section-comps/admin-labels/admin-labels.component';
+import { AdminContentComponent } from '../admin-section-comps/admin-content/admin-content.component';
+import { AdminLoaderComponent } from '../admin-utils/admin-loader/admin-loader.component';
 import {
   AdminNodePickerComponent,
   AdminNodePickerDialogComponent
 } from '../admin-content-lists/admin-node-picker/admin-node-picker.component';
-import { TitleRenderListComponent } from '../admin-utils/title-render-list/title-render-list.component';
-import { SelectFilterComponent } from '../admin-utils/select-filter/select-filter.component';
-import { AdminLabelEditorDialogComponent } from '../admin-label-editor/admin-label-editor.component';
-import { AdminBlocksEditorDialogComponent } from '../admin-blocks-editor/admin-blocks-editor.component';
-import { AdminBlocksConfigComponent } from '../admin-blocks-config/admin-blocks-config.component';
-import { AdminManageBlocksComponent } from '../admin-manage-blocks/admin-manage-blocks.component';
+import { AdminLabelEditorDialogComponent } from '../admin-utils/admin-label-editor/admin-label-editor.component';
+import { AdminManageBlocksComponent } from '../admin-section-comps/admin-manage-blocks/admin-manage-blocks.component';
 import { ConfirmDialogComponent } from '../admin-utils/confirm-dialog/confirm-dialog.component';
-import { AdminTriageEntriesComponent } from '../admin-content-lists/admin-triage-entries/admin-triage-entries.component';
-import { AdminNodeTriageEntryComponent } from '../admin-node/admin-node-triage-entry/admin-node-triage-entry.component';
-import { AdminNsmiComponent } from '../admin-nsmi/admin-nsmi.component';
+import { AdminNsmiComponent } from '../admin-section-comps/admin-nsmi/admin-nsmi.component';
 import { TreeModule } from 'angular-tree-component';
 import { AdminTermReorderComponent } from '../admin-taxonomy/admin-term-reorder/admin-term-reorder.component';
 import { AdminTermNsmiEditComponent } from '../admin-taxonomy/admin-term-nsmi-edit/admin-term-nsmi-edit.component';
 import { AdminTermNodeOrderComponent } from '../admin-taxonomy/admin-term-node-order/admin-term-node-order.component';
-import { FileUploadComponent } from '../admin-utils/file-upload/file-upload.component';
-import { FileUploadModule } from 'primeng/primeng';
-import { AdminPagesComponent } from '../admin-content-lists/admin-pages/admin-pages.component';
-import { AdminNodePageComponent } from '../admin-node/admin-node-page/admin-node-page.component';
-import {
-  AdminFormSegmentRefComponent,
-  AdminFormSegmentRefDialogComponent
-} from '../admin-node/admin-form-segment-ref/admin-form-segment-ref.component';
-import { AdminNodeSegmentComponent } from '../admin-node/admin-node-segment/admin-node-segment.component';
-import { AdminTriageComponent } from '../admin-triage/admin-triage.component';
-import {
-  AdminFormNodeSettingsComponent,
-  AdminFormNodeSettingsDialogComponent
-} from '../admin-node/admin-form-node-settings/admin-form-node-settings.component';
+import { AdminTriageComponent } from '../admin-section-comps/admin-triage/admin-triage.component';
 import { AdminTermTriageEditComponent } from '../admin-taxonomy/admin-term-triage-edit/admin-term-triage-edit.component';
 import {
-  AdminTermTriageEntriesComponent,
-  AdminTermTriageEntriesDialogComponent
+  AdminTermTriageEntriesComponent
 } from '../admin-taxonomy/admin-term-triage-entries/admin-term-triage-entries.component';
-import { MultiInputComponent } from '../admin-utils/multi-input/multi-input.component';
-import { TitleRenderPageComponent } from '../admin-utils/title-render-page/title-render-page.component';
-import { AdminFilebrowserComponent } from '../admin-filebrowser/admin-filebrowser.component';
-import { AdminMenuComponent } from '../admin-menu/admin-menu.component';
+import { AdminFilebrowserComponent } from '../admin-section-comps/admin-filebrowser/admin-filebrowser.component';
+import { AdminMenuComponent } from '../admin-section-comps/admin-menu/admin-menu.component';
 import { AdminTermMenuEditComponent } from '../admin-taxonomy/admin-term-menu-edit/admin-term-menu-edit.component';
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { AdminSegmentsComponent } from '../admin-content-lists/admin-segments/admin-segments.component';
+import { AdminTriageOverviewComponent } from '../admin-section-comps/admin-triage-overview/admin-triage-overview.component';
+import { SharedModule } from '../../modules/app.shared.module';
+import { AdminFilesComponent, AdminFilesDialogComponent } from '../admin-section-comps/admin-files/admin-files.component';
+import { AdminTermTriageRedirectComponent } from '../admin-taxonomy/admin-term-triage-redirect/admin-term-triage-redirect.component';
+import { StatusSettingsComponent, StatusSettingsDialogComponent } from '../admin-utils/status-settings/status-settings.component';
+import { AdminSettingsComponent } from '../admin-section-comps/admin-settings/admin-settings.component';
+import { AdminContentBrowserComponent } from '../admin-content-lists/admin-content-browser/admin-content-browser.component';
+import { AdminFileUploadComponent, AdminFileUploadDialogComponent } from '../admin-utils/admin-file-upload/admin-file-upload.component';
+import { AdminTextEditorComponent } from '../admin-utils/admin-text-editor/admin-text-editor.component';
+import { AdminPageNodeComponent } from '../admin-node-comps/admin-page-node/admin-page-node.component';
+import { AdminMultiInputComponent } from '../admin-utils/admin-multi-input/admin-multi-input.component';
+import { AdminSegmentRefComponent, AdminSegmentRefDialogComponent } from '../admin-utils/admin-segment-ref/admin-segment-ref.component';
+import { AdminSegmentNodeComponent } from '../admin-node-comps/admin-segment-node/admin-segment-node.component';
+import { AdminNodeRefComponent } from '../admin-utils/admin-node-ref/admin-node-ref.component';
+import { AdminBlockNodeComponent } from '../admin-node-comps/admin-block-node/admin-block-node.component';
+import { AdminTriageEntryNodeComponent } from '../admin-node-comps/admin-triage-entry-node/admin-triage-entry-node.component';
+import { AdminBlocksConfigComponent } from '../admin-utils/admin-blocks-config/admin-blocks-config.component';
+import { AdminBlocksEditorDialogComponent } from '../admin-utils/admin-blocks-editor/admin-blocks-editor.component';
+import { AdminTermMoveComponent } from '../admin-taxonomy/admin-term-move/admin-term-move.component';
 
 @NgModule({
   imports: [
     CommonModule,
-    MaterialModule,
-    FlexLayoutModule,
-    FormsModule,
-    ReactiveFormsModule,
-    DynamicFormsCoreModule.forRoot(),
-    DynamicFormsPrimeNGUIModule,
-    TreeModule,
-    AgGridModule.withComponents([TitleRenderComponent, TitleRenderPageComponent, TitleRenderListComponent, SelectFilterComponent]),
-    DndModule.forRoot(),
-    NgxDatatableModule,
-    FileUploadModule,
+    SharedModule,
+    TreeModule.forRoot(),
     AdminRouterRouting,
   ],
   declarations: [
     AdminDashComponent,
     AdminLabelsComponent,
-    AdminBlocksComponent,
-    TitleRenderComponent,
-    TitleRenderPageComponent,
-    TitleRenderListComponent,
     AdminContentComponent,
-    AdminNodeBlockComponent,
     AdminLoaderComponent,
-    AdminFormNodeRefComponent,
     AdminNodePickerComponent,
     AdminNodePickerDialogComponent,
-    SelectFilterComponent,
     AdminLabelEditorDialogComponent,
     AdminBlocksConfigComponent,
     AdminBlocksEditorDialogComponent,
     AdminManageBlocksComponent,
     ConfirmDialogComponent,
-    AdminTriageEntriesComponent,
-    AdminNodeTriageEntryComponent,
     AdminNsmiComponent,
     AdminTermReorderComponent,
     AdminTermNsmiEditComponent,
     AdminTermNodeOrderComponent,
-    FileUploadComponent,
-    AdminPagesComponent,
-    AdminNodePageComponent,
-    AdminFormSegmentRefComponent,
-    AdminFormSegmentRefDialogComponent,
-    AdminNodeSegmentComponent,
     AdminTriageComponent,
-    AdminFormNodeSettingsComponent,
-    AdminFormNodeSettingsDialogComponent,
     AdminTermTriageEditComponent,
     AdminTermTriageEntriesComponent,
-    AdminTermTriageEntriesDialogComponent,
-    MultiInputComponent,
     AdminFilebrowserComponent,
     AdminMenuComponent,
     AdminTermMenuEditComponent,
-    AdminSegmentsComponent,
+    AdminTriageOverviewComponent,
+    AdminFilesComponent,
+    AdminTermTriageRedirectComponent,
+    StatusSettingsComponent,
+    StatusSettingsDialogComponent,
+    AdminSettingsComponent,
+    AdminContentBrowserComponent,
+    AdminFilesDialogComponent,
+    AdminFileUploadComponent,
+    AdminTextEditorComponent,
+    AdminPageNodeComponent,
+    AdminMultiInputComponent,
+    AdminSegmentRefComponent,
+    AdminSegmentNodeComponent,
+    AdminSegmentRefDialogComponent,
+    AdminNodeRefComponent,
+    AdminBlockNodeComponent,
+    AdminTriageEntryNodeComponent,
+    AdminFileUploadDialogComponent,
+    AdminTermMoveComponent,
   ],
   entryComponents: [
     AdminNodePickerDialogComponent,
     AdminLabelEditorDialogComponent,
     AdminBlocksEditorDialogComponent,
     ConfirmDialogComponent,
-    AdminFormSegmentRefDialogComponent,
-    AdminFormNodeSettingsDialogComponent,
-    AdminTermTriageEntriesDialogComponent,
+    StatusSettingsDialogComponent,
+    AdminFilesDialogComponent,
+    AdminSegmentRefDialogComponent,
+    AdminFileUploadDialogComponent,
   ]
 })
 export class AdminRouterModule {}

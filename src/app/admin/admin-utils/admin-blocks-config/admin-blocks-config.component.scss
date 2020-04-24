@@ -1,0 +1,41 @@
+@import "../../../../../node_modules/angular-tree-component/dist/angular-tree-component.css";
+
+.blocks-config {
+  position:relative;
+  .desc {
+    p {
+      margin:0;
+    }
+  }
+  .blocks-list {
+    position:fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    width:500px;
+    height:500px;
+    margin:auto;
+    z-index: 10;
+    .list {
+      overflow: auto;
+    }
+  }
+  .drag-handle {
+    cursor: pointer;
+  }
+  .tree {
+    input[type="checkbox"] {
+      width:20px;
+      height:20px;
+    }
+    tree-node-checkbox {
+      width:26px;
+      height:26px;
+      padding:0;
+    }
+    .tree-children {
+      padding-left:26px;
+    }
+  }
+}

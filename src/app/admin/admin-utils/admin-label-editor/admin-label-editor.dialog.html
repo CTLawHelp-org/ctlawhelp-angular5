@@ -1,0 +1,49 @@
+<div class="custom-typography" fxFill fxLayout="column">
+  <mat-toolbar mat-dialog-title fxLayout="row" class="dialog-header">
+    <div class="mat-body backg color">
+      Editing Labels
+    </div>
+    <div fxFlex></div>
+    <div>
+      <button mat-icon-button mat-raised-button (click)="onNoClick()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-toolbar>
+  <div fxFlex>
+    <mat-dialog-content fxFill class="dialog-node" fxLayout="column">
+      <div fxFlex fxLayout="column">
+        <div *ngFor="let item of labels" class="pad">
+          <div *ngIf="item.working">
+            <app-admin-loader></app-admin-loader>
+          </div>
+          <form *ngIf="!item.working" name="label-edit" class="pad whitebg bg label-form" fxLayout="column">
+            <div><strong>Label:</strong> {{item.id}}</div>
+            <div fxLayout="column">
+              <div fxLayout="row" fxLayoutAlign="start center">
+                <div class="pad-sm">EN</div>
+                <div fxFlex fxLayout="column">
+                  <input [(ngModel)]="item.src.desc" name="label_en">
+                </div>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="start center">
+                <div class="pad-sm">ES</div>
+                <div fxFlex fxLayout="column">
+                  <input [(ngModel)]="item.src.es.desc" name="label_es">
+                </div>
+              </div>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="start center" class="margin-top">
+              <div class="margin-right">
+                <button mat-button mat-raised-button (click)="resetItem(item)">Reset</button>
+              </div>
+              <div>
+                <button mat-button mat-raised-button color="primary" (click)="saveItem(item)">Save</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </mat-dialog-content>
+  </div>
+</div>

@@ -1,0 +1,168 @@
+<div class="admin-block-node-wrapper">
+  <div *ngIf="!working && variables.auth">
+    <form name="blockForm" #blockForm="ngForm">
+      <div fxLayout="column">
+        <!--Controls-->
+        <div fxLayout="row wrap" fxLayoutAlign="start center" class="pad backg3 bg margin-bottom-lg border-radius">
+          <div fxFlex></div>
+          <div class="margin-right-lg">
+            <mat-slide-toggle labelPosition="before" [checked]="variables.isPublished(block_node)"
+                              (change)="variables.setPubStatus($event, block_node)">
+              <div class="mat-caption">
+                <span *ngIf="variables.isPublished(block_node)">Published</span>
+                <span *ngIf="!variables.isPublished(block_node)">Unpublished</span>
+              </div>
+            </mat-slide-toggle>
+          </div>
+          <div class="margin-right-lg"><a routerLink="/admin/content/browse/block"
+                                                            class="mat-raised-button button no-history">Cancel</a></div>
+          <div><button mat-raised-button color="primary" type="submit"
+                       [disabled]="!blockForm.form.valid" (click)="saveNode()">Save</button></div>
+        </div>
+        <!--Top-->
+        <div fxLayout="row wrap">
+          <!--Language-->
+          <div class="pad">
+            <mat-form-field appearance="outline">
+              <mat-label>Language *</mat-label>
+              <mat-select placeholder="Language" [(ngModel)]="block_node['field_lang_status'][0]['value']" name="language">
+                <mat-option value="en">English</mat-option>
+                <mat-option value="es">Spanish</mat-option>
+                <mat-option value="both">Both</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <!--Type-->
+          <div class="pad">
+            <mat-form-field appearance="outline">
+              <mat-label>Type</mat-label>
+              <mat-select placeholder="Type" [(ngModel)]="selected_type" name="block_type"
+                          (selectionChange)="variables.setField($event, block_node, 'field_block_type')">
+                <mat-option *ngFor="let item of block_type" [value]="item.value">
+                  <div>{{item.label}}</div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <!--Style-->
+          <div class="pad">
+            <mat-form-field appearance="outline">
+              <mat-label>Style</mat-label>
+              <mat-select placeholder="Type" [(ngModel)]="selected_style" name="block_style"
+                          (selectionChange)="variables.setValue($event, block_node, 'field_style')">
+                <mat-option *ngFor="let item of block_style" [value]="item.value">
+                  <div>{{item.label}}</div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <!--Icon-->
+          <div class="pad" fxLayout="row wrap" fxLayoutAlign="start start">
+            <mat-form-field appearance="outline">
+              <mat-label>Icon</mat-label>
+              <mat-select placeholder="Icon" [(ngModel)]="selected_icon" name="icon"
+                          (selectionChange)="variables.setField($event, block_node, 'field_icon')">
+                <mat-select-trigger>{{variables.returnIconLabel(icons, selected_icon)}}</mat-select-trigger>
+                <mat-option *ngFor="let item of icons" [value]="item.value">
+                  <div fxLayout="row" fxLayoutAlign="start center">
+                    <div *ngIf="item.value !== ''" class="margin-right">
+                      <mat-icon svgIcon="tid{{item.value}}" class="svg sm primary icon"></mat-icon>
+                    </div>
+                    <div>{{item.label}}</div>
+                  </div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <div class="padding-left"></div>
+            <div *ngIf="selected_icon" class="pad backg3 bg border-radius margin-top-sm" fxLayout="column">
+              <mat-icon svgIcon="tid{{selected_icon}}" class="svg md primary icon"></mat-icon>
+            </div>
+          </div>
+        </div>
+        <!--Mid-->
+        <div fxLayout="row wrap">
+          <!--Title-->
+          <div fxFlex="100" fxFlex.gt-xs="50" class="pad" fxLayout="column">
+            <mat-form-field appearance="outline">
+              <mat-label>Title</mat-label>
+              <input matInput [(ngModel)]="block_node['title'][0]['value']" name="title_en"
+                     placeholder="Block Title" required>
+            </mat-form-field>
+          </div>
+          <!--Settings-->
+          <div fxFlex="100" fxFlex.gt-xs="50" class="pad" fxLayout="column">
+            <div>
+              <mat-label>Visibility Settings</mat-label>
+            </div>
+            <app-status-settings [item]="settings" src="block"></app-status-settings>
+          </div>
+        </div>
+        <!--Multilingual Fields-->
+        <div fxLayout="row wrap">
+          <!--English-->
+          <div [fxHide]="block_node['field_lang_status'][0]['value'] === 'es'" fxFlex="100" fxFlex.gt-xs="50">
+            <!--Body-->
+            <div class="pad">
+              <div class="margin-bottom">
+                <mat-label>English Body</mat-label>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="block_node['body'][0]['value']" elname="blockbody_en"></app-admin-text-editor>
+              </div>
+            </div>
+            <!--Link-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>English Link</mat-label>
+                <input matInput [(ngModel)]="block_node['field_link'][0]['value']" name="link_en"
+                       placeholder="English Link">
+              </mat-form-field>
+            </div>
+            <!--Node Refs-->
+            <div class="pad">
+              <app-admin-node-ref [value]="block_node['field_nodes']" [altvalue]="block_node_es['field_nodes']" [nodeTypes]="'page'"
+                                  label="English Node References" lang="en"></app-admin-node-ref>
+            </div>
+          </div>
+          <!--Spanish-->
+          <div [fxHide]="block_node['field_lang_status'][0]['value'] === 'en'" fxFlex="100" fxFlex.gt-xs="50">
+            <!--Body-->
+            <div class="pad">
+              <div class="margin-bottom">
+                <mat-label>Spanish Body</mat-label>
+              </div>
+              <div fxLayout="column">
+                <app-admin-text-editor [id]="id" [src]="block_node_es['body'][0]['value']" elname="blockbody_es"></app-admin-text-editor>
+              </div>
+            </div>
+            <!--Link-->
+            <div class="pad" fxLayout="column">
+              <mat-form-field appearance="outline">
+                <mat-label>Spanish Link</mat-label>
+                <input matInput [(ngModel)]="block_node_es['field_link'][0]['value']" name="link_es"
+                       placeholder="Spanish Link">
+              </mat-form-field>
+            </div>
+            <!--Node Refs-->
+            <div class="pad">
+              <app-admin-node-ref [value]="block_node_es['field_nodes']" [altvalue]="block_node['field_nodes']" [nodeTypes]="'page'"
+                                  label="Spanish Node References" lang="es"></app-admin-node-ref>
+            </div>
+          </div>
+        </div>
+        <!--Images-->
+        <div class="pad">
+          <div class="margin-bottom"><mat-label>Images</mat-label></div>
+          <app-admin-file-upload type="photos" [value]="block_node['field_private_image']"></app-admin-file-upload>
+        </div>
+        <!--Controls-->
+        <div fxLayout="row wrap" fxLayoutAlign="end center" class="pad backg3 bg margin-top-lg border-radius">
+          <div class="margin-right-lg"><a routerLink="/admin/content/browse/block"
+                                                            class="mat-raised-button button no-history">Cancel</a></div>
+          <div><button mat-raised-button color="primary" type="submit"
+                       [disabled]="!blockForm.form.valid" (click)="saveNode()">Save</button></div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

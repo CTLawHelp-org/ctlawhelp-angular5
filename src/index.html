@@ -6,14 +6,16 @@
   <base href="/">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="theme-color" content="#2e2e2e">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="viewport" content="width=device-width">
-  <link rel="icon" type="image/x-icon" href="./assets/favicon.png">
+  <link rel="icon" sizes="192x192" href="favicon_lg.png">
+  <link rel="manifest" href="manifest.json">
   <script>
     if (window.document.documentMode) {
       // IE11
     } else if (!Object.assign) {
       // polyfill other non-evergreen browsers in a blocking way
-      var corejs = "https://cdnjs.cloudflare.com/ajax/libs/core-js/2.5.3/core.min.js";
+      var corejs = "https://cdnjs.cloudflare.com/ajax/libs/core-js/2.5.7/core.min.js";
       var xhr = new XMLHttpRequest();
       xhr.addEventListener("load", function() {
         var s = document.createElement('script');

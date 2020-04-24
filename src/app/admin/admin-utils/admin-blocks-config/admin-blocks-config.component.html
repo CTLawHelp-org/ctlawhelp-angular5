@@ -1,0 +1,257 @@
+<div class="blocks-config" fxLayout="column">
+  <div *ngIf="!working" fxLayout="row" fxLayoutAlign="start center" class="pad">
+    <div>
+      <div><strong [innerHTML]="variables.currentBlocksSrc.term_export.name[0].value"></strong></div>
+      <div class="mat-caption desc">
+        <div [innerHTML]="variables.currentBlocksSrc.term_export.description[0].value"></div>
+      </div>
+    </div>
+    <div fxFlex></div>
+    <div *ngIf="!isManaged(variables.currentBlocksSrc)" class="pad margin-right-lg">
+      <mat-slide-toggle labelPosition="before" [checked]="isEnabled(variables.currentBlocksSrc)" (change)="setStatus($event)">
+        <div class="mat-caption">
+          <span *ngIf="variables.currentBlocksSrc.term_export.field_status[0].value === '1'">Enabled</span>
+          <span *ngIf="variables.currentBlocksSrc.term_export.field_status[0].value === '0'">Disabled</span>
+        </div>
+      </mat-slide-toggle>
+    </div>
+    <div class="margin-right"><button mat-raised-button class="primary button" (click)="saveChanges()">Save</button></div>
+    <div><button mat-raised-button (click)="closeConfig()">Cancel</button></div>
+  </div>
+  <div *ngIf="!working">
+    <mat-tab-group [selectedIndex]="currentIndex" (selectedTabChange)="tabChange($event)">
+      <mat-tab label="Block Settings">
+        <!--Block Setup-->
+        <div fxLayout="column" class="pad">
+          <div>
+            <form name="editing">
+              <div fxLayout="column" class="pad">
+                <div>Name</div>
+                <input [(ngModel)]="variables.currentBlocksSrc.term_export.name[0].value" name="name">
+              </div>
+              <div fxLayout="column" class="pad">
+                <div>Description</div>
+                <textarea [(ngModel)]="variables.currentBlocksSrc.term_export.description[0].value" name="desc"></textarea>
+              </div>
+              <div *ngIf="!isManaged(variables.currentBlocksSrc)" fxLayout="column" class="pad">
+                <div>Activation Settings</div>
+                <div fxLayout="row wrap" fxlayoutalign="start center">
+                  <div>
+                    <mat-form-field>
+                      <mat-select placeholder="Source" [(ngModel)]="variables.currentBlocksSrc.source" name="source">
+                        <mat-option value="node">Node Based</mat-option>
+                        <mat-option value="taxonomy">Taxonomy Based</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="padding-right"></div>
+                  <div *ngIf="variables.currentBlocksSrc.source === 'node'">
+                    <mat-form-field>
+                      <mat-select placeholder="Selection Type" [(ngModel)]="variables.currentBlocksSrc.source_type" name="source_type">
+                        <mat-option value="node">Specific Nodes</mat-option>
+                        <mat-option value="taxonomy">Use Taxonomy</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <!--Node Based-->
+                <div *ngIf="variables.currentBlocksSrc.source === 'node'">
+                  <!--Specific Node Selection-->
+                  <div *ngIf="variables.currentBlocksSrc.source_type === 'node'">
+                    <app-admin-node-picker [src]="variables.currentBlocksSrc.term_export.field_block_source" [type]="'page'"></app-admin-node-picker>
+                    <div fxLayout="row wrap" fxLayoutAlign="start start">
+                      <div fxFlex="100" fxFlex.sm="33" fxFlex.gt-md="25" class="pad"
+                           *ngFor="let entry of variables.currentBlocksSrc.term_export.field_block_source; let index = index;">
+                        <div fxLayout="row" fxLayoutAlign="start start" class="mat-elevation-z1 pad">
+                          <div fxFlex>
+                            <div [innerHTML]="entry.name"></div>
+                            <div fxLayout="row" fxLayoutAlign="start center" class="mat-caption">
+                              <div>Source NID &nbsp;</div>
+                              <div>{{entry.target_id}}</div>
+                            </div>
+                          </div>
+                          <div class="margin-left" style="cursor: pointer" fxLayout="column" fxLayoutAlign="center center"
+                               (click)="variables.currentBlocksSrc.term_export.field_block_source.splice(index, 1)">
+                            <mat-icon class="alert icon">remove_circle</mat-icon>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--Taxonomy Based-->
+                <div [fxHide]="!showTree()">
+                  <div class="tree" fxLayout="column">
+                    <div class="margin-bottom">
+                      <mat-label>Self-Help Category</mat-label>
+                    </div>
+                    <tree-root #tree [nodes]="nsmi" [options]="nsmi_options">
+                      <ng-template #treeNodeWrapperTemplate let-node let-index="index">
+                        <div fxLayout="row nowrap" fxLayoutAlign="start center">
+                          <div fxLayout="column" fxLayoutAlign="center center">
+                            <tree-node-expander [node]="node"></tree-node-expander>
+                          </div>
+                          <div fxLayout="column" fxLayoutAlign="center center">
+                            <tree-node-checkbox [node]="node"></tree-node-checkbox>
+                          </div>
+                          <div class="node-content-wrapper"
+                               [class.node-content-wrapper-active]="node.isActive"
+                               [class.node-content-wrapper-focused]="node.isFocused"
+                               (click)="node.mouseAction('click', $event)"
+                               (dblclick)="node.mouseAction('dblClick', $event)"
+                               (treeDrop)="node.onDrop($event)"
+                               [treeAllowDrop]="node.allowDrop"
+                               [treeDrag]="node"
+                               [treeDragEnabled]="node.allowDrag()"
+                               fxLayout="row" fxLayoutAlign="start center">
+                            <tree-node-content [node]="node" [index]="index"></tree-node-content>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </tree-root>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Block Content">
+        <!--Block Config-->
+        <div class="pad">
+          <div *ngFor="let setup of cur_setup; let index = index" fxLayout="row wrap" fxLayoutAlign="center start" class="backg1 bg pad">
+            <div fxFlex="100" fxLayout="row" fxLayoutAlign="start center" class="pad-sm backg2 bg">
+              <div class="margin-right padding-left"><strong>{{setup.id}}</strong></div>
+              <div><input [(ngModel)]="setup.class" style="width:120px;" placeholder="Class"></div>
+              <div class="padding-left"></div>
+              <div>
+                <button mat-icon-button [disabled]="index === (cur_setup.length - 1)" color="primary"
+                        (click)="variables.moveDownArray(index, cur_setup)">
+                  <mat-icon>expand_more</mat-icon>
+                </button>
+              </div>
+              <div>
+                <button mat-icon-button [disabled]="index === 0" color="primary" (click)="variables.moveUpArray(index, cur_setup)">
+                  <mat-icon>expand_less</mat-icon>
+                </button>
+              </div>
+              <div fxFlex></div>
+              <div>
+                <mat-slide-toggle labelPosition="before" [checked]="setup.status === '1'" (change)="setup.status = $event.checked ? '1' : '0'"
+                                  color="primary">
+                  <div class="mat-caption">
+                    <span *ngIf="setup.status === '1'">Enabled</span>
+                    <span *ngIf="setup.status !== '1'">Disabled</span>
+                  </div>
+                </mat-slide-toggle>
+              </div>
+              <div>
+                <button mat-icon-button color="warn" (click)="confirmDelete(index)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+            <div *ngFor="let config of setup.columns; let idx = index;"
+                 [fxFlex]="config.value" fxLayout="column" class="whitebg bg pad-sm">
+              <div class="pad backg2 bg border-bottom-xs" fxLayout="row wrap" fxLayoutAlign="start center">
+                <div class="margin-right">Column {{idx}}</div>
+                <div><input [(ngModel)]="config.value" style="width:60px;" type="number" min="0" max="100"></div>
+                <div class="padding-left"></div>
+                <div><input [(ngModel)]="config.class" style="width:120px;" placeholder="Class"></div>
+                <div class="padding-left"></div>
+                <div fxlayout="row" fxLayoutAlign="center center">
+                  <app-admin-node-picker [src]="config.nodes" [type]="'block'" [push]="false"
+                                         (output)="addNode(setup, config, $event)" style="display:flex"></app-admin-node-picker>
+                </div>
+              </div>
+              <div class="padding-left padding-right pad-sm margin-top">
+                <div cdkDropList (cdkDropListDropped)="variables.dropFnc($event, config.nodes)" fxLayout="column">
+                  <div cdkDrag *ngFor="let node of config.nodes; let nidx = index;"
+                       class="backg1 border whitebg bg full flex-row-center">
+                    <div cdkDragHandle class="drag-handle" fxLayout="column">
+                      <mat-icon class="primary color">drag_handle</mat-icon>
+                    </div>
+                    <div fxFlex fxLayout="column" class="pad-sm">
+                      <div fxLayout="row" fxLayoutAlign="start center">
+                        <div class="mat-caption"><strong [innerHTML]="node.name"></strong></div>
+                        <div class="mat-caption">&nbsp;-&nbsp;{{node.target_id}}</div>
+                      </div>
+                      <div fxLayout="row wrap" fxLayoutAlign="start center">
+                        <input style="width:120px;" [(ngModel)]="node.class" placeholder="Class">
+                        <div class="padding-left"></div>
+                        <input style="width:50px;" [(ngModel)]="node.flex" type="number" min="0" max="100" placeholder="Flex">
+                        <div class="padding-left"></div>
+                        <select [(ngModel)]="node.display" style="width:60px;">
+                          <option value="all">All</option>
+                          <option value="desktop">Desktop Only</option>
+                          <option value="mobile">Mobile Only</option>
+                        </select>
+                        <div class="padding-left"></div>
+                        <div fxLayout="row wrap" fxLayoutAlign="start center">
+                          <mat-icon [fxHide]="nidx === (config.nodes.length - 1)" style="cursor:pointer" class="primary color"
+                                    (click)="variables.moveDownArray(nidx, config.nodes)">expand_more</mat-icon>
+                          <mat-icon [fxShow]="nidx === (config.nodes.length - 1)" class="backg1 icon">expand_more</mat-icon>
+                          <mat-icon [fxHide]="nidx === 0" style="cursor:pointer" class="primary color"
+                                    (click)="variables.moveUpArray(nidx, config.nodes)">expand_less</mat-icon>
+                          <mat-icon [fxShow]="nidx === 0" class="backg1 icon">expand_less</mat-icon>
+                          <mat-icon style="cursor:pointer" class="alert color"
+                                    (click)="variables.removeArray(nidx, config.nodes)">close</mat-icon>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="margin-top-lg" fxLayout="row wrap" fxLayoutAlign="start center">
+            <div class="padding-right">New</div>
+            <div><input style="width:100px;" [(ngModel)]="new_config['id']" placeholder="ID Name"></div>
+            <div class="padding-left padding-right">with</div>
+            <div><input style="width:50px;" [(ngModel)]="new_config['columns']" type="number" min="1"></div>
+            <div class="padding-left">Columns</div>
+            <div class="padding-left"></div>
+            <div>
+              <button mat-icon-button mat-raised-button color="primary" [disabled]="new_config['id'] === ''" (click)="addNewConfig()">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Preview">
+        <ng-template matTabContent>
+          <div *ngIf="cur_setup.length > 0">
+            <div [fxHide]="setup.status === '0'" *ngFor="let setup of cur_setup" fxLayout="row wrap"
+                 fxLayoutAlign="center stretch" class="{{setup['class']}}">
+              <div *ngFor="let config of setup.columns"
+                   fxLayout="row wrap" fxLayoutAlign="start start"
+                   fxFlex="100" [fxFlex.gt-xs]="config.value" class="{{config['class']}}">
+                <div [fxHide.xs]="node.desktop" [fxHide.gt-xs]="node.mobile"
+                     *ngFor="let node of config.nodes" fxFlex="100" [fxFlex.gt-xs]="node.value[0]['flex']">
+                  <!--Standard Blocks-->
+                  <div class="{{node.value[0]['class']}}">
+                    <app-block [nid]="node.target_id"></app-block>
+                  </div>
+                  <!--Node Top-->
+                  <div *ngIf="node.value[0]['msrc'] === 'top'" class="pad">
+                    <div class="backg bg white-text pad">Node Top</div>
+                  </div>
+                  <!--Self-Help Title-->
+                  <div *ngIf="node.value[0]['msrc'] === 'title' || node.value[0]['msrc'] === 'self-help-top'" class="pad">
+                    <div class="backg bg white-text pad">Title Area</div>
+                  </div>
+                  <!--Content-->
+                  <div *ngIf="node.value[0]['msrc'] === 'content' || node.value[0]['msrc'] === 'self-help-content'
+                    || node.value[0]['msrc'] === 'search-results'" class="pad">
+                    <div class="backg bg white-text pad">Content Area</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

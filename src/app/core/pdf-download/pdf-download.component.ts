@@ -1,8 +1,8 @@
-import { Component, Inject, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { VariableService } from '../../services/variable.service';
 import { ApiService } from '../../services/api.service';
-import { DomSanitizer } from '@angular/platform-browser';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatIconRegistry } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatIconRegistry } from '@angular/material/icon';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { Angulartics2 } from 'angulartics2';
 import { environment } from '../../../environments/environment';
@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment';
   selector: 'app-pdf-download',
   templateUrl: './pdf-download.component.html',
   styleUrls: ['./pdf-download.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None
 })
 export class PdfDownloadComponent implements OnInit {
@@ -84,6 +85,7 @@ export class PdfDownloadComponent implements OnInit {
 @Component({
   selector: 'app-pdf-download-dialog',
   templateUrl: './pdf-download.dialog.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PdfDownloadDialogComponent {
   public node = [];
@@ -96,6 +98,7 @@ export class PdfDownloadDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private variableService: VariableService,
     private apiService: ApiService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.variables = this.variableService;
     this.node = data.node;
@@ -103,6 +106,7 @@ export class PdfDownloadDialogComponent {
       this.apiService.genPDF(this.node[0].nid, this.node[0].node_export.changed[0].value, this.variableService.lang).subscribe(results => {
         this.link = results;
         this.working = false;
+        this.cdr.detectChanges();
       });
     }
   }

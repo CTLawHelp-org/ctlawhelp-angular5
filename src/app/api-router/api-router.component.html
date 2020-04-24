@@ -2,57 +2,29 @@
   <div *ngIf="working">
     <app-loader></app-loader>
   </div>
-  <div fxLayout="column">
-    <div fxLayout="row wrap">
-      <!-- Left Block System -->
-      <div *ngIf="node.length > 0 && hasBlocks && blocks['left'].length > 0" class="api-sidebar left side-pad-r"
-           fxFlex="100" fxFlex.gt-sm="30" fxFlexOrder="2" fxFlexOrder.gt-sm="1">
-        <div *ngFor="let item of blocks['left']">
-          <app-block [nid]="item"></app-block>
-        </div>
-      </div>
-      <!-- Content -->
-      <div *ngIf="node.length > 0" class="content"
-           fxFlex="100" fxFlex.gt-sm fxFlexOrder="1" fxFlexOrder.gt-sm="2" fxLayout="column">
-        <app-node-top [curNode]="node" class="content-pad-r"></app-node-top>
-        <!--Content Top Block System (Advocates)-->
-        <div *ngIf="node.length > 0 && hasBlocks && blocks['content_top'].length > 0 && node[0].node_export.nid[0].value === '820'"
-             fxLayout="row wrap" fxLayoutAlign="center center" class="margin-top">
-          <div fxFlex="100" fxFlex.gt-sm="49" *ngFor="let item of blocks['content_top']; let idx = index">
-            <app-block [nid]="item"></app-block>
+  <div *ngIf="!working" fxLayout="column">
+    <div *ngIf="block_setup.length > 0">
+      <div [fxHide]="setup.status === '0'" *ngFor="let setup of block_setup">
+        <div fxLayout="row wrap" fxLayoutAlign="center stretch" class="{{setup['class']}}">
+          <div *ngFor="let config of setup.columns" fxLayout="row wrap" fxLayoutAlign="start start"
+               fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="config.value" class="{{config['class']}}">
+            <div [fxHide.xs]="item.desktop" [fxHide.sm]="item.desktop" [fxHide.gt-sm]="item.mobile"
+                 *ngFor="let item of config.nodes" fxFlex.xs="100" fxFlex.sm="100" [fxFlex]="item.value[0]['flex']">
+              <!--Standard Blocks-->
+              <div *ngIf="item.value[0]['msrc'] !== 'top' && item.value[0]['msrc'] !== 'content'"
+                   class="{{item.value[0]['class']}}">
+                <app-block [nid]="item.target_id"></app-block>
+              </div>
+              <!--Node Top-->
+              <div *ngIf="item.value[0]['msrc'] === 'top'" class="{{item.value[0]['class']}}">
+                <app-node-top [curNode]="node"></app-node-top>
+              </div>
+              <!--Node Content-->
+              <div *ngIf="item.value[0]['msrc'] === 'content'" class="{{item.value[0]['class']}}">
+                <app-node [curNode]="node"></app-node>
+              </div>
+            </div>
           </div>
-        </div>
-        <!--Content Top Block System-->
-        <div *ngIf="node.length > 0 && hasBlocks && blocks['content_top'].length > 0 && node[0].node_export.nid[0].value !== '820'">
-          <div *ngFor="let item of blocks['content_top']">
-            <app-block [nid]="item"></app-block>
-          </div>
-        </div>
-        <app-node [curNode]="node" class="content-pad-r"></app-node>
-        <!--Content Bottom Block System-->
-        <div *ngIf="node.length > 0 && hasBlocks && blocks['content_bottom'].length > 0 && node[0].node_export.field_type[0].target_id !== '6'"
-             class="border-top hide-print content-pad-r">
-          <div *ngFor="let item of blocks['content_bottom']">
-            <app-block [nid]="item"></app-block>
-          </div>
-        </div>
-        <!--Guide Content Bottom (Right sidebar blocks)-->
-        <div *ngIf="node[0].node_export.field_type.length > 0 && node[0].node_export.field_type[0].target_id === '6'"
-             class="border-top-lg backg1 bg hide-print pad-r" fxLayout="row wrap" fxLayoutAlign="space-between stretch">
-          <app-block fxFlex="100" fxFlex.gt-sm="32" [nid]="'771'"
-                     ngClass.gt-sm="mat-elevation-z2 whitebg bg border-radius pad"></app-block>
-          <app-block fxFlex="100" fxFlex.gt-sm="32" [nid]="'86'"
-                     ngClass.gt-sm="mat-elevation-z2 whitebg bg border-radius pad"></app-block>
-          <app-block fxFlex="100" fxFlex.gt-sm="32" [nid]="'815'"
-                     ngClass.gt-sm="mat-elevation-z2 whitebg bg border-radius pad"></app-block>
-        </div>
-      </div>
-      <!--Right Block System-->
-      <div *ngIf="node.length > 0 && hasBlocks && blocks['right'].length > 0 && node[0].node_export.field_type.length > 0
-      && node[0].node_export.field_type[0].target_id !== '6'"
-           fxFlex="100" fxFlex.gt-sm="30" fxFlexOrder="3" fxFlexOrder.gt-sm="3" class="api-sidebar right side-pad-r">
-        <div *ngFor="let item of blocks['right']">
-          <app-block [nid]="item"></app-block>
         </div>
       </div>
     </div>
