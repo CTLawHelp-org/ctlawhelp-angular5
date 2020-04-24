@@ -1,8 +1,8 @@
-# CTLawHelp.org Angular 5 Frontend V1
+# CTLawHelp.org Angular NGX Frontend V1
 
 Designed to be paired with a [Drupal](https://drupal.org) 8 backend using REST API.
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.5.0.
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.
 
 ## Project Credits
 
