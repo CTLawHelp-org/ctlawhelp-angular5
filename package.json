@@ -52,7 +52,7 @@
     "ioredis": "^4.14.1",
     "preboot": "^7.0.0",
     "rxjs": "^6.5.4",
-    "swiper": "^4.5.1",
+    "swiper": "^6.5.1",
     "tslib": "^1.10.0",
     "web-animations-js": "github:angular/web-animations-js#release_pr208",
     "whatwg-fetch": "^2.0.4",
